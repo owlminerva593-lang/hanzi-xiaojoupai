@@ -1939,12 +1939,21 @@ const PRAISE=["真棒！","太厉害了！","很好！"];
 const ENCOURAGE=["答错了，再想想！","别灰心，再来一次！"];
 
 /* ================= 词语发音 ================= */
+let voicesReady=false;
+try{ voicesReady=("speechSynthesis" in window) && speechSynthesis.getVoices().length>0; }catch(e){}
+if("speechSynthesis" in window){
+  try{ speechSynthesis.addEventListener("voiceschanged",()=>{ voicesReady=speechSynthesis.getVoices().length>0; }); }catch(e){}
+}
 function speak(text){
   try{
     if(S.muted || !("speechSynthesis" in window)) return;
-    const u=new SpeechSynthesisUtterance(text);
-    u.lang="zh-CN"; u.rate=.8; u.pitch=1.05;
-    window.speechSynthesis.speak(u);
+    const say=()=>{
+      const u=new SpeechSynthesisUtterance(text);
+      u.lang="zh-CN"; u.rate=.8; u.pitch=1.05;
+      speechSynthesis.speak(u);
+    };
+    if(!voicesReady){ say(); setTimeout(say,350); }   /* 语音列表未就绪时补一次 */
+    else say();
   }catch(e){}
 }
 
@@ -1980,7 +1989,28 @@ const game=$("game"), enemyEl=$("enemy"), puzzle=$("puzzle"), hint=$("hint"),
 
 /* ================= 音效 ================= */
 let AC=null;
-function ac(){ if(!AC){ try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){} } if(AC&&AC.state==="suspended")AC.resume(); return AC; }
+function ac(){ if(!AC){ try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){} } if(AC&&AC.state==="suspended")AC.resume().catch(()=>{}); return AC; }
+/* 移动端音频解锁：iOS/Android 要求在「用户手势」中创建+恢复 AudioContext，
+   并播放一个静音片段，才能真正出声。这里把任意首次触摸/点击都当作解锁时机。 */
+function audioRunning(){ return !!(AC && AC.state==="running"); }
+function unlockAudio(){
+  const a=ac(); if(!a) return;
+  if(a.state==="suspended") a.resume().catch(()=>{});
+  try{                                   /* 静音缓冲：部分机型需要这一步才解锁 */
+    const buf=a.createBuffer(1,1,22050), src=a.createBufferSource();
+    buf.getChannelData(0)[0]=0; src.buffer=buf; src.connect(a.destination); src.start(0);
+  }catch(e){}
+  try{ if("speechSynthesis" in window) speechSynthesis.resume(); }catch(e){}
+  if(!audioRunning() && !audioHinted){
+    audioHinted=true;
+    try{ floater("🔇 如没声音：点顶部「声音」按钮开启", center(game).x, 40, "#ffd93d"); }catch(e){}
+  }
+}
+let audioHinted=false;
+["pointerdown","touchstart","click","keydown"].forEach(ev=>
+  addEventListener(ev, ()=>{ if(!audioRunning()) unlockAudio(); }, {capture:true, passive:true}));
+addEventListener("focus",()=>{ if(!audioRunning()) unlockAudio(); });
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden && !audioRunning()) unlockAudio(); });
 function tone(f,d,type,vol,when){
   if(S.muted) return; const a=ac(); if(!a) return;
   const t=a.currentTime+(when||0), o=a.createOscillator(), g=a.createGain();
@@ -2054,6 +2084,8 @@ function bgmTone(f,at,dur,type,vol){
 }
 function bgmSchedule(){
   if(!AC || !bgm.mode || S.muted) return;
+  /* 音频被浏览器挂起后 currentTime 不走，解锁回来时不要把积压的音符一次性全放出来 */
+  if(AC.currentTime-bgm.nextT>0.4) bgm.nextT=AC.currentTime+0.05;
   const pat=MUSIC[bgm.mode], stepDur=60/pat.bpm/2;
   while(bgm.nextT < AC.currentTime+0.22){
     const i=bgm.step % pat.lead.length;
@@ -2833,7 +2865,10 @@ function renderStats(){
   }
   $("st-money").textContent=S.money;
   $("st-acc").textContent=accPct()+"%";
-  $("st-mute").textContent=S.muted?"静音":"声音";
+  const au=$("st-mute");
+  au.textContent=S.muted?"🔇 静音":"🔊 声音";
+  au.title=S.muted?"点击开启音效与音乐":"点击静音";
+  au.style.opacity=S.muted?".65":"1";
 }
 function renderSide(){
   bumpVal("side-plays", S.battlePlays);
@@ -3870,13 +3905,13 @@ function renderIntro(){
 renderIntro();
 
 /* ================= 事件 ================= */
-$("btn-start").addEventListener("click",()=>{ ac(); try{ localStorage.setItem("hz_timer", $("opt-timer").checked?"1":"0"); }catch(e){} startRun(); });
+$("btn-start").addEventListener("click",()=>{ unlockAudio(); try{ localStorage.setItem("hz_timer", $("opt-timer").checked?"1":"0"); }catch(e){} startRun(); });
 $("btn-board").addEventListener("click",()=>{ renderBoard(); $("modal-over").classList.remove("hidden"); $("modal-start").classList.add("hidden"); });
 $("btn-play").addEventListener("click",playSelected);
-$("btn-hint").addEventListener("click",()=>{ ac(); useHint(); });
+$("btn-hint").addEventListener("click",()=>{ unlockAudio(); useHint(); });
 $("btn-discard").addEventListener("click",discardSelected);
 $("btn-select-all").addEventListener("click",selectAll);
-$("btn-gauntlet").addEventListener("click",()=>{ ac(); startGauntlet(); });
+$("btn-gauntlet").addEventListener("click",()=>{ unlockAudio(); startGauntlet(); });
 $("btn-shop-next").addEventListener("click",()=>{ $("shop-panel").classList.add("hidden"); nextEnemy(); refillHand().then(()=>{ S.busy=false; layoutHand(); renderButtons(); }); });
 $("btn-save").addEventListener("click",()=>{
   const n=$("name-input").value.trim(); localStorage.setItem("hz_name",n);
@@ -3888,10 +3923,12 @@ $("btn-save").addEventListener("click",()=>{
 $("btn-again").addEventListener("click",startRun);
 $("btn-home").addEventListener("click",()=>{ overlay.classList.remove("hidden"); $("modal-over").classList.add("hidden"); $("modal-start").classList.remove("hidden"); });
 $("st-mute").addEventListener("click",()=>{
+  unlockAudio();
   S.muted=!S.muted;
   if(S.muted){ stopBGM(); try{ if("speechSynthesis" in window) window.speechSynthesis.cancel(); }catch(e){} }
-  else if(S.running && S.enemy){ ensureBGM(); }
+  else { if(S.running && S.enemy) ensureBGM(); sfxItem(); }
   renderStats();
+  if(!S.muted && !audioRunning()) setFeedback("","🔇 浏览器仍在阻止声音","再点一次「声音」按钮，或用手机音量键确认未静音");
 });
 initHearts();
 renderButtons();
