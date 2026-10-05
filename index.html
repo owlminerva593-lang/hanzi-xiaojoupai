@@ -127,6 +127,13 @@
     border-radius:8px; padding:4px 9px; font-family:var(--font-px); font-size:14px; color:#3d1a4d;}
   .stat b{color:#d6336c;}
   .stat.combo{background:#8cffd2;} .stat.combo b{color:#0d9463;}
+  /* 倒计时：最后 10 秒闪烁告警（顶栏「倒计时」徽章） */
+  #time-chip.warn{background:#ffe0e6; border-color:#d6336c; color:#d6336c; animation:warnpulse .5s infinite alternate;}
+  #time-chip.warn b{color:#d6336c; font-size:20px;}
+  @keyframes warnpulse{
+    from{box-shadow:2px 2px 0 #3b1550, 0 0 0 rgba(214,51,108,0);}
+    to{box-shadow:2px 2px 0 #3b1550, 0 0 14px 4px rgba(214,51,108,.85); transform:scale(1.06);}
+  }
 
   #enemy{position:relative; background:linear-gradient(180deg,#ff9ecb,#f56ab0);
     border:3px solid #3b1550; box-shadow:var(--shadow), inset 0 4px 0 rgba(255,255,255,.35); border-radius:16px; padding:10px; margin-bottom:8px;}
@@ -720,6 +727,19 @@
     /* 弹窗在短屏上也要能滚 */
     .modal{max-height:calc(100vh - 16px); padding:10px 12px;}
     .modal h1{font-size:15px;} .modal .sub{font-size:10px;}
+    /* 开始界面压缩：开关与按钮排到介绍之前，保证横屏一屏内可点（介绍可下滑阅读） */
+    #modal-start{display:flex; flex-direction:column;}
+    #modal-start h1{order:0;} #modal-start .sub{order:1;}
+    #modal-start .opt-row{order:2;} #modal-start #btn-start{order:3;} #modal-start #btn-board{order:4;}
+    #modal-start .intro-guide{order:5; margin:6px 0 0;}
+    .intro-guide{padding:5px 6px; margin-bottom:6px; border-width:2px;}
+    .intro-title{font-size:11px; margin-bottom:2px;}
+    .intro-row{padding:3px 0; gap:8px;}
+    .intro-txt .zh{font-size:11px; line-height:1.3; margin-bottom:1px;}
+    .intro-txt .en{font-size:9.5px; line-height:1.25;}
+    .intro-art svg{width:40px !important; height:auto !important;}
+    .opt-row{margin:4px 0;} .opt-tip{display:none;}
+    .bigbtn{margin:3px 0; padding:6px 0; font-size:14px;}
     .intro-txt .zh{font-size:12px;} .intro-txt .en{font-size:10px;}
     .intro-art svg{width:52px !important; height:auto !important;}
     .shop-card .sc-nm{font-size:15px;} .shop-card .sc-ds{font-size:11px;} .shop-card .sc-en{font-size:9.5px;}
@@ -3773,12 +3793,13 @@ function addCardToHand(){
   S.hand.push(card);
   handEl.appendChild(buildCardEl(card));
 }
+function ownsItem(k){ return S.items.indexOf(k)>=0 || (ITEMS[k] && ITEMS[k].kind==="instant" && S.instantBought.has(k)); }
 function shopPool(){
   const pool=[];
   for(const k in ITEMS){
     const it=ITEMS[k];
-    if(it.kind==="instant"){ if(!S.instantBought.has(k)) pool.push(k); continue; }
-    /* passive/toggle/use 可重复购买：效果按件数叠加 */
+    /* 每个道具仅可购买一次：已拥有的一次性道具与被动道具都不再出现在货架 */
+    if(ownsItem(k)) continue;
     pool.push(k);
   }
   return pool;
@@ -3787,11 +3808,13 @@ function rollShop(){
   S.shopStock = shuffle(shopPool()).slice(0,5);
 }
 function shopDisabled(key){
+  if(ownsItem(key)) return true;                 /* 已拥有则不可再买 */
   if(key==="renshen" && S.hp>=S.maxHp) return true;
   return S.money < buyPrice(key);
 }
 function buyItem(key){
   const it=ITEMS[key];
+  if(ownsItem(key)){ setFeedback("","已经拥有「"+it.name+"」","每种道具只能购买一次"); return; }
   if(shopDisabled(key)) return;
   const price=buyPrice(key);
   S.money -= price;
@@ -3865,13 +3888,14 @@ function renderShop(){
     const price=buyPrice(key);
     const disabled=shopDisabled(key);
     const owned=ownedCount(key);
-    const ownTag = owned>0 ? ' <span style="font-family:var(--font-px);font-size:9px;color:#fff;background:#c2447e;border-radius:6px;padding:1px 5px;">已有×'+owned+'</span>' : '';
+    /* 每个道具仅可购买一次：已拥有的显示「已拥有」且按钮禁用 */
+    const ownTag = ownsItem(key) ? ' <span style="font-family:var(--font-px);font-size:9px;color:#fff;background:#1e8a5e;border-radius:6px;padding:1px 5px;">已拥有</span>' : '';
     card.innerHTML='<div class="sc-art">'+itemArtSVG(key,64)+'</div>'+
       '<div class="sc-nm">'+it.name+ownTag+'</div>'+
       '<div class="sc-py">'+it.p+'</div>'+
-      '<div class="sc-ds">'+it.desc+(owned>0?'（可叠加）':'')+'</div>'+
+      '<div class="sc-ds">'+it.desc+'</div>'+
       '<div class="sc-en">'+(ITEM_EN[key]||'')+'</div>'+
-      '<div class="sc-foot"><span class="sc-price">'+price+' 币</span><button data-buy="'+key+'" '+(disabled?'disabled':'')+'>购买</button></div>';
+      '<div class="sc-foot"><span class="sc-price">'+(ownsItem(key)?'—':price+' 币')+'</span><button data-buy="'+key+'" '+(disabled?'disabled':'')+'>'+(ownsItem(key)?'已拥有':'购买')+'</button></div>';
     wrap.appendChild(card);
   });
   wrap.querySelectorAll('button[data-buy]').forEach(b=>{
