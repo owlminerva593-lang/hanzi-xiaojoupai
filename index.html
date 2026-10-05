@@ -2,7 +2,8 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <title>汉字小丑牌 · Chinese Character Balatro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -44,7 +45,9 @@
     background:repeating-linear-gradient(0deg, rgba(59,21,80,.06) 0 1px, transparent 1px 3px);
     mix-blend-mode:multiply;
   }
-  #stage{position:relative; width:100%; max-width:1280px; padding:8px; transform-origin:center center;}
+  /* flex:0 0 auto 很关键：stage 是 body 的 flex 项，默认会被压缩回容器宽度，
+     导致 JS 设置的加宽宽度失效（左右空白补不上） */
+  #stage{position:relative; flex:0 0 auto; width:100%; max-width:1280px; padding:8px; transform-origin:center center;}
   #layout{display:flex; align-items:stretch; gap:10px;}
 
   /* 左栏：上=本场出牌次数 / 中=弃牌次数 / 下=闯关层数（三等分，各占 1 份） */
@@ -2396,8 +2399,19 @@ function bumpVal(id,txt){
 function fitStage(){
   const st=document.getElementById("stage"); if(!st) return;
   st.style.transform="none";
-  const r=st.getBoundingClientRect();
-  const s=Math.min(1, innerWidth/r.width, innerHeight/r.height);
+  const vw=window.innerWidth, vh=window.innerHeight;
+  if(st.style.width) st.style.width="";          /* 先回到自然宽度量一次 */
+  let r=st.getBoundingClientRect();
+  let s=Math.min(1, vw/r.width, vh/r.height);
+  /* 高度是瓶颈时，把设计宽度横向撑到 vw/s：缩放后正好铺满整屏宽度，左右不再留白。
+     撑宽后内容折行更少 → 高度还会再降一点，所以迭代几次让宽高比收敛。 */
+  for(let i=0;i<4 && s<1;i++){
+    const w2=Math.ceil(vw/s)+2;
+    if(w2<=r.width+1) break;
+    st.style.width=w2+"px";
+    r=st.getBoundingClientRect();
+    s=Math.min(1, vw/r.width, vh/r.height);
+  }
   st.style.transform = s<1 ? "scale("+s.toFixed(4)+")" : "none";
 }
 function onViewportChange(){
@@ -2408,10 +2422,21 @@ function onViewportChange(){
 }
 addEventListener("resize",onViewportChange);
 addEventListener("orientationchange",()=>setTimeout(onViewportChange,120));
+if(window.visualViewport) visualViewport.addEventListener("resize",onViewportChange);
 if(PHONE_LANDSCAPE && PHONE_LANDSCAPE.addEventListener) PHONE_LANDSCAPE.addEventListener("change",onViewportChange);
-/* 布局尺寸变化（如全员挑战怪物换行）时重新适配 */
+/* 布局尺寸变化（如全员挑战怪物换行、商店开关）时重新适配。
+   1) 只在高度变化超过阈值时才重算，避免文字换行等小抖动导致整局反复重排；
+   2) fitStage 自身会微调 stage 宽度，因此加防抖，杜绝与 ResizeObserver 互相触发。 */
 if(window.ResizeObserver){
-  new ResizeObserver(()=>fitStage()).observe(document.getElementById("stage"));
+  const stageEl=document.getElementById("stage");
+  let lastH=0, timer=null;
+  new ResizeObserver(()=>{
+    const h=stageEl.offsetHeight;
+    if(Math.abs(h-lastH)<20) return;
+    lastH=h;
+    clearTimeout(timer);
+    timer=setTimeout(fitStage,120);
+  }).observe(stageEl);
 }
 fitStage();
 
