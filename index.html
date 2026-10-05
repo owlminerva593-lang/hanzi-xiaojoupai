@@ -285,7 +285,11 @@
   .shop-sub{font-family:var(--font-px); font-size:13px; color:#ffe9c9; margin-left:auto;}
   #shop-refresh{display:flex; align-items:center; gap:6px;}
   #shop-refresh button{flex:0 0 auto; padding:6px 12px; font-size:12px; background:linear-gradient(180deg,#ffe066,#ffc21f);}
-  .shop-shelf{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; flex:1; min-height:0; align-items:stretch;}
+  /* 商店道具货架：内容超高时可滚动，避免底部「继续战斗」按钮压住购买按钮 */
+  .shop-shelf{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; flex:1; min-height:0; align-items:stretch;
+    overflow-y:auto; overflow-x:hidden; padding-bottom:4px;}
+  .shop-shelf::-webkit-scrollbar{width:6px;}
+  .shop-shelf::-webkit-scrollbar-thumb{background:#b385ff; border-radius:3px;}
   .shop-card{background:#fff8ec; color:#3d1a4d; border:3px solid #3b1550; border-radius:16px; box-shadow:3px 3px 0 #3b1550;
     padding:12px 10px 10px; display:flex; flex-direction:column; align-items:center; gap:7px; text-align:center; position:relative;}
   .shop-card .sc-art{height:66px; display:flex; align-items:center; justify-content:center;}
@@ -450,7 +454,8 @@
   .intro-txt .zh{color:#fff; font-size:13px; font-weight:700; line-height:1.45; margin:0 0 3px;}
   .intro-txt .en{color:#b6fff0; font-size:11px; line-height:1.4; margin:0; font-style:italic;}
   .bigbtn{display:block; width:100%; margin:5px 0; font-size:15px; padding:8px 0;}
-  #btn-shop-next{position:sticky; bottom:0; z-index:6; font-size:18px; outline:3px solid #ffd93d; box-shadow:0 -6px 16px rgba(59,21,80,.5);}
+  /* 全局 button{flex:1} 在商店纵向面板里会把「继续战斗」拉得巨大，必须固定高度 */
+  #btn-shop-next{position:sticky; bottom:0; z-index:6; flex:0 0 auto; font-size:18px; outline:3px solid #ffd93d; box-shadow:0 -6px 16px rgba(59,21,80,.5);}
   #btn-shop-next.pulse{animation:btnpulse .5s ease;}
   @keyframes btnpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
   .row{display:flex; gap:8px; align-items:center; margin:6px 0;}
@@ -651,54 +656,57 @@
      这里把纵向节奏整体压缩、把设计稿高度降到 ~570px，
      缩放比从 0.47 提升到 ~0.65，同时把手牌/按钮放大，保证手指能点。 */
   @media (orientation:landscape) and (max-height:600px){
-    #stage{max-width:1160px; padding:6px;}
+    /* 舞台宽度跟随屏幕：高度缩放后正好铺满整屏，不再留出左右空白 */
+    #stage{max-width:none; width:100%; padding:6px;}
+    #side{flex:0 0 116px; gap:6px;}
+    #chest{flex:0 0 116px; gap:4px;}
     #layout{gap:8px;}
-    .sstat{border-width:2px; border-radius:10px; padding:4px 2px; gap:2px;}
+    .sstat{border-width:2px; border-radius:10px; padding:3px 2px; gap:1px;}
     .sstat .k{font-size:11px;}
-    .sstat .v{font-size:22px;}
-    #side{gap:6px;}
-    #game{padding:6px; gap:4px; border-radius:12px;}
-    #top-zone{gap:3px;}
-    #bottom-zone{gap:3px; padding-top:3px; border-top-width:2px;}
-    header{margin-bottom:3px; gap:4px;}
-    .logo{font-size:12px;} .logo small{display:none;}
-    .stat{font-size:10px; padding:2px 5px; border-width:2px;}
+    .sstat .v{font-size:21px;}
+    #game{padding:5px; gap:3px; border-radius:12px;}
+    #top-zone{gap:2px;}
+    #bottom-zone{gap:2px; padding-top:2px; border-top-width:2px;}
+    header{margin-bottom:2px; gap:4px;}
+    .logo{font-size:11px;} .logo small{display:none;}
+    .stat{font-size:10px; padding:1px 5px; border-width:2px;}
     .stat b{font-size:12px;}
-    .stat.money{font-size:11px; padding:3px 8px;}
+    .stat.money{font-size:11px; padding:2px 8px;}
     .stat.money b{font-size:14px;}
-    #enemy{border-radius:10px; padding:5px 6px;}
-    .enemy-top{margin-bottom:3px; gap:4px;}
+    #enemy{border-radius:10px; padding:4px 5px;}
+    .enemy-top{margin-bottom:2px; gap:4px;}
     .enemy-tag,.level-tag{font-size:11px; padding:1px 6px;}
-    #lucky-num{flex:0 0 38px; width:38px; height:38px; font-size:19px; border-width:2px;}
-    #lucky-dice{flex:0 0 36px; width:36px; height:36px; border-radius:8px;}
-    #lucky-dice .pip{width:7px; height:7px;}
-    .monster{min-height:50px; margin:1px 0 2px;}
-    .monster svg{width:50px; height:50px;}
-    .puzzle{gap:6px; margin:2px 0 3px;}
-    .slot{min-width:42px; height:42px; font-size:27px; border-width:2px; border-radius:9px; box-shadow:2px 2px 0 #3b1550;}
-    .hint-line{font-size:15px; margin:0; gap:2px 6px;}
-    .hint-line .en,.hint-line .py,.hint-line .trait-tag{font-size:12px;}
-    .hint-line .en-hint{font-size:13px; padding:1px 6px; border-width:2px;}
-    .hint-line .theme-tag{font-size:11px; padding:0 5px;}
-    .hint-line .rw{font-size:16px;} .hint-line .rw i{font-size:11px;} .hint-line .rw em{font-size:11px; padding:0 4px;}
-    .hpbar{height:11px; margin-top:4px; border-width:2px;}
-    .hp-nums{font-size:11px; margin-top:2px;}
-    #feedback{min-height:24px; font-size:13px; padding:2px 6px; border-width:2px; border-radius:8px; margin-bottom:2px;}
-    #feedback .big{font-size:16px;}
-    #player{gap:6px; margin-bottom:0;}
-    .hearts{font-size:13px; gap:2px;}
-    .meta{font-size:11px; line-height:1.3;}
+    #lucky-num{flex:0 0 28px; width:28px; height:28px; font-size:16px; border-width:2px;}
+    #lucky-dice{flex:0 0 27px; width:27px; height:27px; border-radius:6px;}
+    #lucky-dice .pip{width:5px; height:5px;}
+    .monster{min-height:36px; margin:0;}
+    .monster svg{width:36px; height:36px;}
+    .puzzle{gap:6px; margin:2px 0;}
+    .slot{min-width:32px; height:32px; font-size:21px; border-width:2px; border-radius:8px; box-shadow:2px 2px 0 #3b1550;}
+    /* 英文释义在手机上单行显示（超出省略），避免把布局撑高、两侧留白 */
+    .hint-line{font-size:13px; margin:0; gap:2px 5px; flex-wrap:nowrap; white-space:nowrap; overflow:hidden;}
+    .hint-line .en,.hint-line .py,.hint-line .trait-tag{font-size:11px;}
+    .hint-line .en-hint{font-size:12px; padding:1px 5px; border-width:2px;}
+    .hint-line .theme-tag{font-size:10px; padding:0 4px;}
+    .hint-line .rw{font-size:14px;} .hint-line .rw i{font-size:10px;} .hint-line .rw em{font-size:10px; padding:0 3px;}
+    .hpbar{height:9px; margin-top:3px; border-width:2px;}
+    .hp-nums{font-size:10px; margin-top:1px;}
+    #feedback{min-height:20px; font-size:12px; padding:1px 5px; border-width:2px; border-radius:8px; margin-bottom:0;}
+    #feedback .big{font-size:14px;}
+    #player{gap:5px; margin-bottom:0;}
+    .hearts{font-size:12px; gap:2px;}
+    .meta{font-size:10px; line-height:1.25;}
     #hand-zone{margin-bottom:0;}
-    #hand-title{margin-bottom:1px; font-size:11px;}
-    .hl{font-size:12px;}
-    #deck{width:26px; height:34px;}
-    #deck .dcard{border-width:2px; border-radius:5px; box-shadow:1px 1px 0 #3b1550; font-size:7px;}
-    #hand{height:112px; min-height:112px;}
-    .card{width:78px; height:108px; top:2px; border-width:3px; border-radius:14px;}
-    .card .ch{font-size:48px;}
-    .card::after{inset:4px; border-width:2px; border-radius:10px;}
-    #actions{gap:6px; margin-top:3px;}
-    #actions button{flex:1; font-size:16px; padding:12px 4px; border-radius:10px;}
+    #hand-title{margin-bottom:1px; font-size:10px;}
+    .hl{font-size:11px;}
+    #deck{width:22px; height:26px;}
+    #deck .dcard{border-width:2px; border-radius:4px; box-shadow:1px 1px 0 #3b1550; font-size:6px;}
+    #hand{height:92px; min-height:92px;}
+    .card{width:66px; height:88px; top:2px; border-width:3px; border-radius:12px;}
+    .card .ch{font-size:40px;}
+    .card::after{inset:4px; border-width:2px; border-radius:9px;}
+    #actions{gap:5px; margin-top:2px;}
+    #actions button{flex:1; font-size:15px; padding:6px 4px; border-radius:9px;}
     #btn-gauntlet{flex:1.3;}
     #chest{gap:4px;}
     .chest-lid{padding:4px 3px 8px; font-size:10px; border-width:2px;}
@@ -715,8 +723,29 @@
     .intro-txt .zh{font-size:12px;} .intro-txt .en{font-size:10px;}
     .intro-art svg{width:52px !important; height:auto !important;}
     .shop-card .sc-nm{font-size:15px;} .shop-card .sc-ds{font-size:11px;} .shop-card .sc-en{font-size:9.5px;}
-    .shop-card .sc-art{height:44px;} .shop-card .sc-art svg{width:42px; height:42px;}
-    .shop-title{font-size:17px;} #btn-shop-next{font-size:15px; padding:8px 0;}
+    .shop-card{padding:7px 6px 6px; gap:4px; border-width:2px; border-radius:12px;}
+    .shop-card .sc-art{height:40px;} .shop-card .sc-art svg{width:38px; height:38px;}
+    .shop-card button{padding:5px 10px; font-size:12px;}
+    .shop-card .sc-price{font-size:12px;}
+    .shop-shelf{gap:8px; grid-template-columns:repeat(auto-fit,minmax(128px,1fr)); padding-bottom:2px; min-height:128px;}
+    .shop-head{gap:6px;} .shop-title{font-size:15px;} .shop-sub{font-size:11px;}
+    .shop-sell-wrap{max-height:92px; overflow-y:auto;}
+    .shop-row{padding:4px 6px;} .shop-row .nm{font-size:12px;} .shop-row .ds{font-size:10px;}
+    /* 手机上「继续战斗」改为固定高度并退出 sticky，绝不遮挡购买按钮 */
+    #btn-shop-next{position:static; font-size:14px; padding:6px 0; margin:2px 0; outline-width:2px; box-shadow:none;}
+  }
+  /* 超短屏横屏手机（如 iPhone SE 667×375）：再挤一点，保证铺满整屏 */
+  @media (orientation:landscape) and (max-height:384px){
+    #stage{padding:4px;}
+    #game{padding:4px; gap:2px;}
+    .sstat{padding:2px 2px;} .sstat .v{font-size:19px;}
+    .monster{min-height:32px;} .monster svg{width:32px; height:32px;}
+    .slot{min-width:30px; height:30px; font-size:20px;}
+    #feedback{min-height:18px; font-size:11px;}
+    #hand{height:86px; min-height:86px;}
+    .card{width:62px; height:80px; border-radius:10px;}
+    .card .ch{font-size:36px;}
+    #actions button{font-size:14px; padding:5px 4px;}
   }
 </style>
 </head>
@@ -1996,7 +2025,12 @@ function speak(text){
 /* ================= 状态 ================= */
 /* 手牌尺寸：手机横屏（短屏触屏）用大号卡片，手指更好点；其余用标准尺寸 */
 const PHONE_LANDSCAPE=window.matchMedia("(orientation:landscape) and (max-height:600px)");
-function cardMetrics(){ return PHONE_LANDSCAPE.matches ? {w:78,h:108,step:58} : {w:66,h:94,step:46}; }
+const PHONE_TINY=window.matchMedia("(orientation:landscape) and (max-height:384px)");
+function cardMetrics(){
+  if(PHONE_TINY.matches) return {w:62,h:80,step:46};
+  if(PHONE_LANDSCAPE.matches) return {w:66,h:88,step:50};
+  return {w:66,h:94,step:46};
+}
 const CARD_W=66, CARD_H=94, STEP=46;   /* 默认值（兼容旧引用），实际布局用 cardMetrics() */
 const S = {
   hp:5, maxHp:5, score:0, money:0, kills:0, floor:1, step:0, combo:0,
