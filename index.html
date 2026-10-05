@@ -330,30 +330,65 @@
   #deck .dcard:nth-child(2){transform:translate(-2px,-2px); opacity:.78;}
   #deck .dcard:nth-child(3){display:flex; align-items:center; justify-content:center; color:#fff; font-weight:900; font-size:16px;}
 
-  #hand{position:relative; height:96px; min-height:96px;}
-  .card{position:absolute; left:0; top:6px; width:56px; height:80px; border:3px solid #3b1550; border-radius:12px;
-    box-shadow:2px 2px 0 #3b1550, inset 0 3px 0 rgba(255,255,255,.5); display:flex; align-items:center; justify-content:center; cursor:pointer;
+  #hand{position:relative; height:108px; min-height:108px;}
+  /* 卡牌：加大尺寸 + 五色对应花纹（红=火焰 / 黄=大地 / 蓝=水流 / 绿=草木 / 白紫=金属）
+     花纹只铺在上下两条装饰带（::before 用 mask 掏空中间），保证汉字区域干净、不干扰阅读 */
+  .card{position:absolute; left:0; top:6px; width:66px; height:94px; border:3px solid #3b1550; border-radius:14px;
+    box-shadow:2px 2px 0 #3b1550, inset 0 3px 0 rgba(255,255,255,.5); display:flex; align-items:center; justify-content:center;
+    cursor:pointer; overflow:hidden; isolation:isolate;
     transition:transform .35s cubic-bezier(.22,.61,.36,1), box-shadow .2s, filter .2s, opacity .18s; user-select:none;}
-  .card .ch{font-size:36px; font-weight:900; color:#3d1a4d; line-height:1; text-shadow:0 1px 0 rgba(255,255,255,.5);}
+  .card .ch{font-size:42px; font-weight:900; color:#3d1a4d; line-height:1; position:relative; z-index:2;
+    text-shadow:0 1px 0 rgba(255,255,255,.6), 0 0 10px rgba(255,255,255,.75);}
+  /* 上下花纹带（中间留白给汉字） */
+  .card::before{content:""; position:absolute; inset:0; z-index:0; pointer-events:none;
+    background-image:var(--pat); background-size:var(--psz,auto); opacity:var(--po,.5);
+    -webkit-mask-image:linear-gradient(180deg,#000 0 22%,rgba(0,0,0,.35) 34%,rgba(0,0,0,0) 46%,rgba(0,0,0,0) 56%,rgba(0,0,0,.35) 68%,#000 78% 100%);
+    mask-image:linear-gradient(180deg,#000 0 22%,rgba(0,0,0,.35) 34%,rgba(0,0,0,0) 46%,rgba(0,0,0,0) 56%,rgba(0,0,0,.35) 68%,#000 78% 100%);}
+  /* 内描金边，让牌面更精致 */
+  .card::after{content:""; position:absolute; inset:4px; z-index:1; pointer-events:none; border-radius:9px;
+    border:2px solid rgba(255,255,255,.55); box-shadow:inset 0 0 10px rgba(255,255,255,.35);}
   .card:hover{filter:brightness(1.07) saturate(1.15);}
   .card.sel{box-shadow:0 0 0 3px #fff, 3px 5px 0 #3b1550; transform:translateY(-4px);}
-  .card[data-c="1"]{background:linear-gradient(180deg,#ffc2d8,#ff8fab);}
-  .card[data-c="2"]{background:linear-gradient(180deg,#c9ecff,#8fd3ff);}
-  .card[data-c="3"]{background:linear-gradient(180deg,#d2f7dc,#93e6a8);}
-  .card[data-c="4"]{background:linear-gradient(180deg,#ffe9b8,#ffd166);}
-  .card[data-c="5"]{background:linear-gradient(180deg,#e9dcff,#c9a8ff);}
-  .card.stone{background:linear-gradient(180deg,#f0f0f0,#c4c4c4);}
-  .card.stone .ch{color:#6a6a7a;}
+  /* 红 · 火焰：上升火舌 + 热浪竖纹 */
+  .card[data-c="1"]{background:linear-gradient(180deg,#ffc2d8,#ff8fab);
+    --pat:radial-gradient(circle at 50% 118%,rgba(190,30,20,.8) 0 30%,rgba(255,120,0,.6) 31% 52%,rgba(255,220,120,.5) 53% 66%,transparent 67%),
+         repeating-linear-gradient(90deg,rgba(255,255,255,.22) 0 5px,transparent 5px 13px);
+    --psz:auto,auto;}
+  /* 黄 · 大地：地层横纹 + 砂砾斑点 */
+  .card[data-c="4"]{background:linear-gradient(180deg,#ffe9b8,#ffd166);
+    --pat:repeating-linear-gradient(180deg,rgba(150,90,20,.42) 0 3px,rgba(255,255,255,.28) 3px 5px,transparent 5px 11px),
+         radial-gradient(circle at 25% 30%,rgba(120,70,20,.5) 0 2.5px,transparent 3px),
+         radial-gradient(circle at 70% 65%,rgba(120,70,20,.45) 0 2px,transparent 3px),
+         radial-gradient(circle at 45% 80%,rgba(120,70,20,.4) 0 2px,transparent 3px);
+    --psz:auto,100% 100%,26px 26px,32px 32px,38px 38px;}
+  /* 蓝 · 水流：横向波纹 + 涟漪圈 */
+  .card[data-c="2"]{background:linear-gradient(180deg,#c9ecff,#8fd3ff);
+    --pat:repeating-radial-gradient(circle at 50% 130%,rgba(255,255,255,.85) 0 3px,rgba(255,255,255,0) 3px 11px),
+         repeating-linear-gradient(180deg,rgba(30,110,200,.32) 0 2px,transparent 2px 9px);
+    --psz:auto,auto;}
+  /* 绿 · 草木：斜向草叶 + 叶点 */
+  .card[data-c="3"]{background:linear-gradient(180deg,#d2f7dc,#93e6a8);
+    --pat:repeating-linear-gradient(72deg,rgba(18,90,40,.38) 0 2px,transparent 2px 9px),
+         radial-gradient(circle at 30% 35%,rgba(255,255,255,.75) 0 3px,transparent 4px),
+         radial-gradient(circle at 68% 70%,rgba(255,255,255,.65) 0 2.5px,transparent 4px);
+    --psz:auto,100% 100%,30px 30px,40px 40px;}
+  /* 紫 / 白石 · 金属：拉丝斜纹 + 高光 */
+  .card[data-c="5"]{background:linear-gradient(180deg,#e9dcff,#c9a8ff);
+    --pat:repeating-linear-gradient(115deg,rgba(255,255,255,.75) 0 2px,rgba(120,90,190,.28) 2px 5px),
+         linear-gradient(90deg,transparent 0 42%,rgba(255,255,255,.85) 50%,transparent 58% 100%);
+    --psz:auto,auto;}
+  .card.stone{background:linear-gradient(180deg,#f6f6f6,#c9c9cf); --pat:repeating-linear-gradient(115deg,rgba(255,255,255,.85) 0 2px,rgba(140,140,160,.3) 2px 5px),linear-gradient(90deg,transparent 0 42%,rgba(255,255,255,.9) 50%,transparent 58% 100%); --psz:auto,auto;}
+  .card.stone .ch{color:#5a5a6a;}
 
   /* 飞行中的卡牌（抽卡动画） */
-  .flyer{position:absolute; left:0; top:0; width:56px; height:80px; z-index:9999; pointer-events:none;}
+  .flyer{position:absolute; left:0; top:0; width:66px; height:94px; z-index:9999; pointer-events:none;}
   .flyer .flip3d{position:absolute; inset:0;}
-  .flyer .face{position:absolute; inset:0; border:3px solid #3b1550; border-radius:12px;
+  .flyer .face{position:absolute; inset:0; border:3px solid #3b1550; border-radius:14px; overflow:hidden;
     box-shadow:2px 2px 0 #3b1550; display:flex; align-items:center; justify-content:center;}
   .flyer .face.back{background:repeating-linear-gradient(45deg,#ff8fb8 0 7px,#f46fa0 7px 14px); z-index:2;}
-  .flyer .face.back .bk{font-size:20px; font-weight:900; color:#fff; text-shadow:1px 1px 0 #3b1550;}
+  .flyer .face.back .bk{font-size:22px; font-weight:900; color:#fff; text-shadow:1px 1px 0 #3b1550;}
   .flyer .face.front{background:#fff9ef; z-index:1;}
-  .flyer .face.front .ch{font-size:34px; font-weight:900; color:#3d1a4d;}
+  .flyer .face.front .ch{font-size:40px; font-weight:900; color:#3d1a4d;}
   .flyer .flip3d.flipped .face.back{z-index:1;}
   .flyer .flip3d.flipped .face.front{z-index:2;}
 
@@ -658,9 +693,10 @@
     .hl{font-size:12px;}
     #deck{width:26px; height:34px;}
     #deck .dcard{border-width:2px; border-radius:5px; box-shadow:1px 1px 0 #3b1550; font-size:7px;}
-    #hand{height:104px; min-height:104px;}
-    .card{width:72px; height:100px; top:2px; border-width:3px; border-radius:12px;}
-    .card .ch{font-size:42px;}
+    #hand{height:112px; min-height:112px;}
+    .card{width:78px; height:108px; top:2px; border-width:3px; border-radius:14px;}
+    .card .ch{font-size:48px;}
+    .card::after{inset:4px; border-width:2px; border-radius:10px;}
     #actions{gap:6px; margin-top:3px;}
     #actions button{flex:1; font-size:16px; padding:12px 4px; border-radius:10px;}
     #btn-gauntlet{flex:1.3;}
@@ -1960,8 +1996,8 @@ function speak(text){
 /* ================= 状态 ================= */
 /* 手牌尺寸：手机横屏（短屏触屏）用大号卡片，手指更好点；其余用标准尺寸 */
 const PHONE_LANDSCAPE=window.matchMedia("(orientation:landscape) and (max-height:600px)");
-function cardMetrics(){ return PHONE_LANDSCAPE.matches ? {w:72,h:100,step:54} : {w:56,h:80,step:40}; }
-const CARD_W=56, CARD_H=80, STEP=40;   /* 默认值（兼容旧引用），实际布局用 cardMetrics() */
+function cardMetrics(){ return PHONE_LANDSCAPE.matches ? {w:78,h:108,step:58} : {w:66,h:94,step:46}; }
+const CARD_W=66, CARD_H=94, STEP=46;   /* 默认值（兼容旧引用），实际布局用 cardMetrics() */
 const S = {
   hp:5, maxHp:5, score:0, money:0, kills:0, floor:1, step:0, combo:0,
   playedCards:0, baibuDone:false, longdanArmed:false, kindBonus:0, destroyMode:false,
