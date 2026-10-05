@@ -921,7 +921,7 @@ const ITEMS = {
   shengjiang:{name:"生姜",ico:"姜",p:"shēngjiāng",desc:"打红色牌 伤害 +1",price:30,kind:"passive"},
   longdan:{name:"龙胆",ico:"胆",p:"lóngdǎn",desc:"开关：下次出牌伤害翻倍；牌型错误则所受伤害翻倍",price:40,kind:"toggle"},
   sharen:{name:"砂仁",ico:"砂",p:"shārén",desc:"点击使用：直接击败敌人（仅一次）",price:90,kind:"use"},
-  huashi:{name:"滑石",ico:"石",p:"huáshí",desc:"抽牌有几率出现石头牌（可当任意牌打出，手牌中上限 3 张）",price:35,kind:"passive"},
+  huashi:{name:"滑石",ico:"石",p:"huáshí",desc:"有几率向手牌添加一张石头牌（可当任意牌打出，手牌中最多 1 张）",price:35,kind:"passive"},
   sanleng:{name:"三棱",ico:"棱",p:"sānléng",desc:"打出 3 张牌时 伤害 +3",price:40,kind:"passive"},
   baibu:{name:"百部",ico:"部",p:"bǎibù",desc:"打出牌数为 100 的倍数时获得 100 金币",price:55,kind:"passive"},
   xionghuang:{name:"雄黄",ico:"黄",p:"xiónghuáng",desc:"打黄色牌 伤害 +1",price:30,kind:"passive"},
@@ -971,7 +971,7 @@ const ITEM_EN={
   shengjiang:"Ginger — +1 damage for each red card you play",
   longdan:"Gentian — arm it: your next play deals double damage; if the word is wrong, the damage you take doubles",
   sharen:"Amomum — click to instantly defeat one enemy (once)",
-  huashi:"Talc — sometimes deals a Stone card into your hand; Stones match any word (max 3)",
+  huashi:"Talc — sometimes adds a Stone card to your hand; a Stone matches any word (only 1 at a time)",
   sanleng:"Sanleng — +3 damage when you play exactly 3 cards",
   baibu:"Stemona — every 100 cards you play earns you 100 coins",
   xionghuang:"Realgar — +1 damage for each yellow card you play",
@@ -2696,12 +2696,15 @@ function buildBag(){
   S.bag=S.bag.concat(others);
 }
 function drawCard(){ return S.bag[Math.floor(Math.random()*S.bag.length)]; }
-function makeCard(){
+function makeCard(){ return {c:drawCard(), id:nextId()}; }
+/* 滑石：有几率向手牌「额外添加」一张石头牌（万能牌，可匹配任何字）。
+   手牌中石头牌上限为 1 张；每多一件滑石，触发概率越高。 */
+function rollStoneCard(){
   const hc=cnt("huashi");
-  const stonesInHand=S.hand.filter(c=>c.stone).length;
-  /* 滑石：石头牌手牌中上限 3 张 */
-  if(hc && stonesInHand<3 && Math.random()<1-Math.pow(0.8,hc)) return {c:"石", stone:true, id:nextId()};
-  return {c:drawCard(), id:nextId()};
+  if(!hc) return null;
+  if(S.hand.some(c=>c.stone)) return null;                 /* 上限一：已有石头牌就不再加 */
+  if(Math.random() >= 1-Math.pow(0.75,hc)) return null;    /* 1 件 25% / 2 件 44% / 3 件 58% … */
+  return {c:"石", stone:true, id:nextId()};
 }
 const cardColor = c => (c.id%5)+1;
 
@@ -2933,8 +2936,13 @@ function flyInCard(card, to, onDone){
 function refillHand(){
   const need=effHandSize() - S.hand.length;
   if(need<=0) return Promise.resolve();
+  /* 滑石：先判定是否额外添加一张石头牌（不占用手牌位） */
+  const stone=rollStoneCard();
+  const total=need + (stone?1:0);
   const newCards=[];
-  for(let k=0;k<need;k++){ newCards.push(makeCard()); S.hand.push(newCards[newCards.length-1]); }
+  if(stone) newCards.push(stone);
+  for(let k=0;k<need;k++) newCards.push(makeCard());
+  newCards.forEach(c=>S.hand.push(c));
   layoutHand();
   return new Promise(res=>{
     let done=0;
@@ -2945,7 +2953,15 @@ function refillHand(){
         const el=buildCardEl(card);
         el.style.transform='translate('+target.x+'px,0px)';
         handEl.appendChild(el);
-        if(++done===need){ layoutHand(); res(); }
+        if(++done===total){
+          if(stone){
+            const ec=center(handEl);
+            spawnParticles(ec.x,ec.y-20,"#c4cfe0",14);
+            floater("滑石：石头牌！可当任意字",ec.x,ec.y-46,"#7cc9ff");
+            tone(880,.08,"triangle",.1); tone(1320,.1,"triangle",.09,.07);
+          }
+          layoutHand(); res();
+        }
       });
     });
   });
@@ -2954,9 +2970,13 @@ function initialDeal(){
   return new Promise(res=>{
     let i=0;
     const size=effHandSize();
+    /* 开局也有几率直接发一张石头牌 */
+    const stone=rollStoneCard();
+    const queue=stone?[stone]:[];
+    for(let k=0;k<size;k++) queue.push(makeCard());
     function dealNext(){
-      if(i>=size){ layoutHand(); res(); return; }
-      const card=makeCard();
+      if(i>=queue.length){ layoutHand(); res(); return; }
+      const card=queue[i];
       S.hand.push(card);
       const target=slotPos(S.hand.length-1);
       flyInCard(card, target, ()=>{
