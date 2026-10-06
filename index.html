@@ -394,35 +394,36 @@
   .shop-sub{font-family:var(--font-px); font-size:13px; color:#ffe9c9; margin-left:auto;}
   #shop-refresh{display:flex; align-items:center; gap:6px;}
   #shop-refresh button{flex:0 0 auto; padding:6px 12px; font-size:12px; background:linear-gradient(180deg,#ffe066,#ffc21f);}
-  /* 商店道具货架：内容超高时可滚动，避免底部「继续战斗」按钮压住购买按钮 */
-  .shop-shelf{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; flex:1; min-height:0; align-items:stretch;
+  /* 商店道具货架：3 列大卡片铺满中栏；内容超高时可滚动，避免底部「继续战斗」按钮压住购买按钮 */
+  .shop-shelf{display:grid; grid-template-columns:repeat(auto-fit,minmax(248px,1fr)); gap:14px; flex:1; min-height:0; align-items:stretch;
     overflow-y:auto; overflow-x:hidden; padding-bottom:4px;}
   .shop-shelf::-webkit-scrollbar{width:6px;}
   .shop-shelf::-webkit-scrollbar-thumb{background:#b385ff; border-radius:3px;}
   .shop-card{background:#fff8ec; color:#3d1a4d; border:3px solid #3b1550; border-radius:16px; box-shadow:3px 3px 0 #3b1550;
-    padding:12px 10px 10px; display:flex; flex-direction:column; align-items:center; gap:7px; text-align:center; position:relative;}
-  .shop-card .sc-art{height:66px; display:flex; align-items:center; justify-content:center;}
-  .shop-card .sc-nm{font-size:18px; font-weight:900; color:#a04b00; line-height:1.2;}
-  .shop-card .sc-py{font-family:var(--font-px); font-size:10px; color:#b79be0;}
-  .shop-card .sc-ds{font-size:12.5px; color:#7a4fa0; line-height:1.35; flex:1;}
-  /* 道具英文说明：蓝紫色 */
-  .shop-card .sc-en{font-size:11px; color:#5b4bd0; line-height:1.3; font-style:italic; margin-top:3px;}
-  .shop-row .en{font-size:10.5px; color:#6a5ae0; line-height:1.25; font-style:italic; margin-top:1px;}
+    padding:14px 14px 12px; display:flex; flex-direction:column; align-items:center; gap:6px; text-align:center; position:relative;}
+  .shop-card .sc-art{height:96px; display:flex; align-items:center; justify-content:center;}
+  .shop-card .sc-nm{font-size:23px; font-weight:900; color:#8a4b00; line-height:1.2;}
+  .shop-card .sc-py{font-family:var(--font-px); font-size:12px; color:#9a86c8;}
+  /* 中文说明：近黑 */
+  .shop-card .sc-ds{font-size:15px; color:#26262e; line-height:1.45; flex:1; font-weight:600;}
+  /* 英文说明：另一种黑（更浅） */
+  .shop-card .sc-en{font-size:13px; color:#5a5a66; line-height:1.4; font-style:italic; margin-top:4px;}
   .citem .en-tip{font-family:var(--font-cj);}
-  .shop-card .sc-foot{display:flex; align-items:center; justify-content:space-between; gap:8px; width:100%; margin-top:auto;}
-  .shop-card .sc-price{font-family:var(--font-px); font-size:15px; color:#c2440a; white-space:nowrap;}
-  .shop-card button{flex:0 0 auto; padding:8px 16px; font-size:14px;}
+  .shop-card .sc-foot{display:flex; align-items:center; justify-content:space-between; gap:8px; width:100%; margin-top:auto; padding-top:4px;}
+  .shop-card .sc-price{font-family:var(--font-px); font-size:18px; color:#c2440a; white-space:nowrap;}
+  .shop-card button{flex:0 0 auto; padding:10px 22px; font-size:16px;}
   .shop-card button:disabled{opacity:.4; cursor:not-allowed;}
-  .shop-sell-wrap{flex:0 0 auto; max-height:128px; overflow-y:auto; border-top:2px dashed rgba(255,255,255,.35); padding-top:8px;}
+  .shop-sell-wrap{flex:0 0 auto; max-height:96px; overflow-y:auto; border-top:2px dashed rgba(255,255,255,.35); padding-top:6px;}
   .shop-sell-wrap::-webkit-scrollbar{width:6px;}
   .shop-sell-wrap::-webkit-scrollbar-thumb{background:#5e3315; border-radius:3px;}
   /* 出售行 */
   .shop-row{display:flex; align-items:center; gap:8px; background:#fff9ef; color:#3d1a4d; border:3px solid #3b1550;
-    box-shadow:2px 2px 0 #3b1550; border-radius:12px; padding:6px 9px; margin:6px 0;}
-  .shop-row .ico{width:32px; flex:0 0 auto; display:flex; align-items:center; justify-content:center;}
+    box-shadow:2px 2px 0 #3b1550; border-radius:12px; padding:5px 9px; margin:5px 0;}
+  .shop-row .ico{width:30px; flex:0 0 auto; display:flex; align-items:center; justify-content:center;}
   .shop-row .info{flex:1; min-width:0; text-align:left;}
-  .shop-row .nm{font-size:13px; font-weight:900; color:#a04b00;}
-  .shop-row .ds{font-size:11px; color:#7a4fa0; margin-top:2px;}
+  .shop-row .nm{font-size:13px; font-weight:900; color:#8a4b00;}
+  .shop-row .ds{font-size:11px; color:#3a3a44; margin-top:2px;}
+  .shop-row .en{font-size:10.5px; color:#5a5a66; line-height:1.25; font-style:italic; margin-top:1px;}
   .shop-row .price{font-family:var(--font-px); font-size:12px; color:#c2440a; flex:0 0 auto;}
   .shop-row button{flex:0 0 auto; padding:6px 11px; font-size:12px; margin-left:4px;}
   .shop-row button.owned{opacity:.4; cursor:not-allowed;}
@@ -876,14 +877,15 @@
     /* 排行榜在手机上放大字号（表格宽度还有余量，不会横向溢出） */
     table{font-size:13px;} th,td{padding:8px 5px;}
     .dim{font-size:10px;}
-    .shop-card .sc-nm{font-size:15px;} .shop-card .sc-ds{font-size:11px;} .shop-card .sc-en{font-size:9.5px;}
-    .shop-card{padding:7px 6px 6px; gap:4px; border-width:2px; border-radius:12px;}
-    .shop-card .sc-art{height:40px;} .shop-card .sc-art svg{width:38px; height:38px;}
-    .shop-card button{padding:5px 10px; font-size:12px;}
-    .shop-card .sc-price{font-size:12px;}
-    .shop-shelf{gap:8px; grid-template-columns:repeat(auto-fit,minmax(128px,1fr)); padding-bottom:2px; min-height:128px;}
+    .shop-card .sc-nm{font-size:17px;} .shop-card .sc-ds{font-size:12px;} .shop-card .sc-en{font-size:10.5px;}
+    .shop-card{padding:9px 8px 8px; gap:5px; border-width:2px; border-radius:12px;}
+    .shop-card .sc-art{height:52px;} .shop-card .sc-art svg{width:48px; height:48px;}
+    .shop-card .sc-py{font-size:9px;}
+    .shop-card button{padding:7px 12px; font-size:13px;}
+    .shop-card .sc-price{font-size:14px;}
+    .shop-shelf{gap:8px; grid-template-columns:repeat(3,1fr); padding-bottom:2px; min-height:186px;}
     .shop-head{gap:6px;} .shop-title{font-size:15px;} .shop-sub{font-size:11px;}
-    .shop-sell-wrap{max-height:92px; overflow-y:auto;}
+    .shop-sell-wrap{max-height:72px; overflow-y:auto;}
     .shop-row{padding:4px 6px;} .shop-row .nm{font-size:12px;} .shop-row .ds{font-size:10px;}
     /* 手机上「继续战斗」改为固定高度并退出 sticky，绝不遮挡购买按钮 */
     #btn-shop-next{position:static; font-size:14px; padding:6px 0; margin:2px 0; outline-width:2px; box-shadow:none;}
@@ -4130,7 +4132,7 @@ function renderShop(){
     const owned=ownedCount(key);
     /* 每个道具仅可购买一次：已拥有的显示「已拥有」且按钮禁用 */
     const ownTag = ownsItem(key) ? ' <span style="font-family:var(--font-px);font-size:9px;color:#fff;background:#1e8a5e;border-radius:6px;padding:1px 5px;">已拥有</span>' : '';
-    card.innerHTML='<div class="sc-art">'+itemArtSVG(key,64)+'</div>'+
+    card.innerHTML='<div class="sc-art">'+itemArtSVG(key,96)+'</div>'+
       '<div class="sc-nm">'+it.name+ownTag+'</div>'+
       '<div class="sc-py">'+it.p+'</div>'+
       '<div class="sc-ds">'+it.desc+'</div>'+
