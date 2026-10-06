@@ -27,9 +27,10 @@
     font-family:var(--font-cj);
     color:var(--ink);
     background:
-      radial-gradient(circle at 15% 8%, #ffe9f5 0, transparent 42%),
-      radial-gradient(circle at 85% 92%, #d8f7ff 0, transparent 45%),
-      linear-gradient(160deg,var(--bg1),#ecb8ff 48%,var(--bg2));
+      radial-gradient(circle at 15% 8%, rgba(255,255,255,.55) 0, transparent 42%),
+      radial-gradient(circle at 85% 92%, rgba(255,255,255,.42) 0, transparent 45%),
+      linear-gradient(160deg, var(--bg1), var(--bg2));
+    transition:background .6s ease;
     min-height:100%;
     display:flex; align-items:center; justify-content:center;
     overflow-x:hidden;
@@ -130,6 +131,32 @@
     border-radius:8px; padding:4px 9px; font-family:var(--font-px); font-size:14px; color:#3d1a4d;}
   .stat b{color:#d6336c;}
   .stat.combo{background:#8cffd2;} .stat.combo b{color:#0d9463;}
+  /* 连击徽章：连续答对时出现并跳动 */
+  #combo-chip{display:none;}
+  #combo-chip.on{display:inline-flex; align-items:center; gap:2px; background:linear-gradient(180deg,#ffe066,#ff9f1c);
+    animation:combopop .45s cubic-bezier(.2,1.5,.4,1);}
+  #combo-chip b{color:#7a3d00;}
+  @keyframes combopop{
+    0%{transform:scale(.4) rotate(-8deg);} 60%{transform:scale(1.2) rotate(3deg);} 100%{transform:scale(1);}
+  }
+  #combo-chip.hot{background:linear-gradient(180deg,#ff9f43,#ff5d8f); animation:comboburn .5s ease-out infinite alternate;}
+  #combo-chip.hot b{color:#fff3c4;}
+  @keyframes comboburn{ from{box-shadow:2px 2px 0 #3b1550;} to{box-shadow:2px 2px 0 #3b1550, 0 0 12px 3px rgba(255,93,143,.9);} }
+  /* 楼层主题：通过 body[data-floor] 切换配色 */
+  body[data-floor="1"]{--bg1:#d8f7e4; --bg2:#8fd9a8; --tint:#2f9e5f;}      /* 森林 */
+  body[data-floor="2"]{--bg1:#ffe9c2; --bg2:#f0b96a; --tint:#c9821b;}      /* 沙漠 */
+  body[data-floor="3"]{--bg1:#e6f6ff; --bg2:#9fd4f0; --tint:#2b7fc0;}      /* 冰天雪地 */
+  body[data-floor="4"]{--bg1:#e2dcf3; --bg2:#a99ac9; --tint:#6a4fa3;}      /* 石洞 */
+  body[data-floor="5"]{--bg1:#3b2350; --bg2:#8a2f22; --tint:#ff7a3d;}      /* 熔岩 */
+  body[data-floor="6"]{--bg1:#c9f4ff; --bg2:#3f9fd6; --tint:#0e6ea8;}      /* 大海 */
+  body[data-floor="7"]{--bg1:#1b1740; --bg2:#4b2f8f; --tint:#8f7bff;}      /* 太空 */
+  body[data-floor="0"]{--bg1:#ffd9ec; --bg2:#c9b8ff; --tint:#7e4fc0;}      /* 主页（默认） */
+  body[data-floor="5"], body[data-floor="7"]{color:#eaf2ff;}
+  #game{border-color:var(--tint,#3b1550);}
+  #stage::after{content:""; position:absolute; inset:0; pointer-events:none; z-index:0; border-radius:18px;
+    box-shadow:inset 0 0 0 3px color-mix(in srgb, var(--tint,#3b1550) 55%, transparent);
+    opacity:.55;}
+  .floor-badge{display:none;}
   /* 倒计时：最后 10 秒闪烁告警（顶栏「倒计时」徽章） */
   #time-chip.warn{background:#ffe0e6; border-color:#d6336c; color:#d6336c; animation:warnpulse .5s infinite alternate;}
   #time-chip.warn b{color:#d6336c; font-size:20px;}
@@ -177,6 +204,66 @@
     80%{transform:translate(5px,-1px); filter:drop-shadow(4px 4px 0 rgba(59,21,80,.35)) brightness(1.2);}
   }
   .monster.die svg{animation:mdie .55s ease-in forwards;}
+  /* ===== 每只怪物独一无二的死亡效果（按 data-sprite 匹配） ===== */
+  .monster[data-sprite="skeleton"].die svg,
+  .monster[data-sprite="zombie"].die svg,
+  .monster[data-sprite="dog"].die svg,
+  .monster[data-sprite="bear"].die svg,
+  .monster[data-sprite="strongman"].die svg,
+  .monster[data-sprite="swordsman"].die svg,
+  .monster[data-sprite="swordsman2"].die svg{animation:dshatter .6s ease-out forwards;}   /* 骨/兽/战士：碎成一地 */
+  .monster[data-sprite="ghost"].die svg{animation:dfadeup .8s ease-out forwards;}         /* 雾妖：飘散 */
+  .monster[data-sprite="flame"].die svg,
+  .monster[data-sprite="flame2"].die svg{animation:dburn .7s ease-out forwards;}        /* 火灵：烧成灰 */
+  .monster[data-sprite="golem"].die svg,
+  .monster[data-sprite="giant"].die svg{animation:dcrack .65s ease-out forwards;}       /* 石魔像/巨人：碎裂 */
+  .monster[data-sprite="slime"].die svg{animation:dmelt .7s ease-in forwards;}           /* 史莱姆：融化 */
+  .monster[data-sprite="bug"].die svg{animation:dpop .5s ease-out forwards;}             /* 虫子：炸开 */
+  .monster[data-sprite="dragon"].die svg,
+  .monster[data-sprite="demonlord"].die svg,
+  .monster[data-sprite="demon"].die svg,
+  .monster[data-sprite="darkwizard"].die svg,
+  .monster[data-sprite="warlock"].die svg{animation:dcollapse .8s ease-out forwards;}    /* 魔王级：崩塌 */
+  .monster[data-sprite="vampire"].die svg{animation:ddissolve .7s ease-out forwards;}    /* 吸血鬼：溃散 */
+  @keyframes dshatter{
+    0%{transform:translateY(0) rotate(0) scale(1); filter:brightness(1);}
+    35%{transform:translateY(-10px) rotate(-8deg) scale(1.18); filter:brightness(2.4) saturate(.4);}
+    100%{transform:translateY(34px) rotate(26deg) scale(.28); opacity:0; filter:grayscale(1) brightness(.55);}
+  }
+  @keyframes dfadeup{
+    0%{transform:translateY(0) scale(1); opacity:1; filter:blur(0);}
+    100%{transform:translateY(-46px) scale(1.35); opacity:0; filter:blur(7px) brightness(1.6);}
+  }
+  @keyframes dburn{
+    0%{transform:translateY(0) scale(1); filter:brightness(1) saturate(1);}
+    40%{transform:translateY(-6px) scale(1.06,.94); filter:brightness(2.2) saturate(1.6) hue-rotate(-18deg);}
+    100%{transform:translateY(-24px) scale(.86,.7); opacity:0; filter:grayscale(1) brightness(.5);}
+  }
+  @keyframes dcrack{
+    0%{transform:translate(0,0) scale(1);}
+    25%{transform:translate(-4px,2px) scale(1.06,1); filter:brightness(1.6);}
+    55%{transform:translate(5px,-2px) scale(.96,1.05); filter:brightness(.8) saturate(.6);}
+    100%{transform:translateY(26px) scale(1.1,.35); opacity:0; filter:grayscale(1) brightness(.45);}
+  }
+  @keyframes dmelt{
+    0%{transform:scale(1,1); opacity:1;}
+    100%{transform:scale(1.5,.12) translateY(16px); opacity:0; filter:saturate(1.6) hue-rotate(30deg);}
+  }
+  @keyframes dpop{
+    0%{transform:scale(1);} 45%{transform:scale(1.5); filter:brightness(2.6);}
+    100%{transform:scale(.1); opacity:0;}
+  }
+  @keyframes dcollapse{
+    0%{transform:translateY(0) scale(1); filter:brightness(1);}
+    22%{transform:translateY(-6px) scale(1.14); filter:brightness(2.6);}
+    60%{transform:translateX(-7px) scale(1.02,.9); filter:brightness(1.1);}
+    100%{transform:translateY(40px) scale(.7,.35); opacity:0; filter:grayscale(1) brightness(.4);}
+  }
+  @keyframes ddissolve{
+    0%{transform:scale(1); opacity:1; filter:brightness(1);}
+    40%{transform:scale(1.22) rotate(6deg); filter:brightness(2.2) hue-rotate(-30deg) saturate(1.8);}
+    100%{transform:scale(.5) rotate(-14deg); opacity:0; filter:grayscale(1) brightness(.5);}
+  }
   @keyframes mdie{
     0%{transform:translateY(0) rotate(0deg) scale(1); opacity:1;}
     100%{transform:translateY(46px) rotate(24deg) scale(.55); opacity:0;}
@@ -375,6 +462,15 @@
     border:2px solid rgba(255,255,255,.55); box-shadow:inset 0 0 10px rgba(255,255,255,.35);}
   .card:hover{filter:brightness(1.07) saturate(1.15);}
   .card.sel{box-shadow:0 0 0 3px #fff, 3px 5px 0 #3b1550; transform:translateY(-4px);}
+  /* 选中卡牌：金色流光从左扫到右，循环播放 */
+  .card.sel::after{
+    background-image:linear-gradient(105deg,rgba(255,255,255,0) 32%,rgba(255,255,255,.95) 47%,rgba(255,231,150,.9) 52%,rgba(255,255,255,0) 66%);
+    background-size:280% 100%; background-position:-120% 0;
+    animation:cardsheen 1.15s linear infinite;
+    border-color:rgba(255,231,150,.9);
+  }
+  @keyframes cardsheen{ from{background-position:-120% 0;} to{background-position:220% 0;} }
+  .card.sel .ch{text-shadow:0 1px 0 rgba(255,255,255,.6), 0 0 12px rgba(255,207,61,.95);}
   /* 红 · 火焰：上升火舌 + 热浪竖纹 */
   .card[data-c="1"]{background:linear-gradient(180deg,#ffc2d8,#ff8fab);
     --pat:radial-gradient(circle at 50% 118%,rgba(190,30,20,.8) 0 30%,rgba(255,120,0,.6) 31% 52%,rgba(255,220,120,.5) 53% 66%,transparent 67%),
@@ -543,6 +639,25 @@
   .dmg-burst.b2{font-size:58px; color:#ffd93d;}
   .dmg-burst.b3{font-size:72px; color:#ff9f43;}
   .dmg-burst.b4{font-size:88px; color:#ff5d8f;}
+  /* 高伤害（tier 3/4）：金色描边 + 更强弹出 + 放射光芒 */
+  .dmg-burst.b3, .dmg-burst.b4{
+    color:#ffcf3d;
+    -webkit-text-stroke:3px #7a3d00;
+    paint-order:stroke fill;
+    text-shadow:0 0 12px rgba(255,207,61,.95), 0 0 30px rgba(255,140,0,.75), 4px 4px 0 #3b1550;
+    animation:dmgburstBig 1s cubic-bezier(.2,1.4,.4,1) forwards;
+  }
+  .dmg-burst.b4{font-size:96px; -webkit-text-stroke-width:4px;}
+  @keyframes dmgburstBig{
+    0%{transform:translate(-50%,-50%) scale(.2) rotate(-14deg); opacity:0;}
+    18%{transform:translate(-50%,-50%) scale(1.7) rotate(6deg); opacity:1;}
+    30%{transform:translate(-50%,-50%) scale(1.15) rotate(-3deg);}
+    42%{transform:translate(-50%,-50%) scale(1.35) rotate(2deg);}
+    100%{transform:translate(-50%,-95%) scale(1.2) rotate(0); opacity:0;}
+  }
+  /* 顶栏伤害数字同样金色高亮 */
+  #dmg-chip.t3 b, #dmg-chip.t4 b{color:#ffcf3d; -webkit-text-stroke:1.5px #7a3d00; paint-order:stroke fill;
+    text-shadow:0 0 10px rgba(255,207,61,.9);}
   @keyframes dmgburst{
     0%{transform:translate(-50%,-50%) scale(.3) rotate(-8deg); opacity:0}
     25%{transform:translate(-50%,-50%) scale(1.25) rotate(3deg); opacity:1}
@@ -814,6 +929,7 @@
         <div class="stats">
           <div class="stat">总分 <b id="st-score">0</b></div>
           <div class="stat" id="dmg-chip" title="本次出牌造成的伤害">伤害 <b id="side-damage">0</b></div>
+          <div class="stat" id="combo-chip" title="连续答对次数">连击 <b id="combo-num">0</b></div>
           <div class="stat" id="time-chip" title="倒计时挑战（可选）">倒计时 <b id="side-time">∞</b></div>
           <div class="stat">准确 <b id="st-acc">100%</b></div>
           <div class="stat" id="st-mute" style="cursor:pointer" title="声音开关（音效+音乐+发音）">声音</div>
@@ -2413,10 +2529,11 @@ function showDamagePop(d,hue){
   if(zone && d>0){
     const b=document.createElement("div");
     b.className="dmg-burst b"+tier;
-    if(hue) b.style.color=hue;
+    /* 高伤害（t3/t4）统一用金色描边样式，不覆盖成手牌颜色 */
+    if(hue && tier<3) b.style.color=hue;
     b.textContent="-"+d;
     zone.appendChild(b);
-    setTimeout(()=>b.remove(),950);
+    setTimeout(()=>b.remove(),tier>=3?1050:950);
   }
 }
 function bumpVal(id,txt){
@@ -2703,6 +2820,22 @@ function colorBurst(col,tier){
 function center(el){ const r=el.getBoundingClientRect(); return {x:r.left+r.width/2, y:r.top+r.height/2}; }
 function floater(txt,x,y,color){ const d=document.createElement("div"); d.className="floater"; d.textContent=txt; d.style.left=x+"px"; d.style.top=y+"px"; if(color) d.style.color=color; document.body.appendChild(d); setTimeout(()=>d.remove(),1000); }
 
+/* ================= 死亡特效：按精灵给不同碎屑颜色 ================= */
+const DEATH_FX={
+  skeleton:"#e8eef7", zombie:"#8fae7a", ghost:"#bfe6ff", flame:"#ff7a3d", flame2:"#ff9f43",
+  golem:"#9aa3b2", giant:"#8d94a6", slime:"#93e6a8", bug:"#d6f36a",
+  dragon:"#ff4d6d", demonlord:"#c77dff", demon:"#ff5d8f", darkwizard:"#8f7bff", warlock:"#b28cff",
+  vampire:"#a02040", dog:"#c98a4b", bear:"#9c6b3f", strongman:"#e0a06a",
+  swordsman:"#cfd8e3", swordsman2:"#d8dee9"
+};
+function deathParticles(sprite,x,y,n){
+  const col=DEATH_FX[sprite]||"#ffd166";
+  spawnParticles(x,y,col,n||40);
+  if(sprite==="flame"||sprite==="flame2") spawnParticles(x,y,"#ffe066",10);
+  if(sprite==="ghost") spawnParticles(x,y,"#ffffff",10);
+  if(sprite==="skeleton") spawnParticles(x,y,"#ffffff",14);
+}
+
 /* ================= 工具 ================= */
 function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
@@ -2871,7 +3004,9 @@ function spawnEnemy(){
   S.enemy.sprite=sprite;
   const monsterEl=document.getElementById("monster");
   monsterEl.classList.remove("die","hurt","dying");
+  monsterEl.dataset.sprite=sprite;                     /* 供死亡特效按精灵匹配 */
   monsterEl.innerHTML=monsterHTML(sprite,boss);
+  applyFloorTheme(S.floor);
 
   S.handsBase = Infinity;
   S.hands = S.handsBase;
@@ -2891,7 +3026,8 @@ function spawnEnemy(){
   $("enemy-name").textContent=name;
   const desc = boss? (BOSSES.find(x=>x.key===ability)||{}).desc : (trait? TRAITS[trait].desc : "");
   $("enemy-name").title=name+(desc?"："+desc:"")+"　🎵 专属 BGM："+(MUSIC[sprite]?themeTitle(sprite):"默认曲")+(boss?"（BOSS 变奏）":"");
-  $("enemy-level").textContent="第 "+S.floor+" 层 "+letter+(boss?"（BOSS）":"");
+  $("enemy-level").textContent="第 "+S.floor+" 层 "+letter+(boss?"（BOSS）":"")+" · "+floorThemeName(S.floor);
+  resetCombo();
   renderEnemy(); renderStats(); renderSide(); renderPlayer();
   startTimer();
   playMonsterBGM(S.enemy.sprite, S.enemy.boss);   /* 每只怪物有自己的主题曲 */
@@ -2926,6 +3062,7 @@ function startGauntlet(){
   S.handsBase=Infinity; S.hands=Infinity;
   S.battleScore=0; S.battlePlays=0; S.battleCards=0;   /* 全员挑战也重新统计出牌次数 */
   S.combo=0; S.selected.clear();
+  renderCombo();
   S.hand=[]; handEl.innerHTML="";
   buildBag();
   rollLucky();
@@ -2959,7 +3096,7 @@ function gauntletDefeated(){
   const mEl=document.getElementById("monster");
   if(mEl) mEl.classList.add("die");
   const ec=center(enemyEl);
-  spawnParticles(ec.x,ec.y,"#ffd166",60);
+  deathParticles(S.enemy.sprite,ec.x,ec.y,60);
   flash("rgba(255,217,61,.5)");
   setFeedback("good","🏆 全员挑战成功！","整层 5 只怪物一网打尽！通关奖金 +"+bonus+" 币，直上一层！");
   if(S.battleWords.size){
@@ -2997,9 +3134,10 @@ function layoutHand(){
     const el=handEl.querySelector('.card[data-id="'+card.id+'"]');
     if(!el) return;
     const x=startX+i*m.step;
-    const y=S.selected.has(card.id)?-20:0;
-    el.style.transform='translate('+x+'px,'+y+'px)';
-    el.style.zIndex=S.selected.has(card.id)?1000:(i+1);
+    const on=S.selected.has(card.id);
+    el.classList.toggle("sel",on);          /* 选中态（金色流光 + 上浮） */
+    el.style.transform='translate('+x+'px,'+(on?-20:0)+'px)';
+    el.style.zIndex=on?1000:(i+1);
   });
 }
 function buildCardEl(card){
@@ -3132,7 +3270,7 @@ function renderStats(){
   $("st-score").textContent=S.score;
   const mEl=$("money-chip");
   if(mEl && String(mEl.dataset.m)!==String(S.money)){
-    mEl.dataset.m=S.money;
+    mEl.dataset.m=String(S.money);
     mEl.classList.remove("gain"); void mEl.offsetWidth; mEl.classList.add("gain");
   }
   $("st-money").textContent=S.money;
@@ -3141,6 +3279,48 @@ function renderStats(){
   au.textContent=S.muted?"🔇 静音":"🔊 声音";
   au.title=S.muted?"点击开启音效与音乐":"点击静音";
   au.style.opacity=S.muted?".65":"1";
+  renderCombo();
+}
+
+/* ================= 连击（连续答对） ================= */
+function renderCombo(){
+  const el=$("combo-chip"); if(!el) return;
+  if(S.combo>=2){
+    el.classList.add("on");
+    el.classList.toggle("hot", S.combo>=5);
+    $("combo-num").textContent=S.combo;
+  }else{
+    el.classList.remove("on","hot");
+  }
+}
+function bumpCombo(){
+  S.combo++;
+  renderCombo();
+  if(S.combo>=2){
+    const el=$("combo-chip");
+    el.classList.remove("on"); void el.offsetWidth; el.classList.add("on");
+    /* 音高随连击升高：越连越亢奋 */
+    const base=523.25*Math.pow(1.06,Math.min(12,S.combo));
+    tone(base,.07,"square",.09); tone(base*1.5,.09,"square",.08,.06);
+    if(S.combo>=5){ tone(base*2,.12,"square",.07,.12); }
+  }
+}
+function resetCombo(){ S.combo=0; renderCombo(); }
+
+/* ================= 楼层主题 ================= */
+const FLOOR_THEMES=[
+  null,
+  {name:"森林", key:1}, {name:"沙漠", key:2}, {name:"冰天雪地", key:3},
+  {name:"石洞", key:4}, {name:"熔岩", key:5}, {name:"大海", key:6}, {name:"太空", key:7},
+];
+function floorThemeName(f){
+  const t=FLOOR_THEMES[((f-1)%7)+1];
+  const round=Math.floor((f-1)/7);
+  return t.name+(round>0?" ×"+(round+1):"");
+}
+function applyFloorTheme(f){
+  const t=FLOOR_THEMES[((Math.max(1,f)-1)%7)+1];
+  document.body.dataset.floor=String(t.key);
 }
 function renderSide(){
   bumpVal("side-plays", S.battlePlays);
@@ -3446,6 +3626,7 @@ function playSelected(){
       spawnParticles(ec.x,ec.y,"#ffd93d",8+cards.length*3);
       floater("每只 -"+(base+(rem>0?1:0)),ec.x,ec.y-20,"#3ddc97");
       showDamagePop(dmg,hue);
+      bumpCombo();
       distinct.forEach(c=>{ S.wordsLearned.add(S.enemy.companions.get(c).w); S.battleWords.add(S.enemy.companions.get(c).w); });
       let wTxt=distinct.map(c=>{ const o=S.enemy.companions.get(c); return o.w+" "+o.p; }).join(' · ');
       if(stoneCards.length) wTxt += (wTxt?' · ':'')+'石牌(万能)';
@@ -3479,6 +3660,7 @@ function playSelected(){
     spawnParticles(ec.x,ec.y,"#ffd93d",8+cards.length*3);
     floater("-"+dmg,ec.x-10,ec.y-20,"#3ddc97");
     showDamagePop(dmg,hue);
+    bumpCombo();
     distinct.forEach(c=>{ S.wordsLearned.add(enemy.companions.get(c).w); S.battleWords.add(enemy.companions.get(c).w); });
     let wTxt=distinct.map(c=>{ const o=enemy.companions.get(c); return o.w+" "+o.p; }).join(' · ');
     if(stoneCards.length) wTxt += (wTxt?' · ':'')+'石牌(万能)';
@@ -3489,6 +3671,7 @@ function playSelected(){
   } else {
     sfxWrong();
     showDamagePop(0);
+    resetCombo();
     /* 敌人挡下这一击：红色反击光扫过 + 红色多方向攻击（纯动画，无判定文字） */
     attackFXSet(2,cards.length,true);
     lightBurst(10,2,true);
@@ -3825,7 +4008,7 @@ function enemyDefeated(skip){
   const mEl=document.getElementById("monster");
   if(mEl) mEl.classList.add("die");
   const ec=center(enemyEl);
-  spawnParticles(ec.x,ec.y,"#ffd166",40);
+  deathParticles(S.enemy.sprite,ec.x,ec.y,40);
   flash("rgba(255,217,61,.45)");
   setFeedback("good", skip?"已跳过":"✓ 击败敌人！","　「"+S.enemy.anchor+"」组词挑战通过"+(S.battleWords.size?" · 词语朗读 ×2":""));
   if(!skip && S.battleWords.size){
@@ -4039,6 +4222,7 @@ async function startRun(){
   S.hp=5; S.maxHp=5; S.score=0; S.money=0; S.kills=0; S.floor=1; S.step=0; S.combo=0;
   S.playedCards=0; S.baibuDone=false; S.longdanArmed=false; S.kindBonus=0; S.destroyMode=false;
   S.correct=0; S.attempts=0; S.wordsLearned=new Set();
+  applyFloorTheme(1);
   S.items=[]; S.handSize=6; S.discards=3; S.hands=Infinity;
   S.selected=new Set(); S.disabledItems=new Set(); S.instantBought=new Set(); S.shopStock=[];
   S.paused=false; S.battleWords=new Set(); lastDmg=0;
