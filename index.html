@@ -139,13 +139,22 @@
   }
 
   #enemy{position:relative; background:linear-gradient(180deg,#ff9ecb,#f56ab0);
-    border:3px solid #3b1550; box-shadow:var(--shadow), inset 0 4px 0 rgba(255,255,255,.35); border-radius:16px; padding:10px; margin-bottom:8px;}
+    border:3px solid #3b1550; box-shadow:var(--shadow), inset 0 4px 0 rgba(255,255,255,.35); border-radius:16px; padding:8px 10px 10px; margin-bottom:8px;}
   #enemy.boss{background:linear-gradient(180deg,#ff7a7a,#f04e6e); border-color:#3b1550;}
-  .enemy-top{display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;}
+  .enemy-top{display:flex; justify-content:flex-start; align-items:center; gap:8px; margin-bottom:4px;}
   .enemy-tag{font-family:var(--font-px); font-size:16px; color:#fff; text-shadow:1px 1px 0 #3b1550;}
   #enemy.boss .enemy-tag{color:#ffe066;}
-  .level-tag{font-family:var(--font-px); font-size:16px; color:#fff; text-shadow:1px 1px 0 #3b1550;}
-  .monster{display:flex; align-items:center; justify-content:center; margin:2px 0 6px; min-height:84px;}
+  .level-tag{font-family:var(--font-px); font-size:13px; color:#fff; text-shadow:1px 1px 0 #3b1550;
+    background:rgba(59,21,80,.3); border-radius:8px; padding:1px 7px;}
+  /* 横向四列：幸运骰子 → 怪物 → 对应字 → 介绍（充分利用横向空间） */
+  .enemy-row{display:flex; align-items:center; gap:8px;}
+  .ecell{display:flex; align-items:center; justify-content:center; min-width:0;}
+  .ecell-luck{flex:0 0 auto; flex-direction:column; gap:4px;}
+  .ecell-monster{flex:0 0 auto;}
+  .ecell-word{flex:0 0 auto;}
+  .ecell-desc{flex:1 1 auto; justify-content:center;}
+  .monster{display:flex; align-items:center; justify-content:center; margin:0; min-height:0;}
+  .monster svg{width:128px; height:128px;}
   /* 全员挑战怪物行 */
   .gauntlet-row{display:flex; gap:6px; justify-content:center; align-items:flex-end; margin:2px 0 8px; flex-wrap:wrap;}
   .gmon{display:flex; flex-direction:column; align-items:center; gap:3px; padding:4px 4px 3px;
@@ -172,13 +181,13 @@
     0%{transform:translateY(0) rotate(0deg) scale(1); opacity:1;}
     100%{transform:translateY(46px) rotate(24deg) scale(.55); opacity:0;}
   }
-  .puzzle{display:flex; justify-content:center; gap:10px; margin:4px 0 4px; flex-wrap:wrap;}
-  .slot{min-width:54px; height:58px; display:flex; align-items:center; justify-content:center;
-    font-size:40px; font-weight:900; background:#fff9ef; color:#3d1a4d; border:3px solid #3b1550;
-    box-shadow:3px 3px 0 #3b1550; border-radius:14px;}
+  .puzzle{display:flex; justify-content:center; align-items:center; gap:10px; margin:0; flex-wrap:nowrap;}
+  .slot{min-width:72px; height:78px; display:flex; align-items:center; justify-content:center;
+    font-size:50px; font-weight:900; background:#fff9ef; color:#3d1a4d; border:3px solid #3b1550;
+    box-shadow:3px 3px 0 #3b1550; border-radius:16px;}
   .slot.blank{background:repeating-linear-gradient(45deg,#ffe3f0 0 8px,#ffd1e6 8px 16px);
     color:#c58ab0; border-style:dashed;}
-  .hint-line{text-align:center; font-size:19px; color:#fff; text-shadow:1px 1px 0 #3b1550; margin:2px 0;
+  .hint-line{text-align:center; font-size:19px; color:#fff; text-shadow:1px 1px 0 #3b1550; margin:0;
     display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:4px 10px;}
   .hint-line .en{color:#ffe066; font-family:var(--font-px); font-size:16px; letter-spacing:1px;}
   .hint-line .py{color:#b6fff0; font-family:var(--font-px); font-size:19px; margin-left:8px;}
@@ -193,13 +202,16 @@
   .hint-line .rw i{font-family:var(--font-px); font-style:normal; font-size:14px; opacity:.95;}
   .hint-line .rw em{font-style:normal; font-size:15px; color:#fff; opacity:.92;
     background:rgba(59,21,80,.35); border-radius:8px; padding:0 6px;}
-  .hpbar{height:16px; background:#3d1a4d; border:2px solid #3b1550; border-radius:9px; overflow:hidden; margin-top:8px;}
+  /* 横向两列：生命值在左、提示栏在右 */
+  .enemy-foot{display:flex; align-items:stretch; gap:8px; margin-top:6px;}
+  .hp-wrap{flex:0 0 40%; min-width:150px; display:flex; flex-direction:column; justify-content:center;}
+  .hpbar{height:18px; background:#3d1a4d; border:2px solid #3b1550; border-radius:9px; overflow:hidden;}
   .hpbar .fill{height:100%; background:linear-gradient(90deg,#3ddc97,#7be9ff); transition:width .35s ease; width:100%;}
   #enemy.boss .hpbar .fill{background:linear-gradient(90deg,#ffd93d,#ff9f1c);}
   .hp-nums{display:flex; justify-content:space-between; font-family:var(--font-px); font-size:15px; color:#fff; text-shadow:1px 1px 0 #3b1550; margin-top:3px;}
 
-  #feedback{min-height:38px; background:#fff9ef; color:#3d1a4d; border:3px solid #3b1550; box-shadow:2px 2px 0 #3b1550;
-    border-radius:12px; margin-bottom:4px; padding:4px 10px; display:flex; align-items:center; gap:8px;
+  #feedback{flex:1 1 auto; min-width:0; background:#fff9ef; color:#3d1a4d; border:3px solid #3b1550; box-shadow:2px 2px 0 #3b1550;
+    border-radius:12px; padding:4px 10px; display:flex; align-items:center; justify-content:center; gap:8px; text-align:center;
     font-size:17px; line-height:1.3;}
   #feedback .big{font-size:28px; font-weight:900;}
   #feedback.good{background:#d6ffe9; border-color:#0d9463;}
@@ -685,23 +697,26 @@
     .stat.money b{font-size:14px;}
     #enemy{border-radius:10px; padding:4px 5px;}
     .enemy-top{margin-bottom:2px; gap:4px;}
-    .enemy-tag,.level-tag{font-size:11px; padding:1px 6px;}
-    #lucky-num{flex:0 0 28px; width:28px; height:28px; font-size:16px; border-width:2px;}
-    #lucky-dice{flex:0 0 27px; width:27px; height:27px; border-radius:6px;}
-    #lucky-dice .pip{width:5px; height:5px;}
-    .monster{min-height:60px; margin:0;}
-    .monster svg{width:60px; height:60px;}
-    .puzzle{gap:6px; margin:1px 0;}
-    .slot{min-width:32px; height:32px; font-size:21px; border-width:2px; border-radius:8px; box-shadow:2px 2px 0 #3b1550;}
-    /* 英文释义在手机上单行显示（超出省略），避免把布局撑高、两侧留白 */
-    .hint-line{font-size:12px; margin:0; gap:2px 5px; flex-wrap:nowrap; white-space:nowrap; overflow:hidden;}
-    .hint-line .en,.hint-line .py,.hint-line .trait-tag{font-size:10px;}
-    .hint-line .en-hint{font-size:11px; padding:1px 5px; border-width:2px;}
-    .hint-line .theme-tag{font-size:9px; padding:0 4px;}
-    .hint-line .rw{font-size:13px;} .hint-line .rw i{font-size:9px;} .hint-line .rw em{font-size:9px; padding:0 3px;}
-    .hpbar{height:14px; margin-top:3px; border-width:2px; border-radius:8px;}
-    .hp-nums{font-size:14px; margin-top:1px;}
-    #feedback{min-height:20px; font-size:11px; padding:1px 5px; border-width:2px; border-radius:8px; margin-bottom:0;}
+    .enemy-tag{font-size:12px;} .level-tag{font-size:10px; padding:0 5px;}
+    .enemy-row{gap:5px;}
+    #lucky-num{flex:0 0 30px; width:30px; height:30px; font-size:17px; border-width:2px;}
+    #lucky-dice{flex:0 0 30px; width:30px; height:30px; border-radius:7px;}
+    #lucky-dice .pip{width:6px; height:6px;}
+    .monster{min-height:0; margin:0;}
+    .monster svg{width:72px; height:72px;}
+    .puzzle{gap:5px; margin:0;}
+    .slot{min-width:38px; height:38px; font-size:25px; border-width:2px; border-radius:9px; box-shadow:2px 2px 0 #3b1550;}
+    /* 介绍移到右侧后宽度富余，允许英文释义折两行 */
+    .hint-line{font-size:13px; margin:0; gap:2px 5px; flex-wrap:wrap; white-space:normal; overflow:visible; line-height:1.25;}
+    .hint-line .en,.hint-line .py,.hint-line .trait-tag{font-size:11px;}
+    .hint-line .en-hint{font-size:12px; padding:1px 5px; border-width:2px;}
+    .hint-line .theme-tag{font-size:10px; padding:0 4px;}
+    .hint-line .rw{font-size:14px;} .hint-line .rw i{font-size:10px;} .hint-line .rw em{font-size:10px; padding:0 3px;}
+    .enemy-foot{gap:5px; margin-top:4px;}
+    .hp-wrap{flex:0 0 42%; min-width:0;}
+    .hpbar{height:14px; border-width:2px; border-radius:8px;}
+    .hp-nums{font-size:12px; margin-top:1px;}
+    #feedback{font-size:11px; padding:1px 5px; border-width:2px; border-radius:8px; line-height:1.2;}
     #feedback .big{font-size:13px;}
     #player{gap:5px; margin-bottom:0;}
     .hearts{font-size:11px; gap:2px;}
@@ -763,7 +778,7 @@
     #stage{padding:4px;}
     #game{padding:4px; gap:2px;}
     .sstat{padding:2px 2px;} .sstat .v{font-size:19px;}
-    .monster{min-height:54px;} .monster svg{width:54px; height:54px;}
+    .monster{min-height:0;} .monster svg{width:54px; height:54px;}
     .slot{min-width:30px; height:30px; font-size:20px;}
     .hpbar{height:12px;} .hp-nums{font-size:12px;}
     #feedback{min-height:16px; font-size:11px;}
@@ -812,17 +827,32 @@
         <div class="enemy-top">
           <span class="enemy-tag" id="enemy-name">敌人</span>
           <span class="level-tag" id="enemy-level">第 1 层 a</span>
-          <span id="lucky-num" title="幸运数字（一 ~ 六）：本次出牌的张数与它相同时，伤害 ×该数字！每次出牌/弃牌后都会变化">一</span>
-          <div id="lucky-dice" title="幸运骰子：点数与幸运数字相同，每次出牌/弃牌后重新投掷！"><div class="pip" style="left:50%;top:50%"></div></div>
         </div>
-        <div class="monster" id="monster"></div>
-        <div class="puzzle" id="puzzle"></div>
-        <div class="hint-line" id="hint"></div>
-        <div class="hpbar"><div class="fill" id="e-hpfill"></div></div>
-        <div class="hp-nums"><span id="e-hp">6 / 6</span><span id="e-atk">攻击 1</span></div>
+        <!-- 横向四列：幸运骰子 → 怪物 → 对应字 → 词语介绍 -->
+        <div class="enemy-row">
+          <div class="ecell ecell-luck">
+            <div id="lucky-dice" title="幸运骰子：点数与幸运数字相同，每次出牌/弃牌后重新投掷！"><div class="pip" style="left:50%;top:50%"></div></div>
+            <span id="lucky-num" title="幸运数字（一 ~ 六）：本次出牌的张数与它相同时，伤害 ×该数字！每次出牌/弃牌后都会变化">一</span>
+          </div>
+          <div class="ecell ecell-monster">
+            <div class="monster" id="monster"></div>
+          </div>
+          <div class="ecell ecell-word">
+            <div class="puzzle" id="puzzle"></div>
+          </div>
+          <div class="ecell ecell-desc">
+            <div class="hint-line" id="hint"></div>
+          </div>
+        </div>
+        <!-- 横向两列：生命值在左，提示栏在右 -->
+        <div class="enemy-foot">
+          <div class="hp-wrap">
+            <div class="hpbar"><div class="fill" id="e-hpfill"></div></div>
+            <div class="hp-nums"><span id="e-hp">6 / 6</span><span id="e-atk">攻击 1</span></div>
+          </div>
+          <div id="feedback"><span>击败敌人、造成伤害</span></div>
+        </div>
       </div>
-
-      <div id="feedback"><span>选出手里的字，和敌人出示的字组成词语。张数越多伤害越高；凑中幸运数字伤害翻倍增长！</span></div>
 
       <div id="player">
         <div class="hearts" id="hearts"></div>
