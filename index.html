@@ -972,7 +972,7 @@
             <div class="hpbar"><div class="fill" id="e-hpfill"></div></div>
             <div class="hp-nums"><span id="e-hp">6 / 6</span><span id="e-atk">攻击 1</span></div>
           </div>
-          <div id="feedback"><span>击败敌人、造成伤害</span></div>
+          <div id="feedback"><span class="big">祝你好运！</span></div>
         </div>
       </div>
 
@@ -1038,9 +1038,8 @@
     <div class="sub">Chinese Character Balatro · 边玩边学汉字</div>
     <div id="intro-guide" class="intro-guide"></div>
     <div class="opt-row">
-      <label for="opt-timer">⏱ 倒计时挑战</label>
+      <label for="opt-timer">⏱ 倒计时</label>
       <span class="switch"><input type="checkbox" id="opt-timer"><span class="slider"></span></span>
-      <span class="opt-tip">开启后限时出牌，超时被敌人反击（默认关闭）</span>
     </div>
     <button class="bigbtn" id="btn-start">开始游戏</button>
     <button class="bigbtn" id="btn-board" style="background:linear-gradient(180deg,#9fe5ff,#5cc8f5)">排行榜</button>
@@ -3493,7 +3492,8 @@ function renderButtons(){
 
 function setFeedback(good,big,small){
   feedback.className=good==="good"?"good":(good==="bad"?"bad":"");
-  feedback.innerHTML='<span class="big">'+big+'</span><span>'+small+'</span>';
+  /* 只保留主文案：右侧提示栏不再显示任何解释性长句 */
+  feedback.innerHTML='<span class="big">'+(big||"")+'</span>';
 }
 
 /* ================= 交互 ================= */
@@ -3957,10 +3957,10 @@ function useBaizhi(){
 /* ================= 提示（枸杞：每关提示次数 +1） ================= */
 function useHint(){
   if(S.busy || !S.enemy) return;
-  if(S.hints<=0){ setFeedback("","没有提示了","拥有「枸杞」可让每关提示次数 +1"); return; }
+  if(S.hints<=0){ setFeedback("","没有提示了",""); return; }
   const pool=S.hand.filter(c=>!c.stone && S.enemy.companions.has(c.c));
   if(!pool.length){
-    setFeedback("bad","暂时提示不了","手里没有能和「"+S.enemy.anchor+"」组词的字，先弃牌换一批吧！");
+    setFeedback("bad","弃牌换一批吧","");
     return;
   }
   S.hints--;
@@ -3978,7 +3978,7 @@ function useHint(){
     floater("提示：「"+hintCard.c+"」",c.x-20,c.y-46,"#ffd93d");
   }
   const o=S.enemy.companions.get(hintCard.c);
-  setFeedback("","提示","用「"+hintCard.c+"」可以和「"+S.enemy.anchor+"」组成「"+(o?o.w:hintCard.c)+"」");
+  setFeedback("","「"+hintCard.c+"」＋「"+S.enemy.anchor+"」＝「"+(o?o.w:hintCard.c)+"」","");
   renderButtons();
 }
 
@@ -4247,7 +4247,7 @@ async function startRun(){
   await initialDeal();
   S.busy=false;
   renderButtons(); renderSide();
-  setFeedback("","准备好了吗！", S.timerOn ? "张数越多伤害越高，出牌张数命中幸运数字伤害 ×n，注意倒计时！" : "张数越多伤害越高，出牌张数命中幸运数字伤害 ×n，慢慢想，不着急～");
+  setFeedback("","准备好了吗！","");
 }
 function nextEnemy(){
   S.step++;
@@ -4400,13 +4400,13 @@ $("st-mute").addEventListener("click",()=>{
   if(S.muted){ stopBGM(); try{ if("speechSynthesis" in window) window.speechSynthesis.cancel(); }catch(e){} }
   else { if(S.running && S.enemy) playMonsterBGM(S.enemy.sprite, S.enemy.boss); sfxItem(); }
   renderStats();
-  if(!S.muted && !audioRunning()) setFeedback("","🔇 浏览器仍在阻止声音","再点一次「声音」按钮，或用手机音量键确认未静音");
+  if(!S.muted && !audioRunning()) setFeedback("","🔇 点「声音」开启","");
 });
 initHearts();
 renderButtons();
 renderSide();
 try{ if(localStorage.getItem("hz_timer")==="1") $("opt-timer").checked=true; }catch(e){}
-setFeedback("","欢迎！","点击「开始游戏」进入汉字冒险");
+setFeedback("","欢迎！","");
 </script>
 </body>
 </html>
