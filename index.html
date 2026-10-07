@@ -103,6 +103,12 @@
     box-shadow:var(--shadow), 0 0 0 4px #ffdf8e;
     border-radius:16px; padding:10px; overflow:hidden;
     display:flex; flex-direction:column; gap:6px;
+    /* iPhone 全面屏安全区：刘海/灵动岛与底部横条不能压住内容 */
+    padding-top:calc(10px + env(safe-area-inset-top,0px));
+    padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));
+  }
+  @media (orientation:portrait){
+    #game{padding-left:calc(10px + env(safe-area-inset-left,0px)); padding-right:calc(10px + env(safe-area-inset-right,0px));}
   }
   /* 中栏上下两栏：上=怪物/词/幸运数字，下=牌区 */
   #top-zone{flex:1 1 auto; min-height:0; display:flex; flex-direction:column; gap:4px;}
@@ -885,12 +891,20 @@
     #modal-start .opt-row{order:2;} #modal-start #btn-start{order:3;}
     #modal-start .intro-guide{order:5; margin:6px 0 0;}
     .intro-guide{padding:5px 6px; margin-bottom:6px; border-width:2px;}
+  /* iPhone 提示条：如何在 iOS 上进入全屏（无地址栏） */
+  .ios-tip{display:flex; align-items:center; gap:8px; background:#fff3c4; color:#3d1a4d;
+    border:2px solid #3b1550; border-radius:12px; padding:7px 9px; margin:6px 0 0;
+    font-size:12.5px; line-height:1.4; text-align:left; box-shadow:2px 2px 0 rgba(59,21,80,.35);}
+  .ios-tip span{flex:1 1 auto;}
+  .ios-tip button{flex:0 0 auto; padding:3px 9px; font-size:13px;}
     .intro-title{font-size:11px; margin-bottom:2px;}
     .intro-row{padding:3px 0; gap:8px;}
     .intro-txt .zh{font-size:11px; line-height:1.3; margin-bottom:1px;}
     .intro-txt .en{font-size:9.5px; line-height:1.25;}
     .intro-art svg{width:40px !important; height:auto !important;}
     .opt-row{margin:4px 0;} .opt-tip{display:none;}
+  .ios-tip{order:4; font-size:10.5px; padding:5px 6px; margin:4px 0 0;}
+  .ios-tip button{padding:1px 6px; font-size:11px;}
     .bigbtn{margin:3px 0; padding:6px 0; font-size:14px;}
     /* 结算表格在手机上放大字号（宽度还有余量，不会横向溢出） */
     table{font-size:13px;} th,td{padding:8px 5px;}
@@ -1051,6 +1065,10 @@
   <div class="modal" id="modal-start">
     <h1>汉字小丑牌</h1>
     <div class="sub">Chinese Character Balatro · 边玩边学汉字</div>
+    <div id="ios-tip" class="ios-tip" style="display:none">
+      <span>📲 iPhone：点底部「分享」→「添加到主屏幕」，之后从主屏幕打开就没有地址栏，全屏显示</span>
+      <button id="ios-tip-close" type="button">✕</button>
+    </div>
     <div id="intro-guide" class="intro-guide"></div>
     <div class="opt-row">
       <label for="opt-timer">⏱ 倒计时</label>
@@ -4442,17 +4460,30 @@ $("st-mute").addEventListener("click",()=>{
 });
 
 /* ================= 全屏：像在线视频网站那样铺满整屏 ================= */
+/* iOS（含 iPadOS 的 Safari）不支持网页版 Fullscreen API，只有「添加到主屏幕」才能去掉地址栏 */
+const IS_IOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+const IS_STANDALONE=(navigator.standalone===true)||(window.matchMedia&&window.matchMedia("(display-mode: standalone)").matches);
+function showIOSFullscreenTip(force){
+  const el=$("ios-tip"); if(!el) return;
+  if(!IS_IOS || IS_STANDALONE || (!force && localStorage.getItem("hz_ios_tip")==="1")){ el.style.display="none"; return; }
+  el.style.display="flex";
+}
 function isFullscreen(){ return !!(document.fullscreenElement || document.webkitFullscreenElement); }
 function enterFullscreen(){
   const el=document.documentElement;
   const fn=el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
   if(fn) { try{ const p=fn.call(el); if(p&&p.catch) p.catch(()=>{}); }catch(e){} }
+  /* iOS 上没有这个 API：直接告诉用户怎么添加到主屏幕 */
+  if(!fn) showIOSFullscreenTip(true);
 }
 function exitFullscreen(){
   const fn=document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
   if(fn){ try{ fn.call(document); }catch(e){} }
 }
-function toggleFullscreen(){ isFullscreen() ? exitFullscreen() : enterFullscreen(); }
+function toggleFullscreen(){
+  if(IS_IOS && !IS_STANDALONE){ showIOSFullscreenTip(true); return; }  /* iOS 走「添加到主屏幕」 */
+  isFullscreen() ? exitFullscreen() : enterFullscreen();
+}
 function renderFsBtn(){
   const b=$("btn-fs"); if(!b) return;
   const on=isFullscreen();
@@ -4469,8 +4500,11 @@ let fsTried=localStorage.getItem("hz_fs_asked")==="1";
 document.addEventListener("pointerdown",function once(){
   if(fsTried) return;
   fsTried=true; localStorage.setItem("hz_fs_asked","1");
-  if(!isFullscreen() && document.fullscreenEnabled!==false){ enterFullscreen(); setTimeout(renderFsBtn,120); }
+  if(!IS_STANDALONE && !isFullscreen() && document.fullscreenEnabled!==false){ enterFullscreen(); setTimeout(renderFsBtn,120); }
 },{once:true});
+/* iOS 提示条：首次进入自动显示一次，点 ✕ 关闭，点顶栏 ⛶ 可再看 */
+try{ $("ios-tip-close").addEventListener("click",()=>{ localStorage.setItem("hz_ios_tip","1"); $("ios-tip").style.display="none"; }); }catch(e){}
+showIOSFullscreenTip(false);
 initHearts();
 renderButtons();
 renderSide();
