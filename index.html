@@ -2906,20 +2906,20 @@ function renderWordStats(){
   el.innerHTML=h+'</table>';
 }
 
-/* ================= 排行榜云同步（多设备永久保存，可选） =================
-   纯前端无法凭空造出服务器，需要一个极小的后端。最省事的做法是免费 Google Apps Script：
-   1) 打开 https://script.google.com 新建脚本，粘贴下面这段，部署为「网页应用」，
-      执行身份选「我」、谁可以访问选「任何人」，把生成的 /exec 地址填到下面 SYNC_URL；
-   2) 之后点游戏里的「☁ 同步」按钮，成绩就会在所有设备之间永久同步。
+/* ================= 排行榜同步 =================
+   【方式 A · 开箱即用，纯 GitHub，无需任何密钥】
+     游戏从同站点的 scores.json 读取榜单（由 .github/workflows/leaderboard.yml 自动维护）：
+       · 游戏里点「⬆ 提交成绩」→ 打开一条预填好的 GitHub Issue（浏览器里登录一次 GitHub 即可）
+       → GitHub Actions 自动把这条 Issue 解析成 scores.json 并提交
+       → Pages 自动重建，所有设备刷新后就能看到新榜单
+     好处：页面里不存放任何密钥，谁都改不了你的仓库。
+   【方式 B · 可选，需要一个自己的后端才能“免登录”写入】
+     把下面 SYNC_URL 填成任意支持 GET/POST JSON 的服务（Google Apps Script 免费脚本模板见上方注释），
+     即可在保存成绩时静默上传、多设备自动合并。 */
 
-   function doGet(){ return ContentService.createTextOutput(JSON.stringify(readAll())); }
-   function doPost(e){ add(JSON.parse(e.postData.contents||"[]")); return ContentService.createTextOutput("ok"); }
-   function readAll(){ return JSON.parse(DriveApp.getFileById("FILE_ID").getAsString()||"[]"); }   // 换成你的文件 ID
-   function add(rows){ const f=DriveApp.getFileById("FILE_ID"); const all=readAll(); rows.forEach(r=>{ if(!all.some(x=>x.id===r.id)) all.push(r); });
-     all.sort((a,b)=>b.score-a.score); f.setContent(JSON.stringify(all.slice(0,50))); }
-
-   也可以把 SYNC_URL 换成任何支持 GET/POST JSON 的服务（Cloudflare Worker、Supabase Edge Function 等）。 */
-const SYNC_URL="";                       /* ← 把后端地址填在这里即可启用同步；留空则只存本机 */
+const GIT_SCORES_URL="./scores.json";    /* 排行榜数据文件（GitHub Pages 上的） */
+const GIT_REPO="owlminerva593-lang/hanzi-xiaojoupai";   /* 提交成绩用的仓库 */
+const SYNC_URL="";                       /* ← 可选：后端地址，留空则只读 scores.json */
 function deviceId(){
   let d=localStorage.getItem("hz_dev");
   if(!d){ d="d"+Math.random().toString(36).slice(2,9)+Date.now().toString(36); localStorage.setItem("hz_dev",d); }
@@ -2927,27 +2927,68 @@ function deviceId(){
 }
 function mergeScores(local,remote){
   const all=[...local];
-  remote.forEach(r=>{ if(r&&r.id && !all.some(x=>x.id===r.id)) all.push(r); else if(r&&!r.id) all.push(r); });
+  remote.forEach(r=>{ if(r && !all.some(x=>x.id===r.id)) all.push(r); });
   all.sort((a,b)=>(b.score||0)-(a.score||0));
   return all.slice(0,50);
 }
-async function syncScores(){
-  if(!SYNC_URL){ setFeedback("","未配置同步地址",""); return false; }
+/* 从 GitHub Pages 拉取榜单并与本机记录合并 */
+async function pullRemoteScores(){
+  if(!GIT_SCORES_URL) return 0;
   try{
-    setFeedback("","同步中…","");
-    const mine=loadScores().map(r=>Object.assign({},r,{dev:deviceId()}));
-    await fetch(SYNC_URL,{method:"POST",body:JSON.stringify(mine)});
-    const res=await fetch(SYNC_URL,{cache:"no-store"});
+    const res=await fetch(GIT_SCORES_URL+"?t="+Date.now(),{cache:"no-store"});
+    if(!res.ok) return 0;
     const remote=await res.json();
-    const merged=mergeScores(loadScores(),Array.isArray(remote)?remote:[]);
+    if(!Array.isArray(remote)) return 0;
+    const merged=mergeScores(loadScores(),remote);
     localStorage.setItem(LS_KEY,JSON.stringify(merged));
     renderBoard();
-    setFeedback("","已同步","");
+    return remote.length;
+  }catch(e){ return 0; }
+}
+/* 可选后端上传 */
+async function pushToBackend(){
+  if(!SYNC_URL) return false;
+  try{
+    await fetch(SYNC_URL,{method:"POST",body:JSON.stringify(loadScores().map(r=>Object.assign({},r,{dev:deviceId()})))});
+    const res2=await fetch(SYNC_URL,{cache:"no-store"});
+    const remote=await res2.json();
+    if(Array.isArray(remote)){
+      localStorage.setItem(LS_KEY,JSON.stringify(mergeScores(loadScores(),remote)));
+      renderBoard();
+    }
     return true;
-  }catch(e){
-    setFeedback("","同步失败","");
-    return false;
-  }
+  }catch(e){ return false; }
+}
+/* 「同步」按钮：拉取云端榜单（+ 可选后端上传） */
+async function syncScores(){
+  setFeedback("","同步中…","");
+  const n=await pullRemoteScores();
+  await pushToBackend();
+  setFeedback("", n?("已同步 "+n+" 条记录"):"暂无云端记录","");
+}
+/* 「提交成绩」：打开预填的 GitHub Issue，由 Actions 自动写入 scores.json */
+function submitScoreToGitHub(){
+  const name=(localStorage.getItem("hz_name")||"玩家").slice(0,12);
+  const body="姓名: "+name+"\n分数: "+S.score+"\n击败: "+S.kills+"\n词语: "+S.wordsLearned.size
+    +"\n日期: "+new Date().toLocaleDateString("zh-CN")+"\n";
+  const title="[成绩] "+name+" "+S.score+"分";
+  const url="https://github.com/"+GIT_REPO+"/issues/new?title="+encodeURIComponent(title)+"&body="+encodeURIComponent(body);
+  window.open(url,"_blank");
+  setFeedback("","已打开提交页面","");
+}
+function copyScoreText(){
+  const name=(localStorage.getItem("hz_name")||"玩家").slice(0,12);
+  const txt="[成绩] "+name+" "+S.score+"分\n姓名: "+name+"\n分数: "+S.score+"\n击败: "+S.kills+"\n词语: "+S.wordsLearned.size+"\n日期: "+new Date().toLocaleDateString("zh-CN");
+  const done=()=>setFeedback("","成绩已复制","");
+  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(done,()=>fallbackCopy(txt,done)); }
+  else fallbackCopy(txt,done);
+}
+function fallbackCopy(txt,cb){
+  const ta=document.createElement("textarea");
+  ta.value=txt; ta.style.position="fixed"; ta.style.opacity="0";
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand("copy"); cb(); }catch(e){ setFeedback("","复制失败",""); }
+  ta.remove();
 }
 
 /* ================= 工具 ================= */
@@ -4317,6 +4358,7 @@ function gameOver(){
   $("name-input").value=localStorage.getItem("hz_name")||"";
   renderWordStats();
   renderBoard();
+  try{ pullRemoteScores(); }catch(e){}     /* 顺带拉取 GitHub 上的全站榜单 */
 }
 
 /* ================= 排行榜 ================= */
@@ -4328,8 +4370,8 @@ function saveScore(name,score,kills,words){
   s.sort((a,b)=>b.score-a.score);
   s=s.slice(0,50);
   localStorage.setItem(LS_KEY,JSON.stringify(s));
-  /* 已配置云端时自动上传（失败不影响游戏） */
-  if(SYNC_URL) syncScores();
+  /* 配置了后端就自动上传；GitHub 方式（scores.json）由学生点「提交成绩」写入 */
+  if(SYNC_URL) pushToBackend();
 }
 function renderBoard(){
   const s=loadScores();
@@ -4340,12 +4382,16 @@ function renderBoard(){
     s.forEach((r,i)=>{ html+='<tr><td>'+(i+1)+'</td><td>'+esc(r.name)+'</td><td>'+r.score+'</td><td>'+r.kills+'</td><td>'+r.words+'</td></tr>'; });
     html+='</table>';
   }
-  html+='<div class="row" style="margin-top:8px;gap:6px">'+
-    '<button id="btn-sync" style="flex:1;font-size:12px;padding:8px 0">☁ 同步排行榜</button>'+
-    '<button id="btn-wipe" style="flex:0 0 96px;font-size:12px;padding:8px 0;background:#ffe0e6">清空本机</button></div>'+
-    '<div class="dim" style="text-align:left">'+(SYNC_URL?'已配置云端同步，点击「同步」即可在多设备间永久保存与查阅。':'本机记录保存在这台设备上。配置云端地址后可跨设备永久同步。')+'</div>';
+  html+='<div class="row" style="margin-top:8px;gap:5px;flex-wrap:wrap">'+
+    '<button id="btn-sync" style="flex:1 1 40%;font-size:12px;padding:8px 0">☁ 刷新榜单</button>'+
+    '<button id="btn-submit" style="flex:1 1 40%;font-size:12px;padding:8px 0;background:linear-gradient(180deg,#8cf5c4,#3ddc97)">⬆ 提交成绩</button>'+
+    '<button id="btn-copy" style="flex:1 1 40%;font-size:12px;padding:8px 0">📋 复制成绩</button>'+
+    '<button id="btn-wipe" style="flex:1 1 40%;font-size:12px;padding:8px 0;background:#ffe0e6">清空本机</button></div>'+
+    '<div class="dim" style="text-align:left">「提交成绩」会打开一条预填好的 GitHub 页面，确认后自动写入全站榜单（所有设备刷新即可看到）。</div>';
   $("board").innerHTML=html;
   const sb=$("btn-sync"); if(sb) sb.addEventListener('click',()=>syncScores());
+  const ub=$("btn-submit"); if(ub) ub.addEventListener('click',()=>submitScoreToGitHub());
+  const cb2=$("btn-copy"); if(cb2) cb2.addEventListener('click',()=>copyScoreText());
   const wb=$("btn-wipe"); if(wb) wb.addEventListener('click',()=>{ localStorage.removeItem(LS_KEY); renderBoard(); });
 }
 function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
