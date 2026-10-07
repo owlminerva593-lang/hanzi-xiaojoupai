@@ -882,7 +882,7 @@
     /* 开始界面压缩：开关与按钮排到介绍之前，保证横屏一屏内可点（介绍可下滑阅读） */
     #modal-start{display:flex; flex-direction:column;}
     #modal-start h1{order:0;} #modal-start .sub{order:1;}
-    #modal-start .opt-row{order:2;} #modal-start #btn-start{order:3;} #modal-start #btn-board{order:4;}
+    #modal-start .opt-row{order:2;} #modal-start #btn-start{order:3;}
     #modal-start .intro-guide{order:5; margin:6px 0 0;}
     .intro-guide{padding:5px 6px; margin-bottom:6px; border-width:2px;}
     .intro-title{font-size:11px; margin-bottom:2px;}
@@ -892,7 +892,7 @@
     .intro-art svg{width:40px !important; height:auto !important;}
     .opt-row{margin:4px 0;} .opt-tip{display:none;}
     .bigbtn{margin:3px 0; padding:6px 0; font-size:14px;}
-    /* 排行榜在手机上放大字号（表格宽度还有余量，不会横向溢出） */
+    /* 结算表格在手机上放大字号（宽度还有余量，不会横向溢出） */
     table{font-size:13px;} th,td{padding:8px 5px;}
     .dim{font-size:10px;}
     .shop-card .sc-nm{font-size:17px;} .shop-card .sc-ds{font-size:12px;} .shop-card .sc-en{font-size:10.5px;}
@@ -1057,7 +1057,6 @@
       <span class="switch"><input type="checkbox" id="opt-timer"><span class="slider"></span></span>
     </div>
     <button class="bigbtn" id="btn-start">开始游戏</button>
-    <button class="bigbtn" id="btn-board" style="background:linear-gradient(180deg,#9fe5ff,#5cc8f5)">排行榜</button>
   </div>
 
   <div class="modal hidden" id="modal-speech">
@@ -1076,8 +1075,6 @@
     <div class="sub" id="over-sub"></div>
     <div id="over-stats" style="font-family:var(--font-px);font-size:12px;line-height:2;margin-bottom:12px;"></div>
     <div id="over-words"></div>
-    <div class="row"><input id="name-input" maxlength="12" placeholder="输入你的名字"><button id="btn-save" style="flex:0 0 92px;background:linear-gradient(180deg,#ffe066,#ffc21f)">保存</button></div>
-    <div id="board"></div>
     <button class="bigbtn" id="btn-again" style="background:linear-gradient(180deg,#8cf5c4,#3ddc97)">再来一局</button>
     <button class="bigbtn" id="btn-home" style="background:linear-gradient(180deg,#9fe5ff,#5cc8f5)">返回主页</button>
   </div>
@@ -2906,113 +2903,6 @@ function renderWordStats(){
   el.innerHTML=h+'</table>';
 }
 
-/* 从 GitHub 读取全站成绩（两条来源，自动合并、互相兜底）
-   ① GitHub Issues（主力）：公开仓库的 Issues 可以免密钥读取，任何人提交一条 [成绩] Issue 后立刻上榜
-   ② scores.json（备用）：若仓库配置了 .github/workflows/leaderboard.yml，会由 Actions 自动维护此文件 */
-const GIT_REPO="owlminerva593-lang/hanzi-xiaojoupai";
-const GIT_SCORES_URL="./scores.json";
-const SYNC_URL="";                       /* ← 可选：后端地址，留空则不需要任何服务器 */
-const CACHE_KEY="hz_cloud_cache", CACHE_TTL=60*1000;
-
-function deviceId(){
-  let d=localStorage.getItem("hz_dev");
-  if(!d){ d="d"+Math.random().toString(36).slice(2,9)+Date.now().toString(36); localStorage.setItem("hz_dev",d); }
-  return d;
-}
-function mergeScores(local,remote){
-  const all=[...local];
-  remote.forEach(r=>{ if(r && r.id && !all.some(x=>x.id===r.id)) all.push(r); });
-  all.sort((a,b)=>(b.score||0)-(a.score||0));
-  return all.slice(0,50);
-}
-/* 把一条 [成绩] Issue 解析成一条成绩 */
-function parseScoreIssue(iss){
-  const title=String(iss.title||"");
-  if(title.indexOf("[成绩]")!==0) return null;
-  const body=String(iss.body||"");
-  const pick=(k)=>{ const m=body.match(new RegExp("^"+k+"[:：]\\s*(.+)$","m")); return m?m[1].trim():""; };
-  const name=pick("姓名") || title.replace(/^\[成绩\]\s*/,"").split(/\s+/)[0] || "玩家";
-  const score=Math.max(0,parseInt(pick("分数"),10)||0);
-  if(!score) return null;
-  return { id:"gh-"+iss.number, name:name.slice(0,12), score,
-           kills:Math.max(0,parseInt(pick("击败"),10)||0),
-           words:Math.max(0,parseInt(pick("词语"),10)||0),
-           date:pick("日期") || String(iss.created_at||"").slice(0,10) };
-}
-/* 读取云端成绩：先看缓存，再读 Issues，最后兜底 scores.json */
-async function pullRemoteScores(force){
-  const cache=JSON.parse(localStorage.getItem(CACHE_KEY)||"null");
-  if(!force && cache && Date.now()-cache.t < CACHE_TTL){ return cache.n||0; }
-  let remote=[], n=0;
-  try{
-    /* 只读取 open 状态的 Issue：把某条 Issue 关掉，这条成绩就自动从榜单消失（方便纠错） */
-    const res=await fetch("https://api.github.com/repos/"+GIT_REPO+"/issues?state=open&per_page=100",{cache:"no-store"});
-    if(res.ok){
-      const list=await res.json();
-      remote=list.filter(i=>!i.pull_request).map(parseScoreIssue).filter(Boolean);
-      n=remote.length;
-    }
-  }catch(e){}
-  if(!n){
-    try{
-      const r2=await fetch(GIT_SCORES_URL+"?t="+Date.now(),{cache:"no-store"});
-      if(r2.ok){ const j=await r2.json(); if(Array.isArray(j)){ remote=j; n=j.length; } }
-    }catch(e){}
-  }
-  if(n){
-    const merged=mergeScores(loadScores(),remote);
-    localStorage.setItem(LS_KEY,JSON.stringify(merged));
-    localStorage.setItem(CACHE_KEY,JSON.stringify({t:Date.now(),n:n}));
-    renderBoard();
-  }
-  return n;
-}
-/* 可选后端上传 */
-async function pushToBackend(){
-  if(!SYNC_URL) return false;
-  try{
-    await fetch(SYNC_URL,{method:"POST",body:JSON.stringify(loadScores().map(r=>Object.assign({},r,{dev:deviceId()})))});
-    const res2=await fetch(SYNC_URL,{cache:"no-store"});
-    const remote=await res2.json();
-    if(Array.isArray(remote)){
-      localStorage.setItem(LS_KEY,JSON.stringify(mergeScores(loadScores(),remote)));
-      renderBoard();
-    }
-    return true;
-  }catch(e){ return false; }
-}
-/* 「同步」按钮：拉取云端榜单（+ 可选后端上传） */
-async function syncScores(){
-  setFeedback("","同步中…","");
-  localStorage.removeItem(CACHE_KEY);
-  const n=await pullRemoteScores(true);
-  await pushToBackend();
-  setFeedback("", n?("已同步 "+n+" 条成绩"):"还没有云端成绩","");
-}
-/* 「提交成绩」：打开预填的 GitHub Issue，由 Actions 自动写入 scores.json */
-function submitScoreToGitHub(){
-  const name=(localStorage.getItem("hz_name")||"玩家").slice(0,12);
-  const body="姓名: "+name+"\n分数: "+S.score+"\n击败: "+S.kills+"\n词语: "+S.wordsLearned.size
-    +"\n日期: "+new Date().toLocaleDateString("zh-CN")+"\n";
-  const title="[成绩] "+name+" "+S.score+"分";
-  const url="https://github.com/"+GIT_REPO+"/issues/new?title="+encodeURIComponent(title)+"&body="+encodeURIComponent(body);
-  window.open(url,"_blank");
-  setFeedback("","已打开提交页面","");
-}
-function copyScoreText(){
-  const name=(localStorage.getItem("hz_name")||"玩家").slice(0,12);
-  const txt="[成绩] "+name+" "+S.score+"分\n姓名: "+name+"\n分数: "+S.score+"\n击败: "+S.kills+"\n词语: "+S.wordsLearned.size+"\n日期: "+new Date().toLocaleDateString("zh-CN");
-  const done=()=>setFeedback("","成绩已复制","");
-  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(done,()=>fallbackCopy(txt,done)); }
-  else fallbackCopy(txt,done);
-}
-function fallbackCopy(txt,cb){
-  const ta=document.createElement("textarea");
-  ta.value=txt; ta.style.position="fixed"; ta.style.opacity="0";
-  document.body.appendChild(ta); ta.select();
-  try{ document.execCommand("copy"); cb(); }catch(e){ setFeedback("","复制失败",""); }
-  ta.remove();
-}
 
 /* ================= 工具 ================= */
 function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
@@ -4378,45 +4268,9 @@ function gameOver(){
     "准确率 "+accPct()+"%";
   overlay.classList.remove("hidden");
   $("modal-over").classList.remove("hidden");
-  $("name-input").value=localStorage.getItem("hz_name")||"";
   renderWordStats();
-  renderBoard();
-  try{ pullRemoteScores(); }catch(e){}     /* 顺带拉取 GitHub 上的全站榜单 */
 }
 
-/* ================= 排行榜 ================= */
-const LS_KEY="hz_leaderboard";
-function loadScores(){ try{ return JSON.parse(localStorage.getItem(LS_KEY))||[]; }catch(e){ return []; } }
-function saveScore(name,score,kills,words){
-  let s=loadScores();
-  s.push({id:deviceId()+"-"+Date.now(),name:name||"玩家",score,kills,words,date:new Date().toLocaleDateString("zh-CN")});
-  s.sort((a,b)=>b.score-a.score);
-  s=s.slice(0,50);
-  localStorage.setItem(LS_KEY,JSON.stringify(s));
-  /* 配置了后端就自动上传；GitHub 方式（scores.json）由学生点「提交成绩」写入 */
-  if(SYNC_URL) pushToBackend();
-}
-function renderBoard(){
-  const s=loadScores();
-  let html='<h2 style="margin-top:6px">排行榜</h2>';
-  if(!s.length){ html+='<div class="dim">暂无记录，快来挑战吧！</div>'; }
-  else{
-    html+='<table><tr><th>#</th><th>名字</th><th>分数</th><th>击败</th><th>词语</th></tr>';
-    s.forEach((r,i)=>{ html+='<tr><td>'+(i+1)+'</td><td>'+esc(r.name)+'</td><td>'+r.score+'</td><td>'+r.kills+'</td><td>'+r.words+'</td></tr>'; });
-    html+='</table>';
-  }
-  html+='<div class="row" style="margin-top:8px;gap:5px;flex-wrap:wrap">'+
-    '<button id="btn-sync" style="flex:1 1 40%;font-size:12px;padding:8px 0">☁ 刷新榜单</button>'+
-    '<button id="btn-submit" style="flex:1 1 40%;font-size:12px;padding:8px 0;background:linear-gradient(180deg,#8cf5c4,#3ddc97)">⬆ 提交成绩</button>'+
-    '<button id="btn-copy" style="flex:1 1 40%;font-size:12px;padding:8px 0">📋 复制成绩</button>'+
-    '<button id="btn-wipe" style="flex:1 1 40%;font-size:12px;padding:8px 0;background:#ffe0e6">清空本机</button></div>'+
-    '<div class="dim" style="text-align:left">「提交成绩」会打开一条预填好的 GitHub 页面，确认后<b>全站榜单立刻生效</b>（无需刷新网页，其他人点「刷新榜单」就能看到）。</div>';
-  $("board").innerHTML=html;
-  const sb=$("btn-sync"); if(sb) sb.addEventListener('click',()=>syncScores());
-  const ub=$("btn-submit"); if(ub) ub.addEventListener('click',()=>submitScoreToGitHub());
-  const cb2=$("btn-copy"); if(cb2) cb2.addEventListener('click',()=>copyScoreText());
-  const wb=$("btn-wipe"); if(wb) wb.addEventListener('click',()=>{ localStorage.removeItem(LS_KEY); renderBoard(); });
-}
 function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 
 /* ================= 流程控制 ================= */
@@ -4570,20 +4424,12 @@ renderIntro();
 
 /* ================= 事件 ================= */
 $("btn-start").addEventListener("click",()=>{ unlockAudio(); try{ localStorage.setItem("hz_timer", $("opt-timer").checked?"1":"0"); }catch(e){} startRun(); });
-$("btn-board").addEventListener("click",()=>{ renderBoard(); $("modal-over").classList.remove("hidden"); $("modal-start").classList.add("hidden"); });
 $("btn-play").addEventListener("click",playSelected);
 $("btn-hint").addEventListener("click",()=>{ unlockAudio(); useHint(); });
 $("btn-discard").addEventListener("click",discardSelected);
 $("btn-select-all").addEventListener("click",selectAll);
 $("btn-gauntlet").addEventListener("click",()=>{ unlockAudio(); startGauntlet(); });
 $("btn-shop-next").addEventListener("click",()=>{ $("shop-panel").classList.add("hidden"); renderPlayer(); nextEnemy(); refillHand().then(()=>{ S.busy=false; layoutHand(); renderButtons(); }); });
-$("btn-save").addEventListener("click",()=>{
-  const n=$("name-input").value.trim(); localStorage.setItem("hz_name",n);
-  saveScore(n,S.score,S.kills,S.wordsLearned.size);
-  renderBoard();
-  $("btn-save").textContent="已保存";
-  setTimeout(()=>$("btn-save").textContent="保存",1200);
-});
 $("btn-again").addEventListener("click",startRun);
 $("btn-home").addEventListener("click",()=>{ overlay.classList.remove("hidden"); $("modal-over").classList.add("hidden"); $("modal-start").classList.remove("hidden"); });
 $("st-mute").addEventListener("click",()=>{
