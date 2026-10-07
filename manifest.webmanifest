@@ -1,0 +1,20 @@
+{
+  "name": "汉字小丑牌 · Chinese Character Balatro",
+  "short_name": "汉字小丑牌",
+  "description": "边玩边学汉字：组词闯关、卡牌对战、药材道具",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#ffd9ec",
+  "theme_color": "#ffd9ec",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23ffd93d'/%3E%3Ctext x='32' y='45' font-size='40' text-anchor='middle' fill='%233b1550' font-family='sans-serif' font-weight='bold'%3E%E5%AD%97%3C/text%3E%3C/svg%3E",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
