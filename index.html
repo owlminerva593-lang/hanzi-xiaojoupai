@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<!-- 添加到主屏幕后全屏运行（像原生 App 一样没有浏览器边框） -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="汉字小丑牌">
+<meta name="theme-color" content="#ffd9ec">
 <title>汉字小丑牌 · Chinese Character Balatro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -279,6 +286,9 @@
   .hint-line .en{color:#ffe066; font-family:var(--font-px); font-size:16px; letter-spacing:1px;}
   .hint-line .py{color:#b6fff0; font-family:var(--font-px); font-size:19px; margin-left:8px;}
   .hint-line .trait-tag{color:#ffe9c9; font-family:var(--font-px); font-size:16px; letter-spacing:1px;}
+  /* BOSS / 特性的英文释义 */
+  .hint-line .ten{display:block; font-style:italic; color:#b6fff0; letter-spacing:0;
+    font-size:12.5px; line-height:1.25; margin-top:2px;}
   /* 英译提示 / 已组词语（大字号 · 彩色 · 英译） */
   .hint-line .en-hint{background:rgba(59,21,80,.45); border:2px solid #ffd93d; border-radius:10px;
     padding:2px 10px; font-size:18px; color:#ffe9a8; font-weight:900;}
@@ -547,9 +557,12 @@
   .opt-row{display:flex;align-items:center;justify-content:center;gap:8px;margin:8px 0 10px;flex-wrap:wrap;}
   .opt-row label{cursor:pointer;font-size:13px;font-weight:bold;color:#3d1a4d;}
   .switch{position:relative;width:52px;height:28px;flex:0 0 52px;display:inline-block;}
-  .switch input{opacity:0;width:0;height:0;position:absolute;}
-  .slider{position:absolute;inset:0;background:#e8d9f2;border:3px solid #3b1550;border-radius:999px;transition:.2s;box-shadow:2px 2px 0 rgba(59,21,80,.25);}
-  .slider::before{content:"";position:absolute;left:2px;top:50%;transform:translateY(-50%);width:18px;height:18px;background:#fff;border:2px solid #3b1550;border-radius:50%;transition:.2s;}
+  /* 输入框铺满开关并向外扩展 10px：点开关本体（或四周）都能切换，
+     不用非得点「倒计时」那几个字（手机上尤其好用） */
+  .switch input{opacity:0;position:absolute;left:-10px;right:-10px;top:-10px;bottom:-10px;width:auto;height:auto;
+    cursor:pointer;z-index:3;margin:0;}
+  .slider{position:absolute;inset:0;background:#e8d9f2;border:3px solid #3b1550;border-radius:999px;transition:.2s;box-shadow:2px 2px 0 rgba(59,21,80,.25);pointer-events:none;}
+  .slider::before{content:"";position:absolute;left:2px;top:50%;transform:translateY(-50%);width:18px;height:18px;background:#fff;border:2px solid #3b1550;border-radius:50%;transition:.2s;pointer-events:none;}
   .switch input:checked + .slider{background:#8cf5c4;}
   .switch input:checked + .slider::before{transform:translate(24px,-50%);}
   .opt-tip{font-size:10px;color:#8a6bb5;}
@@ -829,6 +842,7 @@
     /* 介绍移到右侧后宽度富余，允许英文释义折两行 */
     .hint-line{font-size:13px; margin:0; gap:2px 5px; flex-wrap:wrap; white-space:normal; overflow:visible; line-height:1.25;}
     .hint-line .en,.hint-line .py,.hint-line .trait-tag{font-size:11px;}
+    .hint-line .ten{font-size:9.5px;}
     .hint-line .en-hint{font-size:12px; padding:1px 5px; border-width:2px;}
     .hint-line .theme-tag{font-size:10px; padding:0 4px;}
     .hint-line .rw{font-size:14px;} .hint-line .rw i{font-size:10px;} .hint-line .rw em{font-size:10px; padding:0 3px;}
@@ -939,6 +953,7 @@
           <div class="stat" id="time-chip" title="倒计时挑战（可选）">倒计时 <b id="side-time">∞</b></div>
           <div class="stat">准确 <b id="st-acc">100%</b></div>
           <div class="stat" id="st-mute" style="cursor:pointer" title="声音开关（音效+音乐+发音）">声音</div>
+          <div class="stat" id="btn-fs" style="cursor:pointer" title="全屏 / 退出全屏">⛶</div>
           <div class="stat money" id="money-chip" title="金币：击败怪物、卖出药材都能获得金币">🪙 金币 <b id="st-money">0</b></div>
         </div>
       </header>
@@ -1060,6 +1075,7 @@
     <h1>游戏结束</h1>
     <div class="sub" id="over-sub"></div>
     <div id="over-stats" style="font-family:var(--font-px);font-size:12px;line-height:2;margin-bottom:12px;"></div>
+    <div id="over-words"></div>
     <div class="row"><input id="name-input" maxlength="12" placeholder="输入你的名字"><button id="btn-save" style="flex:0 0 92px;background:linear-gradient(180deg,#ffe066,#ffc21f)">保存</button></div>
     <div id="board"></div>
     <button class="bigbtn" id="btn-again" style="background:linear-gradient(180deg,#8cf5c4,#3ddc97)">再来一局</button>
@@ -1233,6 +1249,17 @@ const BOSSES = [
   {key:"steal",    name:"盗汗",ico:"汗",desc:"你每出一次牌，偷走你 10% 金币"},
 ];
 const RESTRICTION_KEYS = ["disable","ramp","onecard","min20","redimmune","oddimmune","steal"];
+/* BOSS 技能英文释义 */
+const BOSS_EN = {
+  "disable":"Stroke — a random 1/3 of your items are disabled for a while",
+  "ramp":"Backdraft — damage you take doubles after every play",
+  "onecard":"Single File — you may only play one card at a time",
+  "min20":"Critical — deals no damage unless you hit 20 or more",
+  "twolives":"Yin-Yang — has two lives",
+  "redimmune":"Red Ward — immune to all red cards",
+  "oddimmune":"Odd Ward — immune to any odd number of cards",
+  "steal":"Sweat Thief — steals 10% of your coins each time you play",
+};
 function isRestriction(k){ return RESTRICTION_KEYS.includes(k); }
 
 /* ================= 像素怪物图鉴 =================
@@ -2842,6 +2869,87 @@ function deathParticles(sprite,x,y,n){
   if(sprite==="skeleton") spawnParticles(x,y,"#ffffff",14);
 }
 
+/* ================= 各词语正确率统计 ================= */
+function wordStat(w){
+  if(!S.wordStats) S.wordStats={};
+  if(!S.wordStats[w]) S.wordStats[w]={plays:0,correct:0,words:[]};
+  return S.wordStats[w];
+}
+function markWordHit(w,formed){
+  const st=wordStat(w); st.correct++;
+  (formed||[]).forEach(x=>{ if(x && st.words.indexOf(x)<0) st.words.push(x); });
+}
+function wordStatsRows(){
+  if(!S.wordStats) return [];
+  const rows=[];
+  for(const w in S.wordStats){
+    const st=S.wordStats[w];
+    if(!st.plays) continue;
+    rows.push({w, plays:st.plays, correct:st.correct, rate:Math.round(st.correct/st.plays*100), words:st.words.slice()});
+  }
+  rows.sort((a,b)=>b.rate-a.rate || b.plays-a.plays);
+  return rows;
+}
+function renderWordStats(){
+  const el=$("over-words"); if(!el) return;
+  const rows=wordStatsRows();
+  if(!rows.length){ el.innerHTML='<div class="dim">本局还没有出题记录</div>'; return; }
+  let h='<h2 style="margin-top:10px">词语正确率</h2><table><tr><th>目标词</th><th>出题</th><th>答对</th><th>正确率</th><th>组过的词语</th></tr>';
+  rows.forEach(r=>{
+    const good=r.rate>=80;
+    h+='<tr><td><b>'+esc(r.w)+'</b></td><td>'+r.plays+'</td><td>'+r.correct+'</td>'
+     +'<td style="color:'+(good?'#0d9463':'#d6336c')+';font-weight:900">'+r.rate+'%</td>'
+     +'<td style="font-size:10px">'+(r.words.length?esc(r.words.join("、")):"—")+'</td></tr>';
+  });
+  const tp=rows.reduce((a,b)=>a+b.plays,0), tc=rows.reduce((a,b)=>a+b.correct,0);
+  h+='<tr><th>合计</th><th>'+tp+'</th><th>'+tc+'</th><th>'+Math.round(tc/tp*100)+'%</th><th></th></tr>';
+  el.innerHTML=h+'</table>';
+}
+
+/* ================= 排行榜云同步（多设备永久保存，可选） =================
+   纯前端无法凭空造出服务器，需要一个极小的后端。最省事的做法是免费 Google Apps Script：
+   1) 打开 https://script.google.com 新建脚本，粘贴下面这段，部署为「网页应用」，
+      执行身份选「我」、谁可以访问选「任何人」，把生成的 /exec 地址填到下面 SYNC_URL；
+   2) 之后点游戏里的「☁ 同步」按钮，成绩就会在所有设备之间永久同步。
+
+   function doGet(){ return ContentService.createTextOutput(JSON.stringify(readAll())); }
+   function doPost(e){ add(JSON.parse(e.postData.contents||"[]")); return ContentService.createTextOutput("ok"); }
+   function readAll(){ return JSON.parse(DriveApp.getFileById("FILE_ID").getAsString()||"[]"); }   // 换成你的文件 ID
+   function add(rows){ const f=DriveApp.getFileById("FILE_ID"); const all=readAll(); rows.forEach(r=>{ if(!all.some(x=>x.id===r.id)) all.push(r); });
+     all.sort((a,b)=>b.score-a.score); f.setContent(JSON.stringify(all.slice(0,50))); }
+
+   也可以把 SYNC_URL 换成任何支持 GET/POST JSON 的服务（Cloudflare Worker、Supabase Edge Function 等）。 */
+const SYNC_URL="";                       /* ← 把后端地址填在这里即可启用同步；留空则只存本机 */
+function deviceId(){
+  let d=localStorage.getItem("hz_dev");
+  if(!d){ d="d"+Math.random().toString(36).slice(2,9)+Date.now().toString(36); localStorage.setItem("hz_dev",d); }
+  return d;
+}
+function mergeScores(local,remote){
+  const all=[...local];
+  remote.forEach(r=>{ if(r&&r.id && !all.some(x=>x.id===r.id)) all.push(r); else if(r&&!r.id) all.push(r); });
+  all.sort((a,b)=>(b.score||0)-(a.score||0));
+  return all.slice(0,50);
+}
+async function syncScores(){
+  if(!SYNC_URL){ setFeedback("","未配置同步地址",""); return false; }
+  try{
+    setFeedback("","同步中…","");
+    const mine=loadScores().map(r=>Object.assign({},r,{dev:deviceId()}));
+    await fetch(SYNC_URL,{method:"POST",body:JSON.stringify(mine)});
+    const res=await fetch(SYNC_URL,{cache:"no-store"});
+    const remote=await res.json();
+    const merged=mergeScores(loadScores(),Array.isArray(remote)?remote:[]);
+    localStorage.setItem(LS_KEY,JSON.stringify(merged));
+    renderBoard();
+    setFeedback("","已同步","");
+    return true;
+  }catch(e){
+    setFeedback("","同步失败","");
+    return false;
+  }
+}
+
 /* ================= 工具 ================= */
 function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
@@ -3344,7 +3452,8 @@ function renderEnemy(){
   let h='';
   if(S.enemy.boss && S.enemy.ability){
     const b=BOSSES.find(x=>x.key===S.enemy.ability);
-    if(b) h += '<span class="trait-tag">'+b.ico+' '+b.name+'：'+b.desc+'</span> ';
+    if(b) h += '<span class="trait-tag">'+b.ico+' '+b.name+'：'+b.desc
+      +(BOSS_EN[b.key]?' <em class="ten">'+BOSS_EN[b.key]+'</em>':'')+'</span> ';
   }
   if(S.enemy.trait){
     const t=TRAITS[S.enemy.trait];
@@ -3522,6 +3631,8 @@ function playSelected(){
 
   S.attempts++;
   S.battlePlays++;
+  /* 词语正确率：每次出牌算一次尝试（对错都算），正确率 = 答对/尝试 ≤ 100% */
+  if(S.enemy) wordStat(S.enemy.anchor).plays++;
   const prevBattleCards = S.battleCards;
   S.playedCards += cards.length;
   S.battleCards += cards.length;
@@ -3638,9 +3749,10 @@ function playSelected(){
       spawnParticles(ec.x,ec.y,hue,24+cards.length*6);
       spawnParticles(ec.x,ec.y,"#ffd93d",8+cards.length*3);
       floater("每只 -"+(base+(rem>0?1:0)),ec.x,ec.y-20,"#3ddc97");
-      showDamagePop(dmg,hue);
-      bumpCombo();
-      distinct.forEach(c=>{ S.wordsLearned.add(S.enemy.companions.get(c).w); S.battleWords.add(S.enemy.companions.get(c).w); });
+showDamagePop(dmg,hue);
+    bumpCombo();
+    distinct.forEach(c=>{ S.wordsLearned.add(S.enemy.companions.get(c).w); S.battleWords.add(S.enemy.companions.get(c).w); });
+    markWordHit(S.enemy.anchor, distinct.map(c=>S.enemy.companions.get(c).w));
       let wTxt=distinct.map(c=>{ const o=S.enemy.companions.get(c); return o.w+" "+o.p; }).join(' · ');
       if(stoneCards.length) wTxt += (wTxt?' · ':'')+'石牌(万能)';
       setFeedback("good",pick(PRAISE),"");
@@ -3675,6 +3787,7 @@ function playSelected(){
     showDamagePop(dmg,hue);
     bumpCombo();
     distinct.forEach(c=>{ S.wordsLearned.add(enemy.companions.get(c).w); S.battleWords.add(enemy.companions.get(c).w); });
+    markWordHit(S.enemy.anchor, distinct.map(c=>enemy.companions.get(c).w));
     let wTxt=distinct.map(c=>{ const o=enemy.companions.get(c); return o.w+" "+o.p; }).join(' · ');
     if(stoneCards.length) wTxt += (wTxt?' · ':'')+'石牌(万能)';
     setFeedback("good",pick(PRAISE),"");
@@ -4202,6 +4315,7 @@ function gameOver(){
   overlay.classList.remove("hidden");
   $("modal-over").classList.remove("hidden");
   $("name-input").value=localStorage.getItem("hz_name")||"";
+  renderWordStats();
   renderBoard();
 }
 
@@ -4210,10 +4324,12 @@ const LS_KEY="hz_leaderboard";
 function loadScores(){ try{ return JSON.parse(localStorage.getItem(LS_KEY))||[]; }catch(e){ return []; } }
 function saveScore(name,score,kills,words){
   let s=loadScores();
-  s.push({name:name||"玩家",score,kills,words,date:new Date().toLocaleDateString("zh-CN")});
+  s.push({id:deviceId()+"-"+Date.now(),name:name||"玩家",score,kills,words,date:new Date().toLocaleDateString("zh-CN")});
   s.sort((a,b)=>b.score-a.score);
-  s=s.slice(0,10);
+  s=s.slice(0,50);
   localStorage.setItem(LS_KEY,JSON.stringify(s));
+  /* 已配置云端时自动上传（失败不影响游戏） */
+  if(SYNC_URL) syncScores();
 }
 function renderBoard(){
   const s=loadScores();
@@ -4224,7 +4340,13 @@ function renderBoard(){
     s.forEach((r,i)=>{ html+='<tr><td>'+(i+1)+'</td><td>'+esc(r.name)+'</td><td>'+r.score+'</td><td>'+r.kills+'</td><td>'+r.words+'</td></tr>'; });
     html+='</table>';
   }
+  html+='<div class="row" style="margin-top:8px;gap:6px">'+
+    '<button id="btn-sync" style="flex:1;font-size:12px;padding:8px 0">☁ 同步排行榜</button>'+
+    '<button id="btn-wipe" style="flex:0 0 96px;font-size:12px;padding:8px 0;background:#ffe0e6">清空本机</button></div>'+
+    '<div class="dim" style="text-align:left">'+(SYNC_URL?'已配置云端同步，点击「同步」即可在多设备间永久保存与查阅。':'本机记录保存在这台设备上。配置云端地址后可跨设备永久同步。')+'</div>';
   $("board").innerHTML=html;
+  const sb=$("btn-sync"); if(sb) sb.addEventListener('click',()=>syncScores());
+  const wb=$("btn-wipe"); if(wb) wb.addEventListener('click',()=>{ localStorage.removeItem(LS_KEY); renderBoard(); });
 }
 function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 
@@ -4234,6 +4356,7 @@ async function startRun(){
   S.hp=5; S.maxHp=5; S.score=0; S.money=0; S.kills=0; S.floor=1; S.step=0; S.combo=0;
   S.playedCards=0; S.baibuDone=false; S.longdanArmed=false; S.kindBonus=0; S.destroyMode=false;
   S.correct=0; S.attempts=0; S.wordsLearned=new Set();
+  S.wordStats={};                     /* 各词语正确率：{目标词:{plays,correct,words:[]}} */
   applyFloorTheme(1);
   S.items=[]; S.handSize=6; S.discards=3; S.hands=Infinity;
   S.selected=new Set(); S.disabledItems=new Set(); S.instantBought=new Set(); S.shopStock=[];
@@ -4402,6 +4525,37 @@ $("st-mute").addEventListener("click",()=>{
   renderStats();
   if(!S.muted && !audioRunning()) setFeedback("","🔇 点「声音」开启","");
 });
+
+/* ================= 全屏：像在线视频网站那样铺满整屏 ================= */
+function isFullscreen(){ return !!(document.fullscreenElement || document.webkitFullscreenElement); }
+function enterFullscreen(){
+  const el=document.documentElement;
+  const fn=el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+  if(fn) { try{ const p=fn.call(el); if(p&&p.catch) p.catch(()=>{}); }catch(e){} }
+}
+function exitFullscreen(){
+  const fn=document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+  if(fn){ try{ fn.call(document); }catch(e){} }
+}
+function toggleFullscreen(){ isFullscreen() ? exitFullscreen() : enterFullscreen(); }
+function renderFsBtn(){
+  const b=$("btn-fs"); if(!b) return;
+  const on=isFullscreen();
+  b.textContent=on?"⛶ 退出":"⛶ 全屏";
+  b.title=on?"退出全屏":"全屏观看（去掉浏览器边框）";
+  b.style.opacity=on?"1":".85";
+}
+$("btn-fs").addEventListener("click",e=>{ e.stopPropagation(); unlockAudio(); toggleFullscreen(); renderFsBtn(); });
+document.addEventListener("fullscreenchange",renderFsBtn);
+document.addEventListener("webkitfullscreenchange",renderFsBtn);
+renderFsBtn();
+/* 首次点击页面时自动尝试进入全屏（浏览器要求用户手势；失败会自动忽略） */
+let fsTried=localStorage.getItem("hz_fs_asked")==="1";
+document.addEventListener("pointerdown",function once(){
+  if(fsTried) return;
+  fsTried=true; localStorage.setItem("hz_fs_asked","1");
+  if(!isFullscreen() && document.fullscreenEnabled!==false){ enterFullscreen(); setTimeout(renderFsBtn,120); }
+},{once:true});
 initHearts();
 renderButtons();
 renderSide();
