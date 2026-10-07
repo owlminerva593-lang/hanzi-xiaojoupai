@@ -159,14 +159,15 @@
   #combo-chip.hot b{color:#fff3c4;}
   @keyframes comboburn{ from{box-shadow:2px 2px 0 #3b1550;} to{box-shadow:2px 2px 0 #3b1550, 0 0 12px 3px rgba(255,93,143,.9);} }
   /* 楼层主题：通过 body[data-floor] 切换配色 */
-  body[data-floor="1"]{--bg1:#d8f7e4; --bg2:#8fd9a8; --tint:#2f9e5f;}      /* 森林 */
-  body[data-floor="2"]{--bg1:#ffe9c2; --bg2:#f0b96a; --tint:#c9821b;}      /* 沙漠 */
-  body[data-floor="3"]{--bg1:#e6f6ff; --bg2:#9fd4f0; --tint:#2b7fc0;}      /* 冰天雪地 */
-  body[data-floor="4"]{--bg1:#e2dcf3; --bg2:#a99ac9; --tint:#6a4fa3;}      /* 石洞 */
-  body[data-floor="5"]{--bg1:#3b2350; --bg2:#8a2f22; --tint:#ff7a3d;}      /* 熔岩 */
-  body[data-floor="6"]{--bg1:#c9f4ff; --bg2:#3f9fd6; --tint:#0e6ea8;}      /* 大海 */
-  body[data-floor="7"]{--bg1:#1b1740; --bg2:#4b2f8f; --tint:#8f7bff;}      /* 太空 */
-  body[data-floor="0"]{--bg1:#ffd9ec; --bg2:#c9b8ff; --tint:#7e4fc0;}      /* 主页（默认） */
+  /* 每层主题：页面底色 + 怪物区底色（--p1/--p2）+ 描边色（--tint） */
+  body[data-floor="1"]{--bg1:#d8f7e4; --bg2:#8fd9a8; --tint:#2f9e5f; --p1:#c2f0d3; --p2:#84d6a4;}   /* 森林 */
+  body[data-floor="2"]{--bg1:#ffe9c2; --bg2:#f0b96a; --tint:#c9821b; --p1:#ffe4b8; --p2:#f2c07e;}   /* 沙漠 */
+  body[data-floor="3"]{--bg1:#e6f6ff; --bg2:#9fd4f0; --tint:#2b7fc0; --p1:#dcf1ff; --p2:#a8d6f5;}   /* 冰天雪地 */
+  body[data-floor="4"]{--bg1:#e2dcf3; --bg2:#a99ac9; --tint:#6a4fa3; --p1:#e2d8f5; --p2:#b6a7d8;}   /* 石洞 */
+  body[data-floor="5"]{--bg1:#3b2350; --bg2:#8a2f22; --tint:#ff7a3d; --p1:#ffd0b0; --p2:#ff9f78;}   /* 熔岩 */
+  body[data-floor="6"]{--bg1:#c9f4ff; --bg2:#3f9fd6; --tint:#0e6ea8; --p1:#c2eaff; --p2:#7cc6ef;}   /* 大海 */
+  body[data-floor="7"]{--bg1:#1b1740; --bg2:#4b2f8f; --tint:#8f7bff; --p1:#d6ccff; --p2:#a493ec;}   /* 太空 */
+  body[data-floor="0"]{--bg1:#ffd9ec; --bg2:#c9b8ff; --tint:#7e4fc0; --p1:#ffb3d9; --p2:#f06ab0;}   /* 主页（默认） */
   body[data-floor="5"], body[data-floor="7"]{color:#eaf2ff;}
   #game{border-color:var(--tint,#3b1550);}
   #stage::after{content:""; position:absolute; inset:0; pointer-events:none; z-index:0; border-radius:18px;
@@ -181,7 +182,7 @@
     to{box-shadow:2px 2px 0 #3b1550, 0 0 14px 4px rgba(214,51,108,.85); transform:scale(1.06);}
   }
 
-  #enemy{position:relative; background:linear-gradient(180deg,#ff9ecb,#f56ab0);
+  #enemy{position:relative; background:linear-gradient(180deg,var(--p1,#ff9ecb),var(--p2,#f56ab0));
     border:3px solid #3b1550; box-shadow:var(--shadow), inset 0 4px 0 rgba(255,255,255,.35); border-radius:16px; padding:8px 10px 10px; margin-bottom:8px;}
   #enemy.boss{background:linear-gradient(180deg,#ff7a7a,#f04e6e); border-color:#3b1550;}
   .enemy-top{display:flex; justify-content:flex-start; align-items:center; gap:8px; margin-bottom:4px;}
@@ -193,7 +194,7 @@
   .enemy-row{display:flex; align-items:center; gap:8px;}
   .ecell{display:flex; align-items:center; justify-content:center; min-width:0;}
   .ecell-luck{flex:0 0 auto; flex-direction:column; gap:4px;}
-  .ecell-monster{flex:0 0 auto;}
+  .ecell-monster{flex:0 0 auto; position:relative;}
   .ecell-word{flex:0 0 auto;}
   .ecell-desc{flex:1 1 auto; justify-content:center;}
   .monster{display:flex; align-items:center; justify-content:center; margin:0; min-height:0;}
@@ -435,6 +436,70 @@
   .shop-card .sc-price{font-family:var(--font-px); font-size:18px; color:#c2440a; white-space:nowrap;}
   .shop-card button{flex:0 0 auto; padding:10px 22px; font-size:16px;}
   .shop-card button:disabled{opacity:.4; cursor:not-allowed;}
+  /* ===== 楼层主题背景元素（SVG 场景 + 粒子层） ===== */
+  #bg-deco{position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden; border-radius:14px;}
+  #bg-deco .deco-art{position:absolute; inset:0;}
+  #bg-deco .deco-art svg{width:100%; height:100%; display:block;}
+  #bg-deco .deco-part{position:absolute; inset:-20% 0 0 0; opacity:.75;}
+  /* 内容层浮在背景之上 */
+  .enemy-top,.enemy-row,.enemy-foot{position:relative; z-index:1;}
+  /* 粒子：落雪 / 沙粒 / 星点 / 火星 / 气泡 */
+  body[data-floor="3"] .deco-part{background-image:
+      radial-gradient(2px 2px at 20px 30px,#fff 50%,transparent 50%),
+      radial-gradient(1.6px 1.6px at 90px 80px,#fff 50%,transparent 50%),
+      radial-gradient(2.4px 2.4px at 150px 20px,#eaf6ff 50%,transparent 50%),
+      radial-gradient(1.4px 1.4px at 210px 120px,#fff 50%,transparent 50%);
+    background-size:240px 240px; animation:snowfall 7s linear infinite;}
+  @keyframes snowfall{ from{background-position:0 -240px;} to{background-position:-60px 240px;} }
+  body[data-floor="2"] .deco-part{background-image:
+      radial-gradient(1.6px 1.6px at 30px 40px,rgba(255,240,200,.9) 50%,transparent 50%),
+      radial-gradient(1.2px 1.2px at 120px 90px,rgba(255,230,170,.8) 50%,transparent 50%);
+    background-size:200px 200px; animation:sanddrift 5s linear infinite;}
+  @keyframes sanddrift{ from{background-position:0 0;} to{background-position:180px 40px;} }
+  body[data-floor="7"] .deco-part{background-image:
+      radial-gradient(1.6px 1.6px at 25px 35px,#fff 50%,transparent 50%),
+      radial-gradient(1.2px 1.2px at 130px 70px,#cfe0ff 50%,transparent 50%),
+      radial-gradient(1.8px 1.8px at 200px 150px,#ffe9a8 50%,transparent 50%);
+    background-size:180px 180px; animation:starktwinkle 3.4s ease-in-out infinite alternate;}
+  @keyframes starktwinkle{ from{opacity:.35;} to{opacity:.9;} }
+  body[data-floor="5"] .deco-part{background-image:
+      radial-gradient(2px 2px at 40px 60px,rgba(255,140,40,.95) 50%,transparent 50%),
+      radial-gradient(1.4px 1.4px at 160px 110px,rgba(255,200,60,.9) 50%,transparent 50%);
+    background-size:170px 170px; animation:emberrise 3.8s linear infinite;}
+  @keyframes emberrise{ from{background-position:0 240px; opacity:.2;} 40%{opacity:.9;} to{background-position:-40px -60px; opacity:0;} }
+  body[data-floor="6"] .deco-part{background-image:
+      radial-gradient(3px 3px at 50px 50px,rgba(255,255,255,.35) 50%,transparent 50%),
+      radial-gradient(2px 2px at 170px 120px,rgba(255,255,255,.28) 50%,transparent 50%);
+    background-size:150px 150px; animation:bubbles 6s ease-in infinite;}
+  @keyframes bubbles{ from{background-position:0 200px; opacity:.15;} 50%{opacity:.7;} to{background-position:30px -40px; opacity:0;} }
+  body[data-floor="4"] .deco-part{background-image:
+      radial-gradient(1.6px 1.6px at 60px 40px,rgba(210,190,255,.55) 50%,transparent 50%),
+      radial-gradient(2.2px 2.2px at 190px 130px,rgba(160,200,255,.45) 50%,transparent 50%);
+    background-size:210px 210px; animation:dripglint 5.5s ease-in-out infinite alternate;}
+  @keyframes dripglint{ from{opacity:.25;} to{opacity:.7;} }
+  body[data-floor="1"] .deco-part{background-image:
+      radial-gradient(2px 2px at 40px 50px,rgba(255,255,220,.75) 50%,transparent 50%),
+      radial-gradient(1.4px 1.4px at 150px 120px,rgba(255,255,255,.55) 50%,transparent 50%);
+    background-size:260px 260px; animation:pollenfloat 9s ease-in-out infinite alternate;}
+  @keyframes pollenfloat{ from{background-position:0 0; opacity:.3;} to{background-position:40px -30px; opacity:.75;} }
+  /* ===== 怪物表情（随血量变化） ===== */
+  .monster-face{position:absolute; left:50%; top:6px; transform:translateX(-50%); z-index:3;
+    pointer-events:none; width:52px; height:34px;}
+  .monster-face svg{width:100%; height:100%; image-rendering:pixelated; display:block;
+    filter:drop-shadow(0 2px 0 rgba(59,21,80,.35));}
+  .monster-face.mood-tense{animation:faceTremble .5s ease-in-out infinite alternate;}
+  @keyframes faceTremble{ from{transform:translateX(-50%) rotate(-2deg);} to{transform:translateX(-50%) rotate(2deg);} }
+  .monster-face.mood-cry{animation:faceSob .9s ease-in-out infinite;}
+  @keyframes faceSob{ 0%,100%{transform:translateX(-50%) translateY(0);} 50%{transform:translateX(-50%) translateY(2px) scaleY(.92);} }
+  /* ===== 血条分阶段变色 ===== */
+  .hpbar .fill{transition:width .35s ease, background .3s ease;}
+  .hpbar[data-tier="1"] .fill{background:linear-gradient(90deg,#3ddc97,#7be9ff);}
+  .hpbar[data-tier="2"] .fill{background:linear-gradient(90deg,#38bdf8,#818cf8);}
+  .hpbar[data-tier="3"] .fill{background:linear-gradient(90deg,#ff4d6d,#ff9f43); animation:hpDanger .7s ease-in-out infinite alternate;}
+  @keyframes hpDanger{ from{filter:brightness(1);} to{filter:brightness(1.45);} }
+  #enemy.boss .hpbar[data-tier="1"] .fill{background:linear-gradient(90deg,#ffd93d,#ff9f1c);}
+  #enemy.boss .hpbar[data-tier="2"] .fill{background:linear-gradient(90deg,#ff9f43,#ff5d8f);}
+  #enemy.boss .hpbar[data-tier="3"] .fill{background:linear-gradient(90deg,#ff4d6d,#ff2d55); animation:hpDanger .6s ease-in-out infinite alternate;}
   /* 出售区已移除：商店里直接点右侧百宝箱的道具出售 */
   .shop-sell-wrap{display:none;}
 
@@ -830,6 +895,7 @@
     #lucky-dice .pip{width:6px; height:6px;}
     .monster{min-height:0; margin:0;}
     .monster svg{width:72px; height:72px;}
+    .monster-face{width:34px; height:22px; top:2px;}
     .puzzle{gap:5px; margin:0;}
     .slot{min-width:38px; height:38px; font-size:25px; border-width:2px; border-radius:9px; box-shadow:2px 2px 0 #3b1550;}
     /* 介绍移到右侧后宽度富余，允许英文释义折两行 */
@@ -906,6 +972,7 @@
     #game{padding:4px; gap:2px;}
     .sstat{padding:2px 2px;} .sstat .v{font-size:19px;}
     .monster{min-height:0;} .monster svg{width:54px; height:54px;}
+    .monster-face{width:28px; height:18px;}
     .slot{min-width:30px; height:30px; font-size:20px;}
     .hpbar{height:12px;} .hp-nums{font-size:12px;}
     #feedback{min-height:16px; font-size:11px;}
@@ -953,6 +1020,7 @@
       <!-- 中栏上区：怪物 / 词 / 幸运数字 -->
       <div id="top-zone">
       <div id="enemy">
+        <div id="bg-deco" aria-hidden="true"><div class="deco-art"></div><div class="deco-part"></div></div>
         <div class="enemy-top">
           <span class="enemy-tag" id="enemy-name">敌人</span>
           <span class="level-tag" id="enemy-level">第 1 层 a</span>
@@ -965,6 +1033,7 @@
           </div>
           <div class="ecell ecell-monster">
             <div class="monster" id="monster"></div>
+            <div class="monster-face" id="monster-face" aria-hidden="true"></div>
           </div>
           <div class="ecell ecell-word">
             <div class="puzzle" id="puzzle"></div>
@@ -3378,9 +3447,92 @@ function floorThemeName(f){
   const round=Math.floor((f-1)/7);
   return t.name+(round>0?" ×"+(round+1):"");
 }
+/* ================= 楼层主题背景元素（每层专属场景） ================= */
+const FLOOR_ART={
+/* 1 森林：树 + 灌木 + 草地 */
+1:`<svg viewBox="0 0 400 170" preserveAspectRatio="xMidYMax slice">
+<g fill="#1c7a4a" opacity=".34">
+<path d="M18 170 L52 84 L86 170Z"/><path d="M44 170 L74 108 L104 170Z"/>
+<path d="M300 170 L336 78 L372 170Z"/><path d="M330 170 L358 110 L386 170Z"/>
+<path d="M150 170 L176 112 L202 170Z"/></g>
+<g fill="#0f5c38" opacity=".5">
+<rect x="49" y="120" width="7" height="50"/><rect x="70" y="134" width="6" height="36"/>
+<rect x="333" y="114" width="7" height="56"/><rect x="355" y="138" width="6" height="32"/>
+<rect x="173" y="140" width="6" height="30"/></g>
+<g fill="#2f9e5f" opacity=".3">
+<ellipse cx="120" cy="150" rx="60" ry="26"/><ellipse cx="300" cy="156" rx="80" ry="22"/></g></svg>`,
+/* 2 沙漠：沙丘 + 仙人掌 + 落日 */
+2:`<svg viewBox="0 0 400 170" preserveAspectRatio="xMidYMax slice">
+<circle cx="322" cy="46" r="26" fill="#ffd66b" opacity=".38"/>
+<g fill="#c9821b" opacity=".3"><ellipse cx="90" cy="150" rx="120" ry="40"/><ellipse cx="300" cy="158" rx="150" ry="34"/></g>
+<g fill="#a86a12" opacity=".5">
+<path d="M196 170 L200 96 L206 96 L210 170Z"/><path d="M200 118 L182 118 L182 110 L200 110Z"/>
+<path d="M204 132 L222 132 L222 122 L204 122Z"/></g>
+<g fill="#8a5a0e" opacity=".38"><ellipse cx="60" cy="166" rx="70" ry="16"/><ellipse cx="350" cy="168" rx="80" ry="14"/></g></svg>`,
+/* 3 冰天雪地：雪山 + 冰晶 + 雪原 */
+3:`<svg viewBox="0 0 400 170" preserveAspectRatio="xMidYMax slice">
+<g fill="#2b7fc0" opacity=".3"><path d="M40 170 L96 62 L152 170Z"/><path d="M230 170 L286 74 L342 170Z"/></g>
+<g fill="#e8f6ff" opacity=".62"><path d="M96 62 L120 96 L110 96 L100 104 L88 96 L74 98Z"/><path d="M286 74 L308 104 L298 104 L288 112 L278 104 L264 106Z"/></g>
+<g fill="#bfe4ff" opacity=".45"><ellipse cx="180" cy="158" rx="140" ry="26"/><ellipse cx="360" cy="164" rx="90" ry="20"/></g>
+<g stroke="#dff2ff" stroke-width="3" opacity=".5" stroke-linecap="round">
+<path d="M200 34v22M189 45h22M193 38l14 14M207 38l-14 14"/></g></svg>`,
+/* 4 石洞：岩柱 + 钟乳石 + 矿石 */
+4:`<svg viewBox="0 0 400 170" preserveAspectRatio="xMidYMax slice">
+<g fill="#4a3b6b" opacity=".45">
+<path d="M0 0 L34 0 L28 58 L20 58Z"/><path d="M62 0 L96 0 L92 74 L84 74Z"/><path d="M300 0 L340 0 L334 64 L326 64Z"/></g>
+<g fill="#5b4a80" opacity=".38">
+<path d="M0 170 L30 170 L24 104 L18 104Z"/><path d="M360 170 L400 170 L394 96 L386 96Z"/><path d="M170 170 L190 170 L186 126 L180 126Z"/></g>
+<g fill="#8f7bff" opacity=".5"><circle cx="120" cy="120" r="4"/><circle cx="250" cy="96" r="3"/><circle cx="320" cy="140" r="3.5"/></g></svg>`,
+/* 5 熔岩：岩浆缝 + 气泡 + 火星 */
+5:`<svg viewBox="0 0 400 170" preserveAspectRatio="xMidYMax slice">
+<g fill="#ff7a3d" opacity=".34"><path d="M0 170 L60 150 L110 170Z"/><path d="M140 170 L200 142 L260 170Z"/><path d="M290 170 L350 146 L400 170Z"/></g>
+<g fill="#ffcf3d" opacity=".4"><path d="M60 150 L110 170 L96 170Z"/><path d="M200 142 L260 170 L244 170Z"/><path d="M350 146 L400 170 L384 170Z"/></g>
+<g fill="#ff4d6d" opacity=".3"><ellipse cx="120" cy="164" rx="90" ry="14"/><ellipse cx="320" cy="166" rx="80" ry="12"/></g>
+<g fill="#ffe066" opacity=".5"><circle cx="70" cy="120" r="3"/><circle cx="180" cy="90" r="2.4"/><circle cx="300" cy="130" r="2.8"/></g></svg>`,
+/* 6 大海：波浪 + 海草 + 气泡 */
+6:`<svg viewBox="0 0 400 170" preserveAspectRatio="xMidYMax slice">
+<g fill="#0e6ea8" opacity=".28"><path d="M0 140 q26 -14 52 0 t52 0 t52 0 t52 0 t52 0 t52 0 t52 0 V170 H0Z"/>
+<path d="M0 152 q26 -12 52 0 t52 0 t52 0 t52 0 t52 0 t52 0 t52 0 V170 H0Z"/></g>
+<g fill="#0d9463" opacity=".4">
+<path d="M40 170 q-6 -34 4 -52 q10 18 4 52Z"/><path d="M56 170 q6 -28 -2 -44 q-10 16 -4 44Z"/>
+<path d="M330 170 q-8 -30 2 -46 q10 16 4 46Z"/></g>
+<g fill="#bfe6ff" opacity=".45"><circle cx="150" cy="110" r="3"/><circle cx="180" cy="86" r="2.2"/><circle cx="250" cy="120" r="2.6"/></g></svg>`,
+/* 7 太空：星球 + 光环 + 星星 + 小行星 */
+7:`<svg viewBox="0 0 400 170" preserveAspectRatio="xMidYMax slice">
+<g transform="translate(318,54)">
+<ellipse rx="52" ry="14" fill="none" stroke="#8f7bff" stroke-width="4" opacity=".45" transform="rotate(-18)"/>
+<circle r="24" fill="#5b4bd0" opacity=".55"/><circle cx="-8" cy="-6" r="6" fill="#8f7bff" opacity=".5"/>
+<circle cx="9" cy="5" r="4" fill="#b6a8ff" opacity=".45"/></g>
+<g fill="#e8e6ff" opacity=".55">
+<path d="M40 40 l4 10 10 4 -10 4 -4 10 -4 -10 -10 -4 10 -4Z"/>
+<path d="M120 90 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3Z"/>
+<path d="M210 36 l2.4 5.6 5.6 2.4 -5.6 2.4 -2.4 5.6 -2.4 -5.6 -5.6 -2.4 5.6 -2.4Z"/></g>
+<g fill="#8d94a6" opacity=".4"><circle cx="86" cy="140" r="10"/><circle cx="250" cy="150" r="7"/></g></svg>`,
+};
+/* 怪物表情：骄傲 / 紧张 / 哭泣（8×7 像素） */
+function faceSVG(mood){
+  const ink="#2b1050", tear="#4fc3ff";
+  const r=[];
+  const P=(x,y,w,h,f)=>r.push('<rect x="'+x+'" y="'+y+'" width="'+(w||1)+'" height="'+(h||1)+'" fill="'+(f||ink)+'"/>');
+  if(mood==="proud"){
+    P(1,2);P(0,3);P(2,3); P(6,2);P(5,3);P(7,3);
+    P(3,5,3,1); P(2,4); P(6,4);
+  }else if(mood==="tense"){
+    P(1,2,1,2);P(2,2,1,2); P(6,2,1,2);P(7,2,1,2);
+    P(3,5);P(4,4);P(5,5);P(6,4);
+    P(8,0,1,1,tear);P(8,1,1,2,tear);
+  }else{
+    P(0,3);P(1,2);P(2,3); P(5,3);P(6,2);P(7,3);
+    P(3,4,1,1,tear);P(3,5,1,2,tear); P(6,4,1,1,tear);P(6,5,1,2,tear);
+    P(3,5,3,1);P(2,6);P(6,6);
+  }
+  return '<svg viewBox="0 0 8 7" shape-rendering="crispEdges">'+r.join("")+'</svg>';
+}
 function applyFloorTheme(f){
   const t=FLOOR_THEMES[((Math.max(1,f)-1)%7)+1];
   document.body.dataset.floor=String(t.key);
+  const art=document.querySelector("#bg-deco .deco-art");
+  if(art) art.innerHTML=FLOOR_ART[t.key]||FLOOR_ART[1];
 }
 function renderSide(){
   bumpVal("side-plays", S.battlePlays);
@@ -3420,8 +3572,23 @@ function renderEnemy(){
   hint.innerHTML=h;
   const pct=Math.max(0,S.enemy.hp/S.enemy.maxHp*100);
   $("e-hpfill").style.width=pct+"%";
+  /* 血条分档变色 + 怪物表情随血量变化 */
+  const bar=document.querySelector("#enemy .hpbar");
+  if(bar) bar.dataset.tier=hpTier(pct);
+  renderFace(pct);
   $("e-hp").textContent=Math.max(0,S.enemy.hp)+" / "+S.enemy.maxHp;
   $("e-atk").textContent="攻击 "+S.enemy.atk+(S.enemy.lives?" · "+S.enemy.lives+"条命":"");
+}
+/* 血量档位：≥60 绿 / ≥30 蓝 / <30 红 */
+function hpTier(pct){ return pct>60?1 : pct>30?2 : 3; }
+function renderFace(pct){
+  const el=$("monster-face"); if(!el) return;
+  const mood = pct>60 ? "proud" : pct>30 ? "tense" : "cry";
+  if(el.dataset.mood!==mood){
+    el.dataset.mood=mood;
+    el.className="monster-face mood-"+mood;
+    el.innerHTML=faceSVG(mood);
+  }
 }
 /* 全员挑战 UI：5 只怪物一行，各自血条 */
 function renderGauntletUI(){
@@ -3453,6 +3620,8 @@ function renderGauntletUI(){
   const tot=S.gauntlet.monsters.reduce((a,m)=>a+Math.max(0,m.hp),0);
   const totMax=S.gauntlet.monsters.reduce((a,m)=>a+m.maxHp,0);
   $("e-hpfill").style.width=(tot/totMax*100)+"%";
+  const gbar=document.querySelector("#enemy .hpbar");
+  if(gbar) gbar.dataset.tier=hpTier(tot/totMax*100);
   $("e-hp").textContent=tot+" / "+totMax;
   $("e-atk").textContent="合计攻击 "+alive.reduce((a,m)=>a+m.atk,0);
   enemyEl.classList.toggle("boss", S.gauntlet.monsters.some(m=>m.boss&&m.hp>0));
