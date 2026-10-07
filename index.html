@@ -29,7 +29,9 @@
     --font-cj:'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','SimHei',sans-serif;
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-  html,body{margin:0;padding:0;height:100%;overflow:hidden;}
+  html,body{margin:0;padding:0;overflow:hidden;}
+  /* 全屏（含 iPhone 独立模式）时 html 也要铺底色，否则底部安全区会露白边 */
+  html{height:100%; background:linear-gradient(160deg,#ffd9ec,#c9b8ff);}
   body{
     font-family:var(--font-cj);
     color:var(--ink);
@@ -37,8 +39,9 @@
       radial-gradient(circle at 15% 8%, rgba(255,255,255,.55) 0, transparent 42%),
       radial-gradient(circle at 85% 92%, rgba(255,255,255,.42) 0, transparent 45%),
       linear-gradient(160deg, var(--bg1), var(--bg2));
+    background-attachment:fixed;
     transition:background .6s ease;
-    min-height:100%;
+    height:100%; min-height:100vh; min-height:100dvh;
     display:flex; align-items:center; justify-content:center;
     overflow-x:hidden;
   }
@@ -432,24 +435,8 @@
   .shop-card .sc-price{font-family:var(--font-px); font-size:18px; color:#c2440a; white-space:nowrap;}
   .shop-card button{flex:0 0 auto; padding:10px 22px; font-size:16px;}
   .shop-card button:disabled{opacity:.4; cursor:not-allowed;}
-  .shop-sell-wrap{flex:0 0 auto; max-height:none; overflow:visible; border-top:2px dashed rgba(255,255,255,.35); padding-top:6px;}
-  .sell-tip{font-family:var(--font-cj); font-size:13px; color:#ffe9c9; text-align:center; line-height:1.5;
-    background:rgba(59,21,80,.28); border:2px dashed rgba(255,233,201,.5); border-radius:12px; padding:7px 10px;}
-  .sell-tip b{color:#ffd93d;}
-  /* 出售行 */
-  .shop-row{display:flex; align-items:center; gap:8px; background:#fff9ef; color:#3d1a4d; border:3px solid #3b1550;
-    box-shadow:2px 2px 0 #3b1550; border-radius:12px; padding:5px 9px; margin:5px 0;}
-  .shop-row .ico{width:30px; flex:0 0 auto; display:flex; align-items:center; justify-content:center;}
-  .shop-row .info{flex:1; min-width:0; text-align:left;}
-  .shop-row .nm{font-size:13px; font-weight:900; color:#8a4b00;}
-  .shop-row .ds{font-size:11px; color:#3a3a44; margin-top:2px;}
-  .shop-row .en{font-size:10.5px; color:#5a5a66; line-height:1.25; font-style:italic; margin-top:1px;}
-  .shop-row .price{font-family:var(--font-px); font-size:12px; color:#c2440a; flex:0 0 auto;}
-  .shop-row button{flex:0 0 auto; padding:6px 11px; font-size:12px; margin-left:4px;}
-  .shop-row button.owned{opacity:.4; cursor:not-allowed;}
-  .shop-row.sell .ico{font-size:18px;}
-  .shop-row.sell .nm{color:#d6336c;}
-  #shop-sell-title{font-family:var(--font-px); font-size:11px; color:#ffe9c9; margin:4px 0 2px; text-align:left;}
+  /* 出售区已移除：商店里直接点右侧百宝箱的道具出售 */
+  .shop-sell-wrap{display:none;}
 
   /* 手牌区域 */
   #hand-zone{margin-bottom:2px;}
@@ -891,20 +878,12 @@
     #modal-start .opt-row{order:2;} #modal-start #btn-start{order:3;}
     #modal-start .intro-guide{order:5; margin:6px 0 0;}
     .intro-guide{padding:5px 6px; margin-bottom:6px; border-width:2px;}
-  /* iPhone 提示条：如何在 iOS 上进入全屏（无地址栏） */
-  .ios-tip{display:flex; align-items:center; gap:8px; background:#fff3c4; color:#3d1a4d;
-    border:2px solid #3b1550; border-radius:12px; padding:7px 9px; margin:6px 0 0;
-    font-size:12.5px; line-height:1.4; text-align:left; box-shadow:2px 2px 0 rgba(59,21,80,.35);}
-  .ios-tip span{flex:1 1 auto;}
-  .ios-tip button{flex:0 0 auto; padding:3px 9px; font-size:13px;}
     .intro-title{font-size:11px; margin-bottom:2px;}
     .intro-row{padding:3px 0; gap:8px;}
     .intro-txt .zh{font-size:11px; line-height:1.3; margin-bottom:1px;}
     .intro-txt .en{font-size:9.5px; line-height:1.25;}
     .intro-art svg{width:40px !important; height:auto !important;}
     .opt-row{margin:4px 0;} .opt-tip{display:none;}
-  .ios-tip{order:4; font-size:10.5px; padding:5px 6px; margin:4px 0 0;}
-  .ios-tip button{padding:1px 6px; font-size:11px;}
     .bigbtn{margin:3px 0; padding:6px 0; font-size:14px;}
     /* 结算表格在手机上放大字号（宽度还有余量，不会横向溢出） */
     table{font-size:13px;} th,td{padding:8px 5px;}
@@ -917,10 +896,9 @@
     .shop-card .sc-price{font-size:14px;}
     .shop-shelf{gap:8px; grid-template-columns:repeat(3,1fr); padding-bottom:2px; min-height:186px;}
     .shop-head{gap:6px;} .shop-title{font-size:15px;} .shop-sub{font-size:11px;}
-    .shop-sell-wrap{max-height:72px; overflow-y:auto;}
-    .shop-row{padding:4px 6px;} .shop-row .nm{font-size:12px;} .shop-row .ds{font-size:10px;}
-    /* 手机上「继续战斗」改为固定高度并退出 sticky，绝不遮挡购买按钮 */
-    #btn-shop-next{position:static; font-size:14px; padding:6px 0; margin:2px 0; outline-width:2px; box-shadow:none;}
+    /* 手机上「继续战斗」退出 sticky 并固定在底部，绝不遮挡购买按钮 */
+    #btn-shop-next{position:static; flex:0 0 auto; font-size:15px; padding:7px 0; margin:4px 0 0; outline-width:2px; box-shadow:none;}
+    .shop-shelf{padding-bottom:8px;}
   }
   /* 超短屏横屏手机（如 iPhone SE 667×375）：再挤一点，保证铺满整屏 */
   @media (orientation:landscape) and (max-height:384px){
@@ -1065,10 +1043,6 @@
   <div class="modal" id="modal-start">
     <h1>汉字小丑牌</h1>
     <div class="sub">Chinese Character Balatro · 边玩边学汉字</div>
-    <div id="ios-tip" class="ios-tip" style="display:none">
-      <span>📲 iPhone：点底部「分享」→「添加到主屏幕」，之后从主屏幕打开就没有地址栏，全屏显示</span>
-      <button id="ios-tip-close" type="button">✕</button>
-    </div>
     <div id="intro-guide" class="intro-guide"></div>
     <div class="opt-row">
       <label for="opt-timer">⏱ 倒计时</label>
@@ -4257,13 +4231,6 @@ function renderShop(){
     b.addEventListener('click',()=>buyItem(b.dataset.buy));
   });
 
-  // 提示条：出售改为在右侧百宝箱里点道具
-  const sellEl=$("shop-sell");
-  sellEl.innerHTML="";
-  const tip=document.createElement("div");
-  tip.className="sell-tip";
-  tip.innerHTML="💰 想卖道具？<b>点击右侧百宝箱里的道具</b>即可一键出售（30% 折价"+(cnt("baishao")?" +25%×"+cnt("baishao"):"")+"）";
-  sellEl.appendChild(tip);
 }
 function showShop(){
   S.busy=true;
@@ -4271,6 +4238,8 @@ function showShop(){
   rollShop();
   renderShop();
   $("shop-panel").classList.remove("hidden");
+  $("shop-sell").innerHTML="";
+  $("shop-sell").style.display="none";
   renderPlayer();          /* 百宝箱进入「可一键出售」状态 */
 }
 
@@ -4463,27 +4432,17 @@ $("st-mute").addEventListener("click",()=>{
 /* iOS（含 iPadOS 的 Safari）不支持网页版 Fullscreen API，只有「添加到主屏幕」才能去掉地址栏 */
 const IS_IOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
 const IS_STANDALONE=(navigator.standalone===true)||(window.matchMedia&&window.matchMedia("(display-mode: standalone)").matches);
-function showIOSFullscreenTip(force){
-  const el=$("ios-tip"); if(!el) return;
-  if(!IS_IOS || IS_STANDALONE || (!force && localStorage.getItem("hz_ios_tip")==="1")){ el.style.display="none"; return; }
-  el.style.display="flex";
-}
 function isFullscreen(){ return !!(document.fullscreenElement || document.webkitFullscreenElement); }
 function enterFullscreen(){
   const el=document.documentElement;
   const fn=el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
   if(fn) { try{ const p=fn.call(el); if(p&&p.catch) p.catch(()=>{}); }catch(e){} }
-  /* iOS 上没有这个 API：直接告诉用户怎么添加到主屏幕 */
-  if(!fn) showIOSFullscreenTip(true);
 }
 function exitFullscreen(){
   const fn=document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
   if(fn){ try{ fn.call(document); }catch(e){} }
 }
-function toggleFullscreen(){
-  if(IS_IOS && !IS_STANDALONE){ showIOSFullscreenTip(true); return; }  /* iOS 走「添加到主屏幕」 */
-  isFullscreen() ? exitFullscreen() : enterFullscreen();
-}
+function toggleFullscreen(){ isFullscreen() ? exitFullscreen() : enterFullscreen(); }
 function renderFsBtn(){
   const b=$("btn-fs"); if(!b) return;
   const on=isFullscreen();
@@ -4491,7 +4450,8 @@ function renderFsBtn(){
   b.title=on?"退出全屏":"全屏观看（去掉浏览器边框）";
   b.style.opacity=on?"1":".85";
 }
-$("btn-fs").addEventListener("click",e=>{ e.stopPropagation(); unlockAudio(); toggleFullscreen(); renderFsBtn(); });
+$("btn-fs").addEventListener("click",e=>{ e.stopPropagation(); unlockAudio(); toggleFullscreen(); if(IS_IOS) $("btn-fs").style.display="none";   /* iOS Safari 不支持网页全屏，独立模式本身即全屏 */
+renderFsBtn(); });
 document.addEventListener("fullscreenchange",renderFsBtn);
 document.addEventListener("webkitfullscreenchange",renderFsBtn);
 renderFsBtn();
@@ -4502,9 +4462,6 @@ document.addEventListener("pointerdown",function once(){
   fsTried=true; localStorage.setItem("hz_fs_asked","1");
   if(!IS_STANDALONE && !isFullscreen() && document.fullscreenEnabled!==false){ enterFullscreen(); setTimeout(renderFsBtn,120); }
 },{once:true});
-/* iOS 提示条：首次进入自动显示一次，点 ✕ 关闭，点顶栏 ⛶ 可再看 */
-try{ $("ios-tip-close").addEventListener("click",()=>{ localStorage.setItem("hz_ios_tip","1"); $("ios-tip").style.display="none"; }); }catch(e){}
-showIOSFullscreenTip(false);
 initHearts();
 renderButtons();
 renderSide();
