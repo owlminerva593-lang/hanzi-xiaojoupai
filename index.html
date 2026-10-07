@@ -2906,20 +2906,14 @@ function renderWordStats(){
   el.innerHTML=h+'</table>';
 }
 
-/* ================= 排行榜同步 =================
-   【方式 A · 开箱即用，纯 GitHub，无需任何密钥】
-     游戏从同站点的 scores.json 读取榜单（由 .github/workflows/leaderboard.yml 自动维护）：
-       · 游戏里点「⬆ 提交成绩」→ 打开一条预填好的 GitHub Issue（浏览器里登录一次 GitHub 即可）
-       → GitHub Actions 自动把这条 Issue 解析成 scores.json 并提交
-       → Pages 自动重建，所有设备刷新后就能看到新榜单
-     好处：页面里不存放任何密钥，谁都改不了你的仓库。
-   【方式 B · 可选，需要一个自己的后端才能“免登录”写入】
-     把下面 SYNC_URL 填成任意支持 GET/POST JSON 的服务（Google Apps Script 免费脚本模板见上方注释），
-     即可在保存成绩时静默上传、多设备自动合并。 */
+/* 从 GitHub 读取全站成绩（两条来源，自动合并、互相兜底）
+   ① GitHub Issues（主力）：公开仓库的 Issues 可以免密钥读取，任何人提交一条 [成绩] Issue 后立刻上榜
+   ② scores.json（备用）：若仓库配置了 .github/workflows/leaderboard.yml，会由 Actions 自动维护此文件 */
+const GIT_REPO="owlminerva593-lang/hanzi-xiaojoupai";
+const GIT_SCORES_URL="./scores.json";
+const SYNC_URL="";                       /* ← 可选：后端地址，留空则不需要任何服务器 */
+const CACHE_KEY="hz_cloud_cache", CACHE_TTL=60*1000;
 
-const GIT_SCORES_URL="./scores.json";    /* 排行榜数据文件（GitHub Pages 上的） */
-const GIT_REPO="owlminerva593-lang/hanzi-xiaojoupai";   /* 提交成绩用的仓库 */
-const SYNC_URL="";                       /* ← 可选：后端地址，留空则只读 scores.json */
 function deviceId(){
   let d=localStorage.getItem("hz_dev");
   if(!d){ d="d"+Math.random().toString(36).slice(2,9)+Date.now().toString(36); localStorage.setItem("hz_dev",d); }
@@ -2927,23 +2921,51 @@ function deviceId(){
 }
 function mergeScores(local,remote){
   const all=[...local];
-  remote.forEach(r=>{ if(r && !all.some(x=>x.id===r.id)) all.push(r); });
+  remote.forEach(r=>{ if(r && r.id && !all.some(x=>x.id===r.id)) all.push(r); });
   all.sort((a,b)=>(b.score||0)-(a.score||0));
   return all.slice(0,50);
 }
-/* 从 GitHub Pages 拉取榜单并与本机记录合并 */
-async function pullRemoteScores(){
-  if(!GIT_SCORES_URL) return 0;
+/* 把一条 [成绩] Issue 解析成一条成绩 */
+function parseScoreIssue(iss){
+  const title=String(iss.title||"");
+  if(title.indexOf("[成绩]")!==0) return null;
+  const body=String(iss.body||"");
+  const pick=(k)=>{ const m=body.match(new RegExp("^"+k+"[:：]\\s*(.+)$","m")); return m?m[1].trim():""; };
+  const name=pick("姓名") || title.replace(/^\[成绩\]\s*/,"").split(/\s+/)[0] || "玩家";
+  const score=Math.max(0,parseInt(pick("分数"),10)||0);
+  if(!score) return null;
+  return { id:"gh-"+iss.number, name:name.slice(0,12), score,
+           kills:Math.max(0,parseInt(pick("击败"),10)||0),
+           words:Math.max(0,parseInt(pick("词语"),10)||0),
+           date:pick("日期") || String(iss.created_at||"").slice(0,10) };
+}
+/* 读取云端成绩：先看缓存，再读 Issues，最后兜底 scores.json */
+async function pullRemoteScores(force){
+  const cache=JSON.parse(localStorage.getItem(CACHE_KEY)||"null");
+  if(!force && cache && Date.now()-cache.t < CACHE_TTL){ return cache.n||0; }
+  let remote=[], n=0;
   try{
-    const res=await fetch(GIT_SCORES_URL+"?t="+Date.now(),{cache:"no-store"});
-    if(!res.ok) return 0;
-    const remote=await res.json();
-    if(!Array.isArray(remote)) return 0;
+    /* 只读取 open 状态的 Issue：把某条 Issue 关掉，这条成绩就自动从榜单消失（方便纠错） */
+    const res=await fetch("https://api.github.com/repos/"+GIT_REPO+"/issues?state=open&per_page=100",{cache:"no-store"});
+    if(res.ok){
+      const list=await res.json();
+      remote=list.filter(i=>!i.pull_request).map(parseScoreIssue).filter(Boolean);
+      n=remote.length;
+    }
+  }catch(e){}
+  if(!n){
+    try{
+      const r2=await fetch(GIT_SCORES_URL+"?t="+Date.now(),{cache:"no-store"});
+      if(r2.ok){ const j=await r2.json(); if(Array.isArray(j)){ remote=j; n=j.length; } }
+    }catch(e){}
+  }
+  if(n){
     const merged=mergeScores(loadScores(),remote);
     localStorage.setItem(LS_KEY,JSON.stringify(merged));
+    localStorage.setItem(CACHE_KEY,JSON.stringify({t:Date.now(),n:n}));
     renderBoard();
-    return remote.length;
-  }catch(e){ return 0; }
+  }
+  return n;
 }
 /* 可选后端上传 */
 async function pushToBackend(){
@@ -2962,9 +2984,10 @@ async function pushToBackend(){
 /* 「同步」按钮：拉取云端榜单（+ 可选后端上传） */
 async function syncScores(){
   setFeedback("","同步中…","");
-  const n=await pullRemoteScores();
+  localStorage.removeItem(CACHE_KEY);
+  const n=await pullRemoteScores(true);
   await pushToBackend();
-  setFeedback("", n?("已同步 "+n+" 条记录"):"暂无云端记录","");
+  setFeedback("", n?("已同步 "+n+" 条成绩"):"还没有云端成绩","");
 }
 /* 「提交成绩」：打开预填的 GitHub Issue，由 Actions 自动写入 scores.json */
 function submitScoreToGitHub(){
@@ -4387,7 +4410,7 @@ function renderBoard(){
     '<button id="btn-submit" style="flex:1 1 40%;font-size:12px;padding:8px 0;background:linear-gradient(180deg,#8cf5c4,#3ddc97)">⬆ 提交成绩</button>'+
     '<button id="btn-copy" style="flex:1 1 40%;font-size:12px;padding:8px 0">📋 复制成绩</button>'+
     '<button id="btn-wipe" style="flex:1 1 40%;font-size:12px;padding:8px 0;background:#ffe0e6">清空本机</button></div>'+
-    '<div class="dim" style="text-align:left">「提交成绩」会打开一条预填好的 GitHub 页面，确认后自动写入全站榜单（所有设备刷新即可看到）。</div>';
+    '<div class="dim" style="text-align:left">「提交成绩」会打开一条预填好的 GitHub 页面，确认后<b>全站榜单立刻生效</b>（无需刷新网页，其他人点「刷新榜单」就能看到）。</div>';
   $("board").innerHTML=html;
   const sb=$("btn-sync"); if(sb) sb.addEventListener('click',()=>syncScores());
   const ub=$("btn-submit"); if(ub) ub.addEventListener('click',()=>submitScoreToGitHub());
