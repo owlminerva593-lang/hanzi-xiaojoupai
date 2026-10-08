@@ -398,17 +398,7 @@
   /* 竖屏窄屏（手机竖持）：三栏改为纵向堆叠。
      注意：纵向 flex 下 #game 的 flex-basis:0 会把它压成 0 高（图标堆叠），
      所以这里显式改成 flex:none + min-height，让内容自然撑开再整体缩放。 */
-  @media (max-width:960px) and (orientation:portrait){
-    #stage{max-width:900px;}
-    #layout{flex-direction:column; gap:8px;}
-    #side{flex:0 0 auto; flex-direction:row; gap:6px;}
-    #side .sstat{flex:1 1 0; min-height:62px; padding:4px 2px; gap:2px;}
-    #side .sstat .k{font-size:12px;} #side .sstat .v{font-size:24px;}
-    #game{flex:0 0 auto; min-height:600px;}
-    #chest{flex:0 0 auto;}
-    #chest-items{grid-template-columns:repeat(5,1fr);}
-    .chest-body{max-height:none; min-height:76px;}
-  }
+  /* （竖屏专用样式已移到样式表末尾，必须排在基础规则之后才能覆盖 .card / #hand 等） */
   /* 商店：占满中栏的大界面，3 件商品左中右三栏 */
   #shop-panel{position:absolute; inset:0; z-index:30; display:flex; flex-direction:column; gap:10px; padding:12px 14px;
     background:linear-gradient(180deg,#9a6ee0,#7448b5); border-radius:12px; overflow:hidden;}
@@ -482,15 +472,6 @@
       radial-gradient(1.4px 1.4px at 150px 120px,rgba(255,255,255,.55) 50%,transparent 50%);
     background-size:260px 260px; animation:pollenfloat 9s ease-in-out infinite alternate;}
   @keyframes pollenfloat{ from{background-position:0 0; opacity:.3;} to{background-position:40px -30px; opacity:.75;} }
-  /* ===== 怪物表情（随血量变化） ===== */
-  .monster-face{position:absolute; left:50%; top:6px; transform:translateX(-50%); z-index:3;
-    pointer-events:none; width:52px; height:34px;}
-  .monster-face svg{width:100%; height:100%; image-rendering:pixelated; display:block;
-    filter:drop-shadow(0 2px 0 rgba(59,21,80,.35));}
-  .monster-face.mood-tense{animation:faceTremble .5s ease-in-out infinite alternate;}
-  @keyframes faceTremble{ from{transform:translateX(-50%) rotate(-2deg);} to{transform:translateX(-50%) rotate(2deg);} }
-  .monster-face.mood-cry{animation:faceSob .9s ease-in-out infinite;}
-  @keyframes faceSob{ 0%,100%{transform:translateX(-50%) translateY(0);} 50%{transform:translateX(-50%) translateY(2px) scaleY(.92);} }
   /* ===== 血条分阶段变色 ===== */
   .hpbar .fill{transition:width .35s ease, background .3s ease;}
   .hpbar[data-tier="1"] .fill{background:linear-gradient(90deg,#3ddc97,#7be9ff);}
@@ -895,7 +876,6 @@
     #lucky-dice .pip{width:6px; height:6px;}
     .monster{min-height:0; margin:0;}
     .monster svg{width:72px; height:72px;}
-    .monster-face{width:34px; height:22px; top:2px;}
     .puzzle{gap:5px; margin:0;}
     .slot{min-width:38px; height:38px; font-size:25px; border-width:2px; border-radius:9px; box-shadow:2px 2px 0 #3b1550;}
     /* 介绍移到右侧后宽度富余，允许英文释义折两行 */
@@ -972,7 +952,6 @@
     #game{padding:4px; gap:2px;}
     .sstat{padding:2px 2px;} .sstat .v{font-size:19px;}
     .monster{min-height:0;} .monster svg{width:54px; height:54px;}
-    .monster-face{width:28px; height:18px;}
     .slot{min-width:30px; height:30px; font-size:20px;}
     .hpbar{height:12px;} .hp-nums{font-size:12px;}
     #feedback{min-height:16px; font-size:11px;}
@@ -980,6 +959,73 @@
     .card{width:58px; height:70px; border-radius:10px;}
     .card .ch{font-size:34px;}
     #actions button{font-size:14px; padding:4px 4px;}
+  }
+
+  /* ===== 手机竖屏（微信里最常见的姿势）：单列布局，元素放大，一屏不用滚动 =====
+     必须放在本文件所有基础规则之后：媒体查询不增加优先级，顺序靠后才会覆盖 .card / #hand 等。
+     设计目标：390×844 下缩放≈1.0（不再被压到 0.78），字大、卡大、按钮好点 */
+  @media (max-width:960px) and (orientation:portrait){
+    #stage{max-width:900px;}
+    #layout{flex-direction:column; gap:6px;}
+    /* 顶栏压缩：隐藏英文副标题，统计块变小但仍可读 */
+    header{margin-bottom:3px; gap:4px;}
+    .logo{font-size:14px;} .logo small{display:none;}
+    .stats{gap:3px;}
+    .stat{font-size:11px; padding:2px 5px; border-radius:6px;}
+    .stat.money{font-size:12px; padding:2px 7px;} .stat.money b{font-size:16px;}
+    #btn-fs{display:none;}
+    /* 左侧四块状态：压成一行小卡 */
+    #side{flex:0 0 auto; flex-direction:row; gap:4px;}
+    #side .sstat{flex:1 1 0; min-height:40px; padding:2px; gap:1px;}
+    #side .sstat .k{font-size:10.5px;} #side .sstat .v{font-size:19px;}
+    .hearts{font-size:11px; gap:2px;}
+    .meta{font-size:9.5px;}
+    /* 游戏区：不再强制 600px 高，按内容自适应 */
+    #game{flex:0 0 auto; min-height:0; padding:8px;}
+    #top-zone{gap:3px;} #bottom-zone{gap:3px; padding-top:3px;}
+    /* 怪物区改成 2×2：上排怪物+词槽，下排幸运骰子+提示 */
+    .enemy-row{display:grid; grid-template-columns:96px 1fr; grid-template-rows:auto auto;
+      gap:4px 8px; align-items:center;}
+    .ecell-luck{grid-column:1; grid-row:2; align-self:center;}
+    .ecell-monster{grid-column:1; grid-row:1;}
+    .ecell-word{grid-column:2; grid-row:1;}
+    .ecell-desc{grid-column:2; grid-row:2;}
+    .monster{min-height:0;} .monster svg{width:80px; height:80px;}
+    .slot{min-width:74px; height:74px; font-size:44px;}
+    .hint-line{font-size:11.5px; line-height:1.3;}
+    /* 竖屏空间有限：提示栏超过 3 行时可上下滑动，避免把整屏撑高 */
+    .hint-line{max-height:72px; overflow-y:auto; overscroll-behavior:contain; padding-right:2px;}
+    .hint-line::-webkit-scrollbar{width:4px;}
+    .hint-line::-webkit-scrollbar-thumb{background:rgba(255,255,255,.55); border-radius:2px;}
+    .hint-line .trait-tag{font-size:11px;}
+    .hint-line .ten{font-size:9.5px;}
+    .hint-line .en,.hint-line .py{font-size:10px;}
+    .hint-line .rw{font-size:11.5px;}
+    .hint-line .en-hint b{font-size:11px;}
+    .enemy-tag{font-size:12px;} .level-tag{font-size:10.5px;}
+    /* 血条 + 提示栏 */
+    .hpbar{height:18px;} .hp-nums{font-size:11px;}
+    #feedback{font-size:13px; padding:2px 8px;} #feedback .big{font-size:22px;}
+    /* 手牌区：卡牌放大，按钮加大 */
+    #hand-title{margin-bottom:2px;} .hl{font-size:12.5px;}
+    #deck{width:24px; height:30px;} #deck .dcard{font-size:7px;}
+    #hand{height:112px; min-height:112px;}
+    .card{width:74px; height:100px; top:4px; border-radius:15px;}
+    .card .ch{font-size:46px;}
+    .card::after{inset:4px; border-radius:11px;}
+    #actions{gap:6px; margin-top:5px;}
+    #actions button{flex:1; font-size:16px; padding:9px 4px; border-radius:11px;}
+    #btn-gauntlet{flex:1.2;}
+    /* 百宝箱：更紧凑的一排 */
+    #chest{gap:3px;}
+    .chest-lid{padding:3px 4px 6px; font-size:11px;}
+    .chest-count{font-size:8.5px;}
+    .chest-body{padding:6px 4px 3px; max-height:none; min-height:0;}
+    #chest-items{grid-template-columns:repeat(6,1fr); gap:3px;}
+    .citem{padding:1px 1px;} .citem .art{height:26px;} .citem .art svg{width:26px; height:26px;}
+    .citem .nm{font-size:10px;}
+    /* 弹窗适配竖屏 */
+    .modal{max-height:calc(100vh - 20px); padding:12px 14px;}
   }
 </style>
 </head>
@@ -1033,7 +1079,6 @@
           </div>
           <div class="ecell ecell-monster">
             <div class="monster" id="monster"></div>
-            <div class="monster-face" id="monster-face" aria-hidden="true"></div>
           </div>
           <div class="ecell ecell-word">
             <div class="puzzle" id="puzzle"></div>
@@ -1860,16 +1905,94 @@ const NORMAL_SPRITES=["imp","goblin","archer","swordsman","slime","skeleton","zo
   "bug","dwarf","giant","dragon","dog","whitecat","thief","robot","flame2","demon",
   "darkwizard","bear","swordsman2","strongman"];
 const BOSS_SPRITES=["demonlord","warlock","dragon","giant","darkwizard","demon"];
-function monsterHTML(key, boss){
+/* ===== 表情直接画在精灵像素上（不用外部贴图，保证与怪物体型完全对齐） =====
+   扫描精灵上半部分成对的 "W" 色块（原作里就是眼睛所在位置），在原位改写这些像素。
+   没有成对眼睛的精灵（雾妖 / 火灵 / 史莱姆等）自动跳过，不会画错位置。 */
+/* 少数精灵的眼睛不是白色（骷髅用深色画眼眶），这里手工指定 */
+const SPRITE_EYES_OVERRIDE={
+  skeleton:{lx:4, rx:10, y:4},
+};
+function spriteEyes(sp, key){
+  if(key && SPRITE_EYES_OVERRIDE[key]){
+    const o=SPRITE_EYES_OVERRIDE[key];
+    return {a:{x:o.lx,n:2}, b:{x:o.rx,n:2}, y:o.y};
+  }
+  /* 找「同一行里恰好两处、间隔 ≥3 列」的白色像素块——那就是原作画眼睛的位置 */
+  for(let y=0;y<10;y++){
+    const row=sp.rows[y]||"";
+    const runs=[];
+    let x=0;
+    while(x<row.length){
+      if(row[x]==="W"){
+        let n=0; while(row[x+n]==="W") n++;
+        runs.push({x:x+Math.floor((n-1)/2), n:n});
+        x+=n;
+      }else x++;
+    }
+    if(runs.length!==2) continue;
+    const gap=runs[1].x-runs[0].x;
+    if(gap<3) continue;
+    return {a:runs[0], b:runs[1], y:y};
+  }
+  return null;
+}
+function paletteExtreme(sp, wantDark){
+  let bestC=wantDark?"#3d1a4d":"#ffffff", bestL=wantDark?1e9:-1;
+  for(const k in sp.pal){
+    const c=sp.pal[k];
+    if(!/^#[0-9a-f]{6}$/i.test(c)) continue;
+    const r=parseInt(c.substr(1,2),16), g=parseInt(c.substr(3,2),16), b=parseInt(c.substr(5,2),16);
+    const L=0.299*r+0.587*g+0.114*b;
+    if(wantDark ? L<bestL : L>bestL){ bestL=L; bestC=c; }
+  }
+  return bestC;
+}
+/* 表情像素：返回 [x,y,颜色]，直接落在精灵自身的 16×16 网格上 */
+function expressionPixels(sp, mood, key){
+  const e=spriteEyes(sp, key);
+  if(!e) return [];
+  const ink=paletteExtreme(sp,true), lite=paletteExtreme(sp,false), tear="#5cc8ff";
+  const out=[];
+  const cx=e.a.x, rx=e.b.x, y=e.y, my=Math.min(15,y+4), mx=(cx+rx)>>1;
+  const W=(x,yy,c)=>{ if(x>=0&&x<16&&yy>=0&&yy<16) out.push([x,yy,c||ink]); };
+  if(mood==="proud"){
+    /* 骄傲：^ ^ 眯眼 + 上扬的嘴角 */
+    W(cx,y); W(cx-1,y+1); W(cx+1,y+1);
+    W(rx,y); W(rx-1,y+1); W(rx+1,y+1);
+    W(mx-1,my); W(mx,my-1); W(mx+1,my);
+    W(cx,y+1,lite); W(rx,y+1,lite);
+  }else if(mood==="tense"){
+    /* 紧张：竖直瞪眼 + 紧绷的直线嘴 + 汗滴 */
+    W(cx,y-1); W(cx,y); W(cx,y+1);
+    W(rx,y-1); W(rx,y); W(rx,y+1);
+    W(mx-2,my); W(mx-1,my); W(mx,my); W(mx+1,my); W(mx+2,my);
+    W(rx+2,y-2,tear); W(rx+2,y-1,tear);
+  }else{
+    /* 哭泣：闭眼 + 眼泪 + 下撇的嘴 */
+    W(cx-1,y); W(cx,y); W(cx+1,y);
+    W(rx-1,y); W(rx,y); W(rx+1,y);
+    W(cx,y+1,tear); W(cx,y+2,tear);
+    W(rx,y+1,tear); W(rx,y+2,tear);
+    W(mx-1,my-1); W(mx,my); W(mx+1,my-1);
+  }
+  return out;
+}
+function monsterHTML(key, boss, mood){
   const sp=SPRITES[key]||SPRITES.imp;
   const size=boss?112:88;
   let svg='<svg viewBox="0 0 16 16" width="'+size+'" height="'+size+'" shape-rendering="crispEdges" aria-label="'+sp.name+'">';
+  const px=mood?expressionPixels(sp, mood, key):[];
   sp.rows.forEach((row,y)=>{
     for(let x=0;x<row.length;x++){
       const ch=row[x];
-      if(ch!==".") svg+='<rect x="'+x+'" y="'+y+'" width="1" height="1" fill="'+sp.pal[ch]+'"/>';
+      if(ch===".") continue;
+      let covered=false;
+      for(let i=0;i<px.length;i++){ if(px[i][0]===x && px[i][1]===y){ covered=true; break; } }
+      if(covered) continue;                      /* 表情像素稍后覆盖 */
+      svg+='<rect x="'+x+'" y="'+y+'" width="1" height="1" fill="'+sp.pal[ch]+'"/>';
     }
   });
+  px.forEach(p=>{ svg+='<rect x="'+p[0]+'" y="'+p[1]+'" width="1" height="1" fill="'+p[2]+'"/>'; });
   return svg+'</svg>';
 }
 
@@ -2288,10 +2411,19 @@ function speak(text){
 /* 手牌尺寸：手机横屏（短屏触屏）用大号卡片，手指更好点；其余用标准尺寸 */
 const PHONE_LANDSCAPE=window.matchMedia("(orientation:landscape) and (max-height:600px)");
 const PHONE_TINY=window.matchMedia("(orientation:landscape) and (max-height:384px)");
+const PHONE_PORTRAIT=window.matchMedia("(orientation:portrait) and (max-width:960px)");
 function cardMetrics(){
-  if(PHONE_TINY.matches) return {w:58,h:72,step:44};
-  if(PHONE_LANDSCAPE.matches) return {w:62,h:78,step:48};
-  return {w:66,h:94,step:46};
+  let w,h,base;
+  if(PHONE_TINY.matches){ w=58; h=72;  base=44; }
+  else if(PHONE_LANDSCAPE.matches){ w=62; h=78; base=48; }
+  else if(PHONE_PORTRAIT.matches){ w=76; h=106; base=58; }
+  else { w=66; h=94; base=46; }
+  /* 手牌多了就自动收窄间距，保证整副牌都在可视范围内（不再溢出屏幕） */
+  const n=Math.max(1,S.hand.length);
+  const avail=(handEl&&handEl.clientWidth?handEl.clientWidth:360)-6;
+  let step=base;
+  if(n>1) step=Math.max(24,Math.min(base,(avail-w)/(n-1)));
+  return {w:w,h:h,step:Math.round(step)};
 }
 const CARD_W=66, CARD_H=94, STEP=46;   /* 默认值（兼容旧引用），实际布局用 cardMetrics() */
 const S = {
@@ -3509,25 +3641,6 @@ const FLOOR_ART={
 <path d="M210 36 l2.4 5.6 5.6 2.4 -5.6 2.4 -2.4 5.6 -2.4 -5.6 -5.6 -2.4 5.6 -2.4Z"/></g>
 <g fill="#8d94a6" opacity=".4"><circle cx="86" cy="140" r="10"/><circle cx="250" cy="150" r="7"/></g></svg>`,
 };
-/* 怪物表情：骄傲 / 紧张 / 哭泣（8×7 像素） */
-function faceSVG(mood){
-  const ink="#2b1050", tear="#4fc3ff";
-  const r=[];
-  const P=(x,y,w,h,f)=>r.push('<rect x="'+x+'" y="'+y+'" width="'+(w||1)+'" height="'+(h||1)+'" fill="'+(f||ink)+'"/>');
-  if(mood==="proud"){
-    P(1,2);P(0,3);P(2,3); P(6,2);P(5,3);P(7,3);
-    P(3,5,3,1); P(2,4); P(6,4);
-  }else if(mood==="tense"){
-    P(1,2,1,2);P(2,2,1,2); P(6,2,1,2);P(7,2,1,2);
-    P(3,5);P(4,4);P(5,5);P(6,4);
-    P(8,0,1,1,tear);P(8,1,1,2,tear);
-  }else{
-    P(0,3);P(1,2);P(2,3); P(5,3);P(6,2);P(7,3);
-    P(3,4,1,1,tear);P(3,5,1,2,tear); P(6,4,1,1,tear);P(6,5,1,2,tear);
-    P(3,5,3,1);P(2,6);P(6,6);
-  }
-  return '<svg viewBox="0 0 8 7" shape-rendering="crispEdges">'+r.join("")+'</svg>';
-}
 function applyFloorTheme(f){
   const t=FLOOR_THEMES[((Math.max(1,f)-1)%7)+1];
   document.body.dataset.floor=String(t.key);
@@ -3581,14 +3694,15 @@ function renderEnemy(){
 }
 /* 血量档位：≥60 绿 / ≥30 蓝 / <30 红 */
 function hpTier(pct){ return pct>60?1 : pct>30?2 : 3; }
+/* 表情变化时重绘精灵本体（不是贴图）；死亡/濒死动画期间不重绘，避免打断动画 */
 function renderFace(pct){
-  const el=$("monster-face"); if(!el) return;
+  if(!S.enemy) return;
   const mood = pct>60 ? "proud" : pct>30 ? "tense" : "cry";
-  if(el.dataset.mood!==mood){
-    el.dataset.mood=mood;
-    el.className="monster-face mood-"+mood;
-    el.innerHTML=faceSVG(mood);
-  }
+  if(S.enemy.mood===mood) return;
+  S.enemy.mood=mood;
+  const mEl=$("monster");
+  if(!mEl || mEl.classList.contains("die") || mEl.classList.contains("dying")) return;
+  mEl.innerHTML=monsterHTML(S.enemy.sprite, S.enemy.boss, mood);
 }
 /* 全员挑战 UI：5 只怪物一行，各自血条 */
 function renderGauntletUI(){
