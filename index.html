@@ -2622,6 +2622,16 @@ const ITEM_ART = {
   chenpi:{s:"peel",pal:{A:"#ff9f43",W:"#ffc98a"}},
   danshen:{s:"root",pal:{A:"#e05a5a",B:"#b53232",W:"#ff9999"}},
 };
+Object.assign(ITEM_ART,{
+ c_yuanzhi:{s:"root",pal:{A:"#d5ab8a",B:"#835139",W:"#ffe3bd"}},
+ c_yizhiren:{s:"seed",pal:{A:"#b98150",B:"#77452c",W:"#f4d3a0"}},
+ c_shichangpu:{s:"herb",pal:{A:"#8dd58a",D:"#408763",W:"#d9f4a4"}},
+ c_suanzaoren:{s:"seed",pal:{A:"#b36d63",B:"#79433e",W:"#f0b7a4"}},
+ c_huangqi:{s:"root",pal:{A:"#e5c16d",B:"#a77b36",W:"#fff0b9"}},
+ c_fuling:{s:"stone",pal:{A:"#eee0d0",B:"#b68e73",W:"#fff8ea"}},
+ c_baizhu:{s:"root",pal:{A:"#cca774",B:"#8a623e",W:"#f7e1bc"}},
+ c_shanzha:{s:"berry",pal:{A:"#e16a76",B:"#b44154",W:"#ffd2a3",D:"#789650"}}
+});
 function itemArtSVG(key,size){
   const art=ITEM_ART[key]; if(!art) return "";
   const rows=ITEM_SHAPES[art.s]; if(!rows) return "";
@@ -3646,6 +3656,7 @@ function spawnEnemy(){
 
   if(S.mode==="recognize" && (trait==="thorns" || trait==="flame")) trait=null;
   // 每场战斗重置
+  resetCompleteBattle();
   S.battleScore=0; S.battlePlays=0; S.battleCards=0; S.discardedCount=0;
   S.lastColor=null; S.prevColor=null; S.firstAttackDone=false; S.firstDiscardDone=false; S.sangyeBonus=0; S.bossAtkMult=1; S.combo=0;
   S.hints=cnt("gouqi");   /* 枸杞：每关提示次数 +1（没有枸杞就没有提示） */
@@ -4495,6 +4506,7 @@ async function resolveSelectedPlay(){
     let dmgCards = cards;
     if(bossAbility(enemy,"redimmune")) dmgCards = cards.filter(c=>c.stone || cardColor(c)!==1);
     let dmg = isPractice()?3:dmgCards.length;
+    dmg += completeCorrectBonus();
     const stoneTrait = enemy.trait==="stone";
 
     // 每张牌 / 张数条件的加成（按件数叠加）
@@ -4642,7 +4654,7 @@ showDamagePop(dmg,hue);
     } else {
     setFeedback("bad",pick(ENCOURAGE),"");
     let errDmg=enemy.atk * (enemy.trait==="venom"?2:1) * (armed?2:1) * (bossAbility(enemy,"ramp")?S.bossAtkMult:1);
-    playerHurt(errDmg);
+    playerHurt(completeCounterDamage(errDmg));
     }
   }
 
@@ -4954,12 +4966,14 @@ function destroyItem(k){
 
 /* ================= 敌人被击败 ================= */
 function enemyDefeated(skip){
+  const stageTwoReward=completeVictoryBonus();
   S.busy=true;
   S.disabledItems=new Set();
   stopTimer();
   if(!skip){
     S.kills++;
     S.score += S.enemy.boss?100:20;
+    S.money += stageTwoReward;
     S.money += S.enemy.boss?30:10;   /* 击败基础金币 */
     if(cnt("jinqiancao")) S.money+=3*cnt("jinqiancao");
     if(cnt("danggui")){ S.hp=Math.min(S.maxHp,S.hp+cnt("danggui")); }
@@ -5037,12 +5051,55 @@ function addCardToHand(){
   handEl.appendChild(buildCardEl(card));
 }
 function ownsItem(k){ return S.items.indexOf(k)>=0 || (ITEMS[k] && ITEMS[k].kind==="instant" && S.instantBought.has(k)); }
+const COMPLETE_ITEMS={
+  c_yuanzhi:{name:"远志",ico:"志",p:"yuǎnzhì",desc:"每次答对，伤害 +1",price:18,kind:"passive"},
+  c_yizhiren:{name:"益智仁",ico:"智",p:"yìzhìrén",desc:"连续答对第 3 题起，每次伤害 +2；答错重置",price:28,kind:"passive"},
+  c_shichangpu:{name:"石菖蒲",ico:"蒲",p:"shíchāngpú",desc:"每只怪物首次答对，伤害 +3",price:24,kind:"passive"},
+  c_suanzaoren:{name:"酸枣仁",ico:"枣",p:"suānzǎorén",desc:"答错后的下一次答对，伤害 +3",price:20,kind:"passive"},
+  c_huangqi:{name:"黄芪",ico:"芪",p:"huángqí",desc:"每只怪物首次答错，免除本次反击伤害",price:32,kind:"passive"},
+  c_fuling:{name:"茯苓",ico:"苓",p:"fúlíng",desc:"购买后每累计答对 3 题，恢复 1 点生命",price:30,kind:"passive"},
+  c_baizhu:{name:"白术",ico:"术",p:"báizhú",desc:"每次答对，额外获得 1 金币",price:18,kind:"passive"},
+  c_shanzha:{name:"山楂",ico:"楂",p:"shānzhā",desc:"全程未答错击败一只怪物，额外获得 4 金币",price:22,kind:"passive"}
+};
+Object.assign(ITEMS,COMPLETE_ITEMS);
+function itemFitsMode(key){
+  return S.mode==="complete"?Object.hasOwn(COMPLETE_ITEMS,key):S.mode==="cards"&&!Object.hasOwn(COMPLETE_ITEMS,key);
+}
+function resetCompleteBattle(){S.completeCorrect=0;S.completeMistake=false;S.completeRetry=false;S.completeShieldUsed=false;}
+function completeCorrectBonus(){
+  if(S.mode!=="complete") return 0;
+  let extra=has("c_yuanzhi")?1:0;
+  if(has("c_yizhiren")&&S.combo>=2) extra+=2;
+  if(has("c_shichangpu")&&S.completeCorrect===0) extra+=3;
+  if(has("c_suanzaoren")&&S.completeRetry) extra+=3;
+  S.completeCorrect++;S.completeRetry=false;
+  if(has("c_fuling")){
+    S.completeHeal=(S.completeHeal||0)+1;
+    if(S.completeHeal>=3){S.completeHeal=0;S.hp=Math.min(S.maxHp,S.hp+1);updateHearts();}
+  }
+  if(has("c_baizhu"))S.money++;
+  return extra;
+}
+function completeCounterDamage(d){
+  if(S.mode!=="complete")return d;
+  S.completeMistake=true;S.completeRetry=true;
+  const protect=has("c_huangqi")&&!S.completeShieldUsed;
+  S.completeShieldUsed=true;
+  if(protect){
+    const c=center(hearts);spawnParticles(c.x,c.y,"#ffe398",16);
+    hearts.animate([{filter:"drop-shadow(0 0 8px #ffe398)"},{filter:"none"}],{duration:600});
+    return 0;
+  }
+  return d;
+}
+function completeVictoryBonus(){return S.mode==="complete"&&has("c_shanzha")&&!S.completeMistake?4:0;}
+
 function shopPool(){
   const pool=[];
   for(const k in ITEMS){
     const it=ITEMS[k];
     /* 每个道具仅可购买一次：已拥有的一次性道具与被动道具都不再出现在货架 */
-    if(ownsItem(k) || (isPractice() && PRACTICE_EXCLUDED.has(k))) continue;
+    if(!itemFitsMode(k) || ownsItem(k)) continue;
     pool.push(k);
   }
   return pool;
@@ -5053,17 +5110,19 @@ function rollShop(){
 /* 刷新商店的金币费用：随层数递增 */
 function refreshPrice(){ return 10+5*(Math.max(1,S.floor)-1); }
 function shopDisabled(key){
+  if(!ITEMS[key] || !itemFitsMode(key)) return true;
   if(ownsItem(key)) return true;                 /* 已拥有则不可再买 */
   if(key==="renshen" && S.hp>=S.maxHp) return true;
   return S.money < buyPrice(key);
 }
 function buyItem(key){
-  if(S.mode==="recognize") return;
+  if(!ITEMS[key] || !itemFitsMode(key)) return;
   const it=ITEMS[key];
   if(ownsItem(key)){ setFeedback("","已经拥有「"+it.name+"」","每种道具只能购买一次"); return; }
   if(shopDisabled(key)) return;
   const price=buyPrice(key);
   S.money -= price;
+  if(key==="c_fuling") S.completeHeal=0;
   if(key==="longgu"){ S.handSize++; addCardToHand(); layoutHand(); }
   else if(key==="renshen"){ S.hp=S.maxHp; }
   else if(key==="lingzhi"){ S.maxHp++; S.hp=S.maxHp; initHearts(); }
@@ -5078,6 +5137,7 @@ function sellItem(key){
   if(S.mode==="recognize") return;
   const gain=sellPrice(key);
   removeOne(key);
+  if(key==="c_fuling") S.completeHeal=0;
   S.money += gain;
   if(S.longdanArmed && key==="longdan" && !has("longdan")) S.longdanArmed=false;
   if(S.destroyMode && !has("danshen")) S.destroyMode=false;
@@ -5207,6 +5267,7 @@ async function startRun(){
   $("shop-panel").classList.add("hidden");
   $("modal-over").classList.add("hidden");
   S.timerOn=!!($("opt-timer") && $("opt-timer").checked);
+  S.completeHeal=0; resetCompleteBattle();
   S.hp=5; S.maxHp=5; S.score=0; S.money=0; S.kills=0; S.floor=1; S.step=0; S.combo=0;
   S.playedCards=0; S.baibuDone=false; S.longdanArmed=false; S.kindBonus=0; S.destroyMode=false;
   S.correct=0; S.attempts=0; S.wordsLearned=new Set();
