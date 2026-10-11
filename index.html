@@ -1260,6 +1260,15 @@ header{border-bottom-style:dashed;border-bottom-color:#ffe6c666;}
 .counter-charge{position:fixed;width:64px;height:64px;border:3px solid;border-radius:50%;pointer-events:none;box-shadow:0 0 12px #ffffff70;}
 .counter-impact{filter:drop-shadow(0 0 7px currentColor);}
 
+
+#intro-guide .intro-art{width:140px;max-width:42%;flex:0 0 auto;}
+#intro-guide .intro-art svg{width:100%!important;height:auto!important;border:0;background:none;border-radius:12px;image-rendering:auto;}
+#intro-guide .intro-row{gap:12px;padding:10px 0;}
+@media(max-width:480px){
+  #intro-guide .intro-row{flex-direction:column;align-items:flex-start;gap:8px;}
+  #intro-guide .intro-art{width:176px;max-width:100%;align-self:center;}
+}
+
 </style>
 </head>
 <body>
@@ -4104,11 +4113,8 @@ function renderEnemy(){
     const t=TRAITS[S.enemy.trait];
     h += '<span class="trait-tag">'+t.ico+' '+t.name+'：'+t.desc+'</span> ';
   }
-  const wordCount=new Set([...S.enemy.companions.values()].map(o=>o.w)).size;
-  h += '<span class="en">可组成 '+wordCount+' 个词</span>';
   /* 英文释义（母语提示）+ 主题标签 */
   if(S.enemy.hintWord){
-    h += ' <span class="theme-tag">'+(THEME_NAMES[S.enemy.hintWord.t]||'词语')+'</span>';
     h += ' <span class="en-hint" title="想一想：哪个词是这个意思？">💡 <b>'+S.enemy.hintWord.e+'</b></span>';
   }
   /* 本场已组出的词语：大字号 · 彩色 · 拼音 · 英译 */
@@ -4148,10 +4154,7 @@ function renderFace(pct){
 function renderGauntletUI(){
   const alive=S.gauntlet.monsters.filter(m=>m.hp>0);
   let h='<span class="trait-tag">⚔ 全员挑战：答对伤害均分 · 答错被 '+alive.length+' 只围攻！</span> ';
-  const wordCount=new Set([...S.enemy.companions.values()].map(o=>o.w)).size;
-  h+='<span class="en">可组成 '+wordCount+' 个词</span>';
   if(S.enemy.hintWord){
-    h+=' <span class="theme-tag">'+(THEME_NAMES[S.enemy.hintWord.t]||'词语')+'</span>';
     h+=' <span class="en-hint" title="想一想：哪个词是这个意思？">💡 <b>'+S.enemy.hintWord.e+'</b></span>';
   }
   if(S.enemy.revealed.length){
@@ -5230,86 +5233,56 @@ function nextEnemy(){
 }
 
 /* ================= 开场双语图文介绍（中文原文 + 英文翻译 + 像素插图） ================= */
-const INTRO_PAL={K:"#3b1550",S:"#ffd9b3",C:"#5cc8f5",M:"#a06cd5",W:"#ffffff",
-  R:"#e8455e",Y:"#ffd93d",G:"#7cd65e",P:"#ff9ecb"};
-/* 5 幅像素插图：英雄与怪物 / 组词命中 / 组词失手 / 幸运骰子 / 启程冒险 */
-const SCENES={
-  battle:[
-    "................",
-    "................",
-    "..........KKKK..",
-    ".KK......KMMMMK.",
-    ".KSS.....KMWWMK.",
-    ".KSS.....KMMMMK.",
-    ".KKK.....KMMMMK.",
-    ".KCK.....KMMMMK.",
-    ".KCK......KMMK..",
-    ".K.K.......KK...",
-    "................",
-    "................",
-    "GGGGGGGGGGGGGGGG",
-    "GGGGGGGGGGGGGGGG"],
-  match:[
-    "................",
-    "................",
-    "..........KKKK..",
-    ".KKKKKK..KMMMMK.",
-    ".KWWWWK..KMWWMK.",
-    ".KWKKWKYYKMMMMK.",
-    ".KWRRWKYYKMMMMK.",
-    ".KWKKWK..KMMMMK.",
-    ".KWWWWK..KMMMMK.",
-    ".KKKKKK...KMMK..",
-    "................",
-    "................",
-    "GGGGGGGGGGGGGGGG",
-    "GGGGGGGGGGGGGGGG"],
-  hurt:[
-    "................",
-    "................",
-    "..........KKKK..",
-    ".KK......KMMMMK.",
-    ".KSS.....KMWRMK.",
-    ".KSS..RR.KMMMMK.",
-    ".KKK..RR.KMMMMK.",
-    ".KCK.....KMMMMK.",
-    ".KCK......KMMK..",
-    ".K.K.......KK...",
-    "................",
-    "................",
-    "GGGGGGGGGGGGGGGG",
-    "GGGGGGGGGGGGGGGG"],
-  dice:[
-    "................",
-    "....KKKKKK......",
-    "....KWWWWK......",
-    "....KWKKWK......",
-    "....KWWWWK......",
-    "....KWKKWK......",
-    "....KWWWWK......",
-    "....KKKKKK......",
-    "................",
-    "..KKK.KKK.KKK...",
-    "..KCK.KCK.KCK...",
-    "..KCK.KCK.KCK...",
-    "..KCK.KCK.KCK...",
-    "..KKK.KKK.KKK..."],
-  adventure:[
-    ".Y..............",
-    ".YYY............",
-    ".Y..............",
-    "................",
-    ".............PP.",
-    ".............PP.",
-    "...KKK.......KP.",
-    "...KSK.......KP.",
-    "...KKK.......K..",
-    "...KCK.......K..",
-    "...KCK.......K..",
-    "..K.KK.......K..",
-    "GGGGGGGGGGGGGGGG",
-    "GGGGGGGGGGGGGGGG"],
-};
+function introCard(x,y,letter,color,angle=0,w=32,h=43){
+  return '<g transform="translate('+x+' '+y+') rotate('+angle+' '+w/2+' '+h/2+')">'
+    +'<rect x="2" y="3" width="'+w+'" height="'+h+'" rx="6" fill="#583669" opacity=".35"/>'
+    +'<rect width="'+w+'" height="'+h+'" rx="6" fill="'+color+'" stroke="#74508b" stroke-width="2"/>'
+    +'<rect x="3" y="3" width="'+(w-6)+'" height="'+(h-6)+'" rx="4" fill="none" stroke="#fff" opacity=".7"/>'
+    +'<path d="M5 10h22" stroke="#fff" opacity=".45"/>'
+    +'<text x="'+w/2+'" y="'+(h/2+8)+'" text-anchor="middle" font-family="Microsoft YaHei,sans-serif" font-size="22" font-weight="bold" fill="#573266">'+letter+'</text></g>';
+}
+function introMonster(key,x,y,size){
+  const art=SPRITES[key];let pixels='';
+  art.rows.forEach((row,py)=>[...row].forEach((c,px)=>{if(c!=='.'&&art.pal[c])pixels+='<rect x="'+px+'" y="'+py+'" width="1" height="1" fill="'+art.pal[c]+'"/>';}));
+  return '<g transform="translate('+x+' '+y+') scale('+size/16+')" shape-rendering="crispEdges">'+pixels+'</g>';
+}
+function introArrow(x,y,color,reverse=false){
+  return '<g transform="translate('+x+' '+y+')'+(reverse?' rotate(180)':'')+'"><path d="M-12 0H9m-5-5 6 5-6 5" fill="none" stroke="'+color+'" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g>';
+}
+function introHeart(x,y,color){return '<path transform="translate('+x+' '+y+')" d="M0 4Q0-2 5 1Q10-2 10 4L5 10Z" fill="'+color+'"/>';}
+function introSceneSVG(kind){
+  let art='';
+  const frame='<rect x="1" y="1" width="174" height="124" rx="13" fill="#d1f2dc" stroke="#75518c" stroke-width="2"/><rect x="7" y="7" width="162" height="63" rx="8" fill="#a9dfc8"/><rect x="7" y="75" width="162" height="44" rx="8" fill="#9870ca"/>';
+  if(kind==='battle'){
+    art=introMonster('imp',17,15,40)+introCard(80,15,'课','#fff0bf',0,32,40)
+      +'<rect x="18" y="58" width="44" height="5" rx="2" fill="#51bd8e"/>'
+      +'<g transform="rotate(-90 91 65)">'+introArrow(91,65,'#fff4a8')+'</g>'
+      +introCard(40,79,'学','#c7ebff',-12)+introCard(70,73,'上','#fff0bf')+introCard(101,79,'生','#ffd9e8',12)
+      +introHeart(133,24,'#ed6a99')+introHeart(146,24,'#ed6a99');
+  }else if(kind==='match'){
+    art='<path d="M9 64h158" stroke="#9275ae" stroke-dasharray="3 4"/>'
+      +introCard(13,12,'上','#fff0bf',0,30,39)+introArrow(58,32,'#378c6a')
+      +introCard(73,12,'课','#fff0bf',0,30,39)+introMonster('imp',118,11,34)
+      +'<path d="m143 49 5 5 10-12" fill="none" stroke="#248a67" stroke-width="4"/>'
+      +introCard(13,76,'微','#ffd9e8',0,30,39)+introArrow(58,95,'#f597b2',true)
+      +introCard(73,76,'课','#fff0bf',0,30,39)+introMonster('imp',118,77,34)
+      +introHeart(48,106,'#f66d99')+'<path d="m52 108-2 3 3 2-2 4" fill="none" stroke="#fff" stroke-width="1.5"/>';
+  }else if(kind==='dice'){
+    art=introMonster('imp',17,15,36)+introCard(63,12,'课','#fff0bf',0,30,40)
+      +'<rect x="119" y="15" width="39" height="39" rx="9" fill="#483451" stroke="#aa86bf" stroke-width="3"/>'
+      +[[128,24],[138.5,34.5],[149,45]].map(([x,y])=>'<circle cx="'+x+'" cy="'+y+'" r="3.5" fill="#fff3cf"/>').join('')
+      +introCard(13,77,'上','#c7ebff',-6,29,39)+introCard(44,74,'上','#fff0bf',0,29,39)+introCard(75,77,'上','#ffd9e8',6,29,39)
+      +'<text x="113" y="104" font-size="26" font-family="sans-serif" font-weight="bold" fill="#fff0ad">×3</text>';
+  }else{
+    art='<path d="M23 86 55 58 95 52 133 29" fill="none" stroke="#8b69b1" stroke-width="3" stroke-dasharray="4 5"/>'
+      +'<circle cx="55" cy="58" r="4" fill="#fff0ad"/><circle cx="96" cy="52" r="4" fill="#fff0ad"/>'
+      +introMonster('slime',44,24,27)+introMonster('imp',85,13,31)
+      +'<rect x="129" y="15" width="30" height="26" rx="5" fill="#ffdc78" stroke="#765085" stroke-width="2"/><path d="M129 26h30" stroke="#a66f3d" stroke-width="2"/><rect x="141" y="23" width="7" height="9" rx="2" fill="#765085"/>'
+      +introCard(35,80,'学','#c7ebff',-13)+introCard(66,72,'上','#fff0bf')+introCard(98,80,'生','#ffd9e8',13);
+  }
+  return '<svg viewBox="0 0 176 126" width="176" height="126" aria-hidden="true">'+frame+art+'</svg>';
+}
+
 /* 严格使用用户给定的中文原文，英文为对照翻译 */
 const INTRO_ROWS=[
   {zh:"这是一款闯关卡牌游戏，你需要凭借自己的汉语知识、游戏理解和运气，打败小怪物。",
@@ -5317,7 +5290,7 @@ const INTRO_ROWS=[
    art:["battle"]},
   {zh:"如果你打出的卡牌能够与怪物的字匹配，就能造成伤害。反之，你会受到伤害。",
    en:"If the cards you play can match the monster's character, you deal damage. If not, you will take damage instead.",
-   art:["match","hurt"]},
+   art:["match"]},
   {zh:"看到右上角的幸运骰子了吗？出牌的张数和它一样，伤害会随之倍增哦！",
    en:"See the lucky dice in the top-right corner? If the number of cards you play is the same as the number it shows, your damage is multiplied!",
    art:["dice"]},
@@ -5325,25 +5298,13 @@ const INTRO_ROWS=[
    en:"Let your adventure begin!",
    art:["adventure"]},
 ];
-function sceneSVG(rows,size){
-  const h=rows.length, s=size||80;
-  let svg='<svg viewBox="0 0 16 '+h+'" width="'+s+'" height="'+Math.round(s*h/16)
-    +'" shape-rendering="crispEdges" aria-hidden="true">';
-  rows.forEach((row,y)=>{
-    for(let x=0;x<row.length;x++){
-      const ch=row[x];
-      if(ch!==".") svg+='<rect x="'+x+'" y="'+y+'" width="1" height="1" fill="'+(INTRO_PAL[ch]||"#cccccc")+'"/>';
-    }
-  });
-  return svg+'</svg>';
-}
 function renderIntro(){
   const box=document.getElementById("intro-guide");
   if(!box) return;
   let h='<div class="intro-title">游戏介绍 · HOW TO PLAY</div>';
   INTRO_ROWS.forEach(r=>{
     h+='<div class="intro-row"><div class="intro-art">'
-      +r.art.map(k=>sceneSVG(SCENES[k], r.art.length>1?64:80)).join("")
+      +r.art.map(k=>introSceneSVG(k)).join("")
       +'</div><div class="intro-txt"><p class="zh">'+r.zh+'</p><p class="en">'+r.en+'</p></div></div>';
   });
   box.innerHTML=h;
