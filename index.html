@@ -10,8 +10,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="汉字小丑牌">
-<meta name="theme-color" content="#ffd9ec">
-<title>汉字小丑牌 · Chinese Character Balatro</title>
+<meta name="theme-color" content="#101e29">
+<title>汉字小丑牌 v4.1 · 词语冒险</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -144,8 +144,8 @@
   .logo small{display:block; font-family:var(--font-cj); font-size:11px; color:#ffe9c9; letter-spacing:1px;}
   .stats{display:flex; gap:6px; flex-wrap:wrap;}
   .stat{background:#ffd93d; border:2px solid #3b1550; box-shadow:2px 2px 0 #3b1550;
-    border-radius:8px; padding:4px 9px; font-family:var(--font-px); font-size:14px; color:#3d1a4d;}
-  .stat b{color:#d6336c;}
+    border-radius:8px; padding:6px 12px; font-family:var(--font-px); font-size:16px; color:#3d1a4d;}
+  .stat b{color:#d6336c; font-size:19px;}
   .stat.combo{background:#8cffd2;} .stat.combo b{color:#0d9463;}
   /* 连击徽章：连续答对时出现并跳动 */
   #combo-chip{display:none;}
@@ -667,8 +667,7 @@
     0%{opacity:.95; box-shadow:0 0 0 2px var(--dglow,#ffd93d), 0 0 10px 2px var(--dglow,#ffd93d);}
     100%{opacity:0; box-shadow:0 0 0 24px rgba(255,255,255,0), 0 0 26px 0 rgba(255,255,255,0);}
   }
-  /* 伤害动态：按伤害档位不同 跳动幅度 / 颜色 / 大小 */
-  #dmg-chip b{font-size:24px; line-height:1;}
+  /* 伤害动态：按伤害档位不同 跳动幅度 / 颜色 / 大小（伤害数字直接打在怪物身上） */
   .stat.pop{animation:dmgpop .75s cubic-bezier(.22,.61,.36,1);}
   .stat.pop b{animation:dmgcolor .75s;}
   .stat.pop.t2{animation:dmgbig .8s cubic-bezier(.22,.61,.36,1);}
@@ -712,9 +711,6 @@
     42%{transform:translate(-50%,-50%) scale(1.35) rotate(2deg);}
     100%{transform:translate(-50%,-95%) scale(1.2) rotate(0); opacity:0;}
   }
-  /* 顶栏伤害数字同样金色高亮 */
-  #dmg-chip.t3 b, #dmg-chip.t4 b{color:#ffcf3d; -webkit-text-stroke:1.5px #7a3d00; paint-order:stroke fill;
-    text-shadow:0 0 10px rgba(255,207,61,.9);}
   @keyframes dmgburst{
     0%{transform:translate(-50%,-50%) scale(.3) rotate(-8deg); opacity:0}
     25%{transform:translate(-50%,-50%) scale(1.25) rotate(3deg); opacity:1}
@@ -929,7 +925,10 @@
     .intro-txt .zh{font-size:11px; line-height:1.3; margin-bottom:1px;}
     .intro-txt .en{font-size:9.5px; line-height:1.25;}
     .intro-art svg{width:40px !important; height:auto !important;}
-    .opt-row{margin:4px 0;} .opt-tip{display:none;}
+    /* 开始界面的声音开关（战斗顶栏已移除） */
+  .opt-sound{margin-left:auto; font-family:var(--font-px); font-size:13px; color:#ffe9c9;
+    background:rgba(59,21,80,.3); border:2px solid #3b1550; border-radius:8px; padding:4px 10px;}
+  .opt-row{margin:4px 0;} .opt-tip{display:none;}
     .bigbtn{margin:3px 0; padding:6px 0; font-size:14px;}
     /* 结算表格在手机上放大字号（宽度还有余量，不会横向溢出） */
     table{font-size:13px;} th,td{padding:8px 5px;}
@@ -1027,6 +1026,240 @@
     /* 弹窗适配竖屏 */
     .modal{max-height:calc(100vh - 20px); padding:12px 14px;}
   }
+
+  /* 三阶段学习入口与双选项练习 */
+  #modal-start{display:flex;flex-direction:column;}
+  #modal-start h1{order:0;}#modal-start .sub{order:1;}
+  #modal-start .mode-picker{order:2;}#modal-start #mode-help{order:3;}
+  #modal-start .opt-row{order:4;}#modal-start #btn-start{order:5;flex-shrink:0;}
+  #modal-start .intro-guide{order:6;flex-shrink:0;margin-top:10px;}
+  .mode-picker{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:10px 0;order:2;}
+  .mode-option{display:block;border:2px solid #83629a;border-radius:10px;padding:8px 5px;text-align:center;cursor:pointer;background:#3b254c;color:#fff;}
+  .mode-option:has(input:checked){border-color:#ffd93d;background:#573c63;box-shadow:0 0 0 1px #ffd93d;}
+  .mode-option input{accent-color:#ffd93d;}
+  .mode-option strong{display:block;font-size:14px;margin:3px 0;}
+  .mode-option small{font-size:11px;color:#e8d8ed;}
+  #mode-help{font-size:12px;line-height:1.5;margin-bottom:7px;order:2;}
+  #game.practice #hand{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:center;padding:6px;height:112px;min-height:90px;}
+  #game.practice .choice-card{position:static;transform:none!important;width:100%;height:92px;font-family:inherit;border:3px solid #ffd93d;border-radius:14px;background:linear-gradient(#fff4cd,#f4cc85);color:#3b1550;cursor:pointer;}
+  #game.practice .choice-card .ch{font-size:30px;}
+  #game.practice .choice-card:disabled{cursor:default;opacity:.7;}
+  #game.practice .choice-card.hinted{outline:4px solid #3ddc97;}
+  #game.practice .choice-card.answer{border-color:#3ddc97;background:#baf3d2;opacity:1;}
+  #game.practice #puzzle .slot{width:auto;min-width:0;height:auto;min-height:60px;padding:8px 12px;font-size:26px;line-height:1.3;overflow-wrap:anywhere;}
+  #game.practice #feedback .big{font-size:18px;}
+  #game.practice #feedback .answer-note{display:block;font-size:13px;line-height:1.4;}
+  @media (orientation:landscape) and (max-height:600px){
+    .mode-picker{margin:5px 0;gap:5px;}.mode-option{padding:4px;}.mode-option strong{font-size:12px;}.mode-option small{font-size:10px;}
+    #game.practice #hand{height:80px;min-height:80px;}.choice-card{min-height:44px;}#game.practice .choice-card{height:64px;}
+    #game.practice #puzzle .slot{font-size:19px;min-height:36px;padding:4px 8px;}
+    #game.practice #feedback .big{font-size:14px;}#game.practice #feedback .answer-note{font-size:11px;}
+  }
+/* v4 · 深色桌布、像素镶边、纸牌与分层场景 */
+:root{--ink:#f7ecd3;--gold:#f6c66b;--red:#ed786f;--green:#85bd96;--shadow:4px 4px 0 #080f19;--font-px:'Courier New','Microsoft YaHei',monospace;}
+html{background:#101e29;}
+body,body[data-floor]{background-color:#101e29;background-image:radial-gradient(ellipse at 45% 20%,#25454a 0,transparent 65%),repeating-linear-gradient(45deg,#ffffff02 0 2px,transparent 2px 12px);color:#f7ecd3;}
+body::before{background:repeating-linear-gradient(0deg,#00000012 0 1px,transparent 1px 5px);opacity:.25;mix-blend-mode:normal;}
+.star{font-size:9px;opacity:.2;animation:none;color:#b5b08d;text-shadow:none;}
+#stage::after{display:none;}
+#layout{gap:12px;}
+#game{background:repeating-linear-gradient(45deg,#ffffff02 0 2px,transparent 2px 7px),#203b3f;border:4px solid #0c1822;border-radius:4px;box-shadow:0 0 0 2px #678077,0 0 0 5px #162832,6px 8px 0 #080f19;}
+header{padding:4px 3px 8px;border-bottom:2px solid #93a18a33;}
+.logo{color:#f3ce83;text-shadow:2px 2px #0b1922;letter-spacing:1px;}
+.logo small{color:#a7b9ad;letter-spacing:2px;font-size:10px;}
+.stat,.stat.money,#combo-chip.on{border:2px solid #0b1822;border-radius:3px;background:#344e58;color:#e9debf;box-shadow:inset 0 2px #ffffff15,2px 3px #0a1621;font-family:var(--font-cj);font-weight:700;}
+.stat b{color:#f6ca72;}.stat.money{background:#675334;color:#f5d590;box-shadow:inset 0 2px #ffffff20,2px 3px #0a1621;}.stat.money b{color:#ffe3a4;text-shadow:1px 1px #241b17;}
+#combo-chip.on{background:#8c513d;color:#fff1cc;}#combo-chip b{color:#fff1cc;}
+.sstat,.sstat.d,.sstat.t{border-radius:3px;border:3px solid #0c1822;background:#253d4b;box-shadow:inset 0 3px #ffffff0d,3px 4px #080f19;gap:8px;}
+.sstat .k,.sstat.d .k,.sstat.t .k{color:#b5c4c3;font-family:var(--font-cj);font-size:15px;letter-spacing:1px;}
+.sstat .v{color:#edb66b;}.sstat.d .v{color:#8fbfce;}.sstat.t .v{color:#9bc6a2;}
+#enemy,#enemy.boss{border:3px solid #0d1924;border-radius:3px;background:#152a32;box-shadow:inset 0 0 0 2px #82998533,3px 4px #0b1821;overflow:hidden;}
+#enemy.boss{border-color:#bd7362;}
+#bg-deco{opacity:1;}#bg-deco .deco-art{opacity:.5;}#bg-deco .deco-part{display:none;}
+.enemy-top{position:relative;z-index:2;border-bottom:1px solid #ced9bf33;padding-bottom:5px;}
+.enemy-tag{color:#e4dabf;text-shadow:1px 1px #0b1922;font-family:var(--font-cj);font-weight:700;}
+.level-tag{background:#0d1c29aa;border:1px solid #63877e;border-radius:2px;color:#b7cbc1;}
+.ecell-word{max-width:46%;}.ecell-desc{position:relative;z-index:1;}
+.slot,#game.practice #puzzle .slot{background:#f2e6c7;border:3px solid #111d29;border-radius:3px;color:#263940;box-shadow:inset 0 0 0 2px #cdbb91,3px 4px #0b1922;font-weight:800;}
+.hint-line{color:#c8d6cb;}.hint-line .en,.hint-line .py{color:#b9d0c4;}
+.theme-tag,.hint-line .trait-tag{border-radius:2px;background:#3b5862;color:#ecdfbf;border:1px solid #8a9e8c;box-shadow:2px 2px #0b1922;}
+.hint-line .en-hint{border-radius:2px;background:#172c39;color:#f1d59d;border:1px solid #8e835b;}
+.hint-line .en-hint b{color:#f1d59d;}
+.hpbar{border:2px solid #0a1823;border-radius:2px;background:#101d29;box-shadow:inset 0 0 0 1px #64746d;}
+#e-hpfill{background:repeating-linear-gradient(90deg,transparent 0 14px,#00000020 14px 16px),#8abb91;transition:width .7s cubic-bezier(.2,.7,.3,1);border-radius:0;}
+.hp-nums{color:#f5e8cc;text-shadow:1px 1px #0b1922;}
+#feedback{background:#162b35;border:1px solid #58756d;border-radius:2px;color:#f2dec0;}
+#feedback.good{background:#243e37;border-color:#709c79;color:#b7d99b;}#feedback.bad{background:#453330;border-color:#a27365;color:#f1a394;}
+#feedback.good .big{color:#c6dda9;}#feedback.bad .big{color:#f0b39d;}
+#lucky-dice{background:#e4d6b5;border-radius:3px;border-color:#172734;box-shadow:inset 0 0 0 2px #b9a77e,3px 4px #0b1922;}
+#lucky-dice .pip{border-radius:1px;background:#344e56;box-shadow:none;}#lucky-dice::after{border-radius:1px;}#lucky-num{border-radius:2px;background:#283e4a;color:#e9ce91;border-color:#819480;box-shadow:2px 3px #0b1922;}
+#feedback .big{font-family:var(--font-cj);text-shadow:1px 1px #10202c;}
+#bottom-zone{border-top:2px solid #9aac923b;padding-top:8px;}
+.hl{color:#eadcb9;font-family:var(--font-cj);letter-spacing:1px;}
+.card{border-radius:3px;border-color:#101e2a;box-shadow:3px 5px #091723;}
+.card::after{border-radius:1px;border-color:#ffffff80;}
+.card .ch{color:#1c303c;text-shadow:none;}
+.card.sel{box-shadow:0 0 0 3px #f7c96a,3px 6px #0b1722;}
+#actions button,.bigbtn,.shop-card button{border:3px solid #101e2a;border-radius:3px;color:#202e35;box-shadow:inset 0 2px #fff7d94d,0 4px #0a1722;background:#e7c67f;font-family:var(--font-cj);font-weight:800;}
+#actions button:hover,.bigbtn:hover,.shop-card button:hover{filter:brightness(1.08);}
+#actions button:active,.bigbtn:active,.choice-card:active{translate:0 2px;}
+#actions button:disabled{opacity:.45;}
+#btn-discard{background:#b87e73;}#btn-select-all{background:#a9bcb1;}#btn-gauntlet{background:#d39e68;}
+#game.practice .choice-card{border:3px solid #14212c;border-radius:3px;background:repeating-linear-gradient(0deg,#95764c06 0 1px,transparent 1px 5px),#f1e4c4;color:#253741;box-shadow:inset 0 0 0 2px #c7b789,0 5px #0b1923;position:relative;overflow:hidden;}
+#game.practice .choice-card::before{content:'✦';position:absolute;left:8px;top:5px;color:#a78f60;font-size:12px;}
+#game.practice .choice-card::after{content:'✦';position:absolute;right:8px;bottom:5px;color:#a78f60;font-size:12px;}
+#game.practice .choice-card:hover{background-color:#fff2d0;outline:2px solid #f6c66b;}
+#game.practice .choice-card.answer{background:#c8dcb8;border-color:#77b990;box-shadow:inset 0 0 0 2px #98b796,0 5px #0b1923;}
+.chest-lid{border-radius:3px;background:#80603f;border-color:#141e28;color:#f0d5a0;box-shadow:inset 0 3px #af895b,3px 4px #0b1821;}
+.chest-body{border-radius:3px;background:repeating-linear-gradient(0deg,#ffffff03 0 2px,transparent 2px 18px),#2a3540;border-color:#111e2a;box-shadow:inset 0 0 0 2px #64716b,3px 4px #0b1821;}
+.chest-empty{color:#bfc7b5;}.citem{border-radius:2px;background:#d6caa9;border-color:#172735;}.citem .nm{color:#263842;}.stack-badge{border-radius:2px;}
+#overlay{background:#07131cd9;backdrop-filter:blur(2px);}
+.modal{border-radius:3px;background:repeating-linear-gradient(45deg,#ffffff02 0 2px,transparent 2px 8px),#253b49;border:3px solid #0b1823;box-shadow:0 0 0 2px #b79b64,0 0 0 6px #172630,8px 10px #07121c;color:#f0e4c9;}
+.modal h1,.modal h2{color:#f6d48f;text-shadow:2px 2px #0a1722;}.modal .sub{color:#a8c0b8;}
+.mode-option{border-radius:2px;background:#192d3a;border:2px solid #0e1e2c;box-shadow:inset 0 0 0 1px #5f7878,2px 3px #0b1821;}
+.mode-option strong{color:#eddbb2;}.mode-option small{color:#a4c0b6;}
+.mode-option:has(input:checked){background:#3c554e;border-color:#f2c571;box-shadow:inset 0 0 0 1px #182e39,2px 3px #0b1821;}
+.mode-option input{accent-color:#edc371;}.opt-sound{border-radius:2px;background:#192e3b;border-color:#8a9d8b;color:#e0d7bb;}
+.intro-guide{background:#172d38;border-color:#4f726c;border-radius:2px;color:#e3d9be;}.intro-txt .zh{color:#e3d9be;}.intro-txt .en{color:#9fbbae;}
+#shop-panel{background:repeating-linear-gradient(45deg,#ffffff03 0 2px,transparent 2px 9px),#243b45;border:3px solid #0e1d29;color:#f0e1bc;}
+.shop-title{color:#f4ce83;}.shop-card{border-radius:3px;background:#e9dfc4;border:3px solid #10212d;box-shadow:inset 0 0 0 2px #c3b78e,3px 4px #0b1821;color:#243943;}
+.shop-card .sc-nm{color:#243943;}.shop-card .sc-py,.shop-card .sc-ds{color:#455b5d;}.shop-card .sc-en{color:#596b68;}.shop-card .sc-price{color:#875328;}
+#btn-shop-next{background:#9ebf94!important;color:#20382e;}
+#stage.first-stage #chest,#stage.first-stage #money-chip,#stage.first-stage .ecell-luck,#stage:has(#game.practice) #side .sstat.d{display:none!important;}
+#stage.first-stage #side{flex:.8 1 0;}
+#stage.first-stage #game{flex:9 1 0;}
+#game.practice #puzzle .slot{font-size:25px;max-width:100%;}
+.first-stage .enemy-row{justify-content:center;gap:22px;}
+.first-stage .ecell-word{max-width:45%;}
+.charging{animation:card-charge .36s steps(4,end) both!important;filter:brightness(1.15);outline:3px solid #f6d78a!important;}
+@keyframes card-charge{0%{scale:1;}60%{scale:1.08;filter:brightness(1.4);}100%{scale:.96;filter:brightness(1.2);}}
+#enemy.targeted{box-shadow:inset 0 0 0 2px #d7b56d,0 0 18px #dcb66333;}
+#combat-flight-layer{position:fixed;inset:0;pointer-events:none;z-index:9980;overflow:hidden;}
+.word-projectile{position:absolute;min-width:48px;padding:10px 14px;background:#f3dfac;border:3px solid #172633;box-shadow:0 0 0 2px #f9cd71,0 0 24px #e9b75d99;color:#293a43;font-weight:900;font-size:26px;text-align:center;}
+.word-projectile::after{content:'';position:absolute;inset:-12px;border:2px dashed #ffe2a080;}
+.reward-coin{position:absolute;color:#ffd782;font-size:24px;text-shadow:2px 2px #755332;}
+.dmg-burst{font-family:var(--font-px);text-shadow:3px 3px #111b28!important;}
+.dmg-burst.b2{font-size:52px;color:#ffd27b!important;animation-duration:1.3s;}
+.dmg-burst.b3{font-size:68px;animation-duration:1.5s;}.dmg-burst.b4{font-size:86px;animation-duration:1.6s;}
+.heavy-label{position:absolute;z-index:12;left:50%;top:14%;translate:-50% 0;background:#8a4338;color:#ffe3a0;padding:4px 12px;border:2px solid #f0bc67;box-shadow:3px 3px #091823;font-size:18px;font-weight:900;letter-spacing:3px;animation:heavy-label 1.4s steps(5,end) forwards;pointer-events:none;}
+@keyframes heavy-label{0%{scale:1.4;opacity:0;}15%,70%{scale:1;opacity:1;}100%{translate:-50% -12px;opacity:0;}}
+#enemy.heavy-impact::after{content:'';position:absolute;inset:2px;border:5px solid #f2c66b;pointer-events:none;animation:heavy-frame 1.2s steps(6,end) forwards;z-index:8;}
+@keyframes heavy-frame{0%,35%{opacity:1;}100%{opacity:0;}}
+.monster.die svg,.monster[data-sprite].die svg{animation-duration:1.25s!important;animation-timing-function:steps(10,end)!important;}
+#enemy.victory-scene .ecell-desc,#enemy.victory-scene .ecell-word,#enemy.victory-scene .ecell-luck{opacity:.2;transition:opacity .6s;}
+.victory-banner{position:absolute;z-index:20;left:50%;top:50%;translate:-50% -50%;width:min(330px,85%);padding:12px;background:#182e38f5;border:3px solid #dfba75;box-shadow:0 0 0 3px #0b1922,5px 6px #07131d;text-align:center;animation:victory-in .3s steps(5,end);}
+.victory-banner small{display:block;color:#a9bfb2;letter-spacing:4px;font-size:11px;}.victory-banner strong{display:block;color:#f4d497;letter-spacing:12px;font-size:32px;margin:5px 0;text-shadow:3px 3px #0c1a26;}.victory-banner span{font-size:12px;color:#c7d3bf;}
+@keyframes victory-in{from{scale:.75;opacity:0;}to{scale:1;opacity:1;}}
+#answer-overlay{position:fixed;inset:0;z-index:10020;background:#07131ce8;display:flex;align-items:center;justify-content:center;padding:18px;}
+.answer-panel{width:min(440px,100%);max-height:calc(100dvh - 36px);overflow:auto;background:#eee2c3;color:#293e46;border:4px solid #152733;box-shadow:0 0 0 3px #caad70,8px 10px #06141d;padding:20px;text-align:center;}
+.answer-kicker{font-family:var(--font-px);font-weight:bold;font-size:11px;letter-spacing:2px;color:#7b6e51;}.answer-panel h2{font-size:19px;margin:10px 0 15px;}
+.answer-comparison{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;padding:10px;background:#dbcfae;border:2px solid #beae89;}
+.answer-comparison span{font-size:12px;color:#6a6958;}.answer-comparison span:first-child{grid-column:1;grid-row:1;}.answer-comparison b:nth-child(2){grid-column:1;grid-row:2;color:#ad5b50;}.answer-comparison span:nth-child(3){grid-column:2;grid-row:1;}.answer-comparison b:last-child{grid-column:2;grid-row:2;color:#357259;}
+#answer-word{font-size:42px;font-weight:900;letter-spacing:6px;margin:14px 0 4px;}#answer-pinyin{color:#8b653a;font-size:20px;}#answer-meaning{font-size:15px;line-height:1.5;margin:10px 0;}.answer-tip{font-size:12px;color:#6c7969;}#btn-understood{width:100%;margin:8px 0 0;background:#9cbf91;}
+@media(max-width:960px) and (orientation:portrait){
+  #layout{gap:7px;}header{padding:2px 0 5px;}.sstat .k,.sstat.d .k,.sstat.t .k{font-size:10px;}.first-stage .enemy-row{gap:8px;grid-template-columns:96px minmax(0,1fr);}.first-stage .ecell-word{max-width:100%;}.ecell-word{max-width:100%;}
+  #game.practice #puzzle .slot{font-size:21px;}#game{padding:8px;}#stage.first-stage #game{flex:0 0 auto;}
+  .first-stage .ecell-desc{grid-column:1 / 3;grid-row:2;}.first-stage #hand{height:130px;}.first-stage #game.practice .choice-card{height:100px;}
+  .heavy-label{font-size:14px;top:16%;}.victory-banner{padding:8px;}.victory-banner strong{font-size:27px;}
+}
+@media(orientation:landscape) and (max-height:600px){
+  #layout{gap:7px;}header{padding:0 0 3px;margin-bottom:3px;}.enemy-top{padding-bottom:2px;margin-bottom:2px;}.sstat .k,.sstat.d .k,.sstat.t .k{font-size:11px;}
+  #game.practice #puzzle .slot{font-size:18px;}.first-stage .enemy-row{gap:12px;}.first-stage .ecell-word{max-width:40%;}
+  .heavy-label{font-size:12px;top:4px;padding:2px 7px;}.victory-banner{padding:5px;}.victory-banner strong{font-size:23px;margin:2px 0;}.victory-banner small{font-size:9px;}
+  .answer-panel{padding:10px 16px;width:420px;}.answer-panel h2{font-size:16px;margin:5px 0;}.answer-comparison{padding:5px;}#answer-word{font-size:30px;margin:6px 0 0;}#answer-pinyin{font-size:16px;}#answer-meaning{font-size:12px;margin:5px 0;}.answer-tip{margin:5px 0;}#btn-understood{padding:7px;margin-top:5px;}
+}
+@media(prefers-reduced-motion:reduce){.monster svg,.star,#combo-chip.hot{animation:none;}.charging{animation:none!important;}.word-projectile{box-shadow:0 0 0 2px #f9cd71;}.monster[data-sprite].die svg{animation-duration:1.25s!important;}}
+
+/* v4.1 · 恢复明亮的糖果配色，保留方角像素轮廓 */
+:root{--ink:#fff8fd;--gold:#ffd93d;--red:#ff5d8f;--green:#3ddc97;--shadow:4px 4px 0 #3b1550;}
+html{background:#d8f7e4;}
+body,body[data-floor]{background-color:var(--bg1,#ffd9ec);background-image:radial-gradient(circle at 15% 8%,#ffffff70,transparent 45%),linear-gradient(160deg,var(--bg1,#ffd9ec),var(--bg2,#c9b8ff));color:#fff8fd;}
+body::before{opacity:.15;}.star{color:#fff3a7;opacity:.65;}
+#game{background:repeating-linear-gradient(45deg,#ffffff06 0 2px,transparent 2px 8px),linear-gradient(#a275df,#8355c7);border-color:#56316f;box-shadow:0 0 0 2px #ffdf8e,0 0 0 5px #bba0db,5px 7px #56316f;}
+header{border-bottom-color:#ffe9c94d;}.logo{color:#ffdf62;text-shadow:2px 2px #583173;}.logo small{color:#f6e6fc;}
+.stat{background:#ffdf7c;border-color:#67385e;color:#603854;box-shadow:inset 0 2px #fff9d4,2px 3px #57326e;}.stat b{color:#c34369;}
+.stat.money{background:#ffd34f;border-color:#a76c22;color:#805018;box-shadow:inset 0 2px #fff1aa,2px 3px #57326e;}.stat.money b{color:#a65115;text-shadow:none;}
+#combo-chip.on{background:#ffbd78;color:#71384e;}#combo-chip b{color:#b13d5b;}
+.sstat{background:#ffedb8;border-color:#643c7e;box-shadow:inset 0 3px #fff8da,3px 4px #65407c;}.sstat.d{background:#c9f2ff;}.sstat.t{background:#c4f7d8;}
+.sstat .k{color:#8a4fbf;}.sstat.d .k{color:#1a7fb5;}.sstat.t .k{color:#1e8a5e;}.sstat .v{color:#d86b32;}.sstat.d .v{color:#168aaf;}.sstat.t .v{color:#188b60;}
+#enemy{background:linear-gradient(var(--p1,#ffb3d9),var(--p2,#f5a3cb));border-color:#65447c;box-shadow:inset 0 0 0 2px #ffffff80,3px 4px #633b7d;}#enemy.boss{background:linear-gradient(#ffb0a1,#f6889e);border-color:#aa5272;}
+#bg-deco .deco-art{opacity:.7;}.enemy-top{border-bottom-color:#ffffff80;}.enemy-tag{color:#fff;text-shadow:1px 1px #765a6c;}.level-tag{background:#ffffffa6;border-color:#ffffffc0;color:#5b546f;text-shadow:none;}
+.slot,#game.practice #puzzle .slot{background:#fff5d7;border-color:#765283;color:#5b376a;box-shadow:inset 0 0 0 2px #f0dba6,3px 4px #704b85;}
+.hint-line{color:#493f67;}.hint-line .en,.hint-line .py{color:#514668;}.theme-tag,.hint-line .trait-tag{background:#8e8ed5;border-color:#fff1d4;color:#fff;box-shadow:2px 2px #68558c;}
+.hint-line .en-hint{background:#ffecbc;border-color:#ddba65;color:#77532e;}.hint-line .en-hint b{color:#77532e;}
+.hpbar{background:#e8d6f3;border-color:#79538c;box-shadow:inset 0 0 0 1px #fff;}#e-hpfill{background:repeating-linear-gradient(90deg,transparent 0 14px,#ffffff40 14px 16px),#64d4ad;}.hp-nums{color:#4e4266;text-shadow:none;}
+#feedback{background:#f1e3ff;border-color:#c1a0e0;color:#764e98;}#feedback .big{color:#764e98;text-shadow:none;}#feedback.good{background:#d6ffe9;border-color:#6fbb94;}#feedback.good .big{color:#25835c;}#feedback.bad{background:#ffe0e7;border-color:#dc91a5;}#feedback.bad .big{color:#b14d68;}
+#bottom-zone{border-top-color:#ffe7ca80;}.hl{color:#fff0d2;}
+#game.practice .choice-card{background:repeating-linear-gradient(0deg,#c9aa6506 0 1px,transparent 1px 5px),#fff1c9;color:#643e71;border-color:#745183;box-shadow:inset 0 0 0 2px #efd79e,0 5px #61417c;}
+#game.practice .choice-card:nth-child(2){background-color:#ffe8ef;box-shadow:inset 0 0 0 2px #eac3d5,0 5px #61417c;}
+#game.practice .choice-card:hover{background-color:#fff8df;outline-color:#ffe066;}#game.practice .choice-card.answer{background:#c9f5d5;border-color:#41b47c;box-shadow:inset 0 0 0 2px #97d7aa,0 5px #61417c;}
+.card{border-color:#704781;box-shadow:3px 5px #61417c;}.card .ch{color:#59376e;}
+#actions button,.bigbtn,.shop-card button{background:#ffe087;border-color:#704781;color:#59376e;box-shadow:inset 0 2px #fff4c2,0 4px #61417c;}#btn-discard{background:#ffb4ca;}#btn-select-all{background:#d4f2ff;}#btn-gauntlet{background:#ffcb8d;}
+#lucky-dice{background:#fff5d9;border-color:#785189;box-shadow:inset 0 0 0 2px #f4dcad,3px 4px #704b85;}#lucky-dice .pip{background:#9b6cc4;}#lucky-num{background:#e8d8ff;color:#8652a8;border-color:#bb93d5;box-shadow:2px 3px #704b85;}
+.chest-lid{background:#e8b46e;border-color:#765080;color:#784c50;box-shadow:inset 0 3px #ffe2a4,3px 4px #704b85;}.chest-body{background:repeating-linear-gradient(0deg,#ffffff15 0 2px,transparent 2px 18px),#bc87bc;border-color:#765080;box-shadow:inset 0 0 0 2px #e7b9d5,3px 4px #704b85;}.chest-empty{color:#fff3d8;}.citem{background:#ffe7bf;border-color:#9470a2;}.citem .nm{color:#694376;}
+#overlay{background:#8c61adb3;}.modal{background:repeating-linear-gradient(45deg,#ffffff06 0 2px,transparent 2px 8px),#a57cdb;border-color:#704781;box-shadow:0 0 0 2px #ffdf8e,0 0 0 6px #c9a5ea,6px 8px #704b85;color:#fff8e9;}
+.modal h1,.modal h2{color:#ffec8e;text-shadow:2px 2px #79509a;}.modal .sub{color:#fff0fa;}.mode-option{background:#9065c1;border-color:#c6a4e3;box-shadow:inset 0 0 0 1px #b38bd4,2px 3px #704b85;}.mode-option strong{color:#fff1c9;}.mode-option small{color:#ffeefb;}.mode-option:has(input:checked){background:#b481cd;border-color:#ffe889;box-shadow:inset 0 0 0 1px #fff1ab,2px 3px #704b85;}
+.opt-sound{background:#956ac0;border-color:#cfafe8;color:#fff0de;}.intro-guide{background:#986cca;border-color:#d7b5ef;}.intro-txt .zh{color:#fff0dd;}.intro-txt .en{color:#f0dffb;}
+#shop-panel{background:repeating-linear-gradient(45deg,#ffffff08 0 2px,transparent 2px 9px),#ac80d5;border-color:#785185;color:#fff1d0;}.shop-title{color:#ffec8e;}.shop-card{background:#fff1d0;border-color:#8d6599;box-shadow:inset 0 0 0 2px #f0d6a5,3px 4px #704b85;}.shop-card .sc-nm{color:#694376;}.shop-card .sc-py,.shop-card .sc-ds{color:#795d82;}.shop-card .sc-en{color:#917695;}.shop-card .sc-price{color:#bd7a2e;}#btn-shop-next{background:#a5edc7!important;color:#326c56;}
+#answer-overlay{background:#8863a8cb;}.answer-panel{background:#fff3d9;border-color:#876092;box-shadow:0 0 0 3px #ffe09b,6px 8px #704b85;color:#624775;}.answer-comparison{background:#f6e3be;border-color:#e0c6a0;}#answer-word{color:#78498b;}#answer-pinyin{color:#b67b3b;}#btn-understood{background:#b9edcf;}
+.victory-banner{background:#fff1d9f5;border-color:#dcb35e;box-shadow:0 0 0 3px #9666a4,5px 6px #704b85;}.victory-banner small{color:#a27a96;}.victory-banner strong{color:#c88138;text-shadow:2px 2px #ffe6a5;}.victory-banner span{color:#875e8e;}
+.word-projectile{border-color:#8e5c9e;}.heavy-label{background:#e77991;color:#fff0b1;border-color:#ffdf78;}
+
+
+.answer-panel{width:min(320px,100%);padding:24px 22px;}
+#answer-word{font-size:46px;letter-spacing:3px;margin:4px 0 8px;}
+#answer-pinyin{font-size:22px;margin:0 0 24px;}
+#btn-understood{margin:0;padding:10px;}
+@media(orientation:landscape) and (max-height:600px){.answer-panel{width:300px;padding:16px 20px;}#answer-word{font-size:36px;margin:0 0 5px;}#answer-pinyin{font-size:19px;margin:0 0 16px;}#btn-understood{padding:8px;}}
+#game{border-radius:28px;border-color:#78508f;box-shadow:inset 0 2px 0 #ffffff70,inset 0 -5px 0 #70499750,0 0 0 2px #ffe7a0,0 0 0 5px #c5a1e5,0 9px 18px #73508c35;}
+#game::before{content:"";position:absolute;right:12px;bottom:12px;width:7px;height:7px;border:1px solid #fff4c9;border-radius:2px;background:#f4cb78;rotate:45deg;box-shadow:-11px 11px 0 -1px #e5b3d5;pointer-events:none;opacity:.85;}
+.sstat,.sstat.d,.sstat.t{border-radius:20px;border-color:#78528d;box-shadow:inset 0 3px 0 #ffffffb3,inset 0 -4px 0 #87649a13,0 5px 10px #73508c26;}
+.sstat .k{padding:0 3px;}
+header{border-bottom-style:dashed;border-bottom-color:#ffe6c666;}
+.stat,.stat.money,#combo-chip.on{border-radius:12px;box-shadow:inset 0 2px 0 #fff8db99,0 3px 0 #78528d55;}
+#enemy,#enemy.boss{border-radius:22px 22px 28px 12px;border-width:3px;box-shadow:inset 0 0 0 2px #ffffffa3,0 5px 0 #76538e30;}
+#enemy.heavy-impact::after{border-radius:18px 18px 24px 9px;}
+.enemy-top{border-bottom:1px dashed #ffffffa3;padding-bottom:6px;}
+.level-tag{border-radius:8px;padding:2px 8px;}
+.slot,#game.practice #puzzle .slot{border-radius:16px 16px 16px 6px;box-shadow:inset 0 0 0 2px #f2dda9,inset 0 4px 0 #fffbed,0 4px 0 #7750894d;}
+.theme-tag,.hint-line .trait-tag,.hint-line .en-hint{border-radius:10px;}
+.hpbar{border-radius:12px;overflow:hidden;box-shadow:inset 0 2px 3px #7d5c8c26;}
+#e-hpfill{border-radius:9px;}
+#feedback{border-radius:14px 14px 6px 14px;box-shadow:inset 0 2px 0 #ffffffa3;}
+#bottom-zone{border-top-style:dashed;border-top-width:2px;}
+#game.practice .choice-card,#game.practice .choice-card:nth-child(2){border-radius:20px;border-color:#9566a1;box-shadow:inset 0 3px 0 #ffffffe6,inset 0 -5px 0 #cba1c51f,0 5px 0 #78528d66,0 8px 12px #78528d21;transition:box-shadow .16s,background-color .16s;}
+#game.practice .choice-card::before{content:"";top:12px;left:13px;width:7px;height:7px;background:#dcb778;border:1px solid #bb945c;border-radius:2px;rotate:45deg;}
+#game.practice .choice-card::after{content:"";inset:5px;border:1px solid #bd94ad66;border-radius:14px;pointer-events:none;}
+#game.practice .choice-card:hover{outline:none;box-shadow:inset 0 3px 0 #fff,inset 0 0 0 2px #ffe49c,0 5px 0 #78528d66,0 8px 14px #78528d30;}
+#game.practice .choice-card.answer{border-radius:20px;box-shadow:inset 0 3px 0 #e8ffed,inset 0 0 0 2px #9bdaaf,0 5px 0 #438d6966;}
+.card{border-radius:16px;box-shadow:inset 0 2px 0 #ffffff99,0 5px 0 #78528d66;}.card::after{border-radius:11px;}
+#actions button,.bigbtn,.shop-card button{border-radius:14px;box-shadow:inset 0 2px 0 #ffffffb3,inset 0 -3px 0 #c49a6426,0 4px 0 #78528d66;}
+#lucky-dice{border-radius:12px;}#lucky-dice::after{border-radius:15px;}#lucky-dice .pip{border-radius:50%;}#lucky-num{border-radius:50%;}
+.chest-lid{border-radius:22px 22px 7px 7px;box-shadow:inset 0 3px 0 #ffe9af,0 4px 0 #78528d4d;}.chest-body{border-radius:7px 7px 22px 22px;box-shadow:inset 0 0 0 2px #e8bfd8,0 5px 10px #78528d26;}
+.citem{border-radius:12px;box-shadow:inset 0 2px 0 #fff5dd,0 3px 0 #78528d40;}.stack-badge{border-radius:9px;}
+.modal{border-radius:26px;box-shadow:inset 0 2px 0 #ffffff80,0 0 0 2px #ffe7a0,0 0 0 6px #c9a5ea,0 12px 30px #66417c4d;}
+.mode-option,.mode-option:has(input:checked){border-radius:14px;box-shadow:inset 0 2px 0 #ffffff40,0 3px 0 #78528d66;}
+.opt-sound{border-radius:10px;}.intro-guide{border-radius:16px;}
+#shop-panel{border-radius:22px;box-shadow:inset 0 0 0 2px #e2c7ee;}.shop-card{border-radius:20px;box-shadow:inset 0 3px 0 #fffbed,inset 0 0 0 2px #f0d6a5,0 5px 0 #78528d4d;}
+.answer-panel{border-radius:24px;box-shadow:inset 0 3px 0 #fffdf4,0 0 0 3px #ffe09b,0 10px 28px #704b8540;}
+.victory-banner{border-radius:22px;box-shadow:inset 0 2px 0 #fffdf4,0 0 0 3px #c598cb,0 8px 18px #704b8540;}
+.word-projectile{border-radius:14px;}.word-projectile::after{border-radius:20px;}
+@media(orientation:landscape) and (max-height:600px){#game{border-radius:18px;}#enemy,#enemy.boss{border-radius:16px 16px 20px 9px;}.sstat,.sstat.d,.sstat.t{border-radius:14px;}.enemy-top{padding-bottom:2px;}.stat,.stat.money{border-radius:8px;}.slot,#game.practice #puzzle .slot{border-radius:12px 12px 12px 5px;}#game.practice .choice-card{border-radius:16px;}#game.practice .choice-card::after{border-radius:10px;}.answer-panel{border-radius:20px;}.shop-card{border-radius:16px;}}
+
+
+/* 怪物配色骰子：纯色骰面与高对比圆点 */
+.ecell-luck{--dice-body:#483451;--dice-accent:#fff3cf;--dice-edge:#765780;}
+#lucky-dice{background:var(--dice-body);border:3px solid var(--dice-edge);border-radius:12px;box-shadow:inset 0 1px 0 #ffffff22,3px 4px #382940;isolation:isolate;}
+#lucky-dice::before{display:none;}
+#lucky-dice .pip{background:var(--dice-accent);border-radius:50%;box-shadow:none;transform:translate(-50%,-50%);}
+#lucky-num{background:var(--dice-body);color:var(--dice-accent);border-color:var(--dice-edge);box-shadow:2px 3px #382940;}
+@media(max-height:500px) and (orientation:landscape){#lucky-dice{border-radius:7px;}}
+
+.counter-projectile{position:fixed;pointer-events:none;filter:drop-shadow(2px 3px 0 #402c56aa);}
+.counter-projectile svg{display:block;width:100%;height:100%;overflow:visible;}
+.counter-charge{position:fixed;width:64px;height:64px;border:3px solid;border-radius:50%;pointer-events:none;box-shadow:0 0 12px #ffffff70;}
+.counter-impact{filter:drop-shadow(0 0 7px currentColor);}
+
 </style>
 </head>
 <body>
@@ -1050,14 +1283,10 @@
 
     <div id="game">
       <header>
-        <div class="logo">汉字小丑牌<small>Chinese Character Balatro · 趣味识字</small></div>
         <div class="stats">
           <div class="stat">总分 <b id="st-score">0</b></div>
-          <div class="stat" id="dmg-chip" title="本次出牌造成的伤害">伤害 <b id="side-damage">0</b></div>
           <div class="stat" id="combo-chip" title="连续答对次数">连击 <b id="combo-num">0</b></div>
           <div class="stat" id="time-chip" title="倒计时挑战（可选）">倒计时 <b id="side-time">∞</b></div>
-          <div class="stat">准确 <b id="st-acc">100%</b></div>
-          <div class="stat" id="st-mute" style="cursor:pointer" title="声音开关（音效+音乐+发音）">声音</div>
           <div class="stat" id="btn-fs" style="cursor:pointer" title="全屏 / 退出全屏">⛶</div>
           <div class="stat money" id="money-chip" title="金币：击败怪物、卖出药材都能获得金币">🪙 金币 <b id="st-money">0</b></div>
         </div>
@@ -1144,12 +1373,20 @@
       </div>
       <div class="chest-body">
         <div id="chest-items"></div>
-        <div class="chest-empty" id="chest-empty">宝箱空空的～<br>打败敌人赢道具吧！</div>
+        <div class="chest-empty hidden" id="chest-empty"></div>
       </div>
     </div>
   </div>
 </div>
 
+<div id="answer-overlay" class="hidden" role="dialog" aria-modal="true" aria-labelledby="answer-word" aria-describedby="answer-pinyin">
+  <section class="answer-panel">
+    <div id="answer-word"></div>
+    <div id="answer-pinyin"></div>
+    <button id="btn-understood" class="bigbtn" type="button">继续</button>
+  </section>
+</div>
+<div id="combat-flight-layer" aria-hidden="true"></div>
 <canvas id="fx"></canvas>
 <div id="flash"></div>
 
@@ -1157,10 +1394,16 @@
   <div class="modal" id="modal-start">
     <h1>汉字小丑牌</h1>
     <div class="sub">Chinese Character Balatro · 边玩边学汉字</div>
+    <div class="mode-picker" role="group" aria-label="选择学习阶段">
+      <label class="mode-option"><input type="radio" name="learn-mode" value="recognize" checked><strong>第一阶段</strong></label>
+      <label class="mode-option"><input type="radio" name="learn-mode" value="complete"><strong>第二阶段</strong></label>
+      <label class="mode-option"><input type="radio" name="learn-mode" value="cards"><strong>第三阶段</strong></label>
+    </div>
     <div id="intro-guide" class="intro-guide"></div>
     <div class="opt-row">
       <label for="opt-timer">⏱ 倒计时</label>
       <span class="switch"><input type="checkbox" id="opt-timer"><span class="slider"></span></span>
+      <span class="opt-sound" id="st-mute2" style="cursor:pointer" title="声音开关（音效+音乐+发音）">🔊 声音</span>
     </div>
     <button class="bigbtn" id="btn-start">开始游戏</button>
   </div>
@@ -2396,7 +2639,7 @@ if("speechSynthesis" in window){
 }
 function speak(text){
   try{
-    if(S.muted || !("speechSynthesis" in window)) return;
+    if(S.muted || document.hidden || !("speechSynthesis" in window)) return;
     const say=()=>{
       const u=new SpeechSynthesisUtterance(text);
       u.lang="zh-CN"; u.rate=.8; u.pitch=1.05;
@@ -2427,6 +2670,7 @@ function cardMetrics(){
 }
 const CARD_W=66, CARD_H=94, STEP=46;   /* 默认值（兼容旧引用），实际布局用 cardMetrics() */
 const S = {
+  mode:"recognize", question:null, waitingAnswer:false, runSerial:0,
   hp:5, maxHp:5, score:0, money:0, kills:0, floor:1, step:0, combo:0,
   playedCards:0, baibuDone:false, longdanArmed:false, kindBonus:0, destroyMode:false,
   correct:0, attempts:0, wordsLearned:new Set(),
@@ -2474,7 +2718,11 @@ let audioHinted=false;
 ["pointerdown","touchstart","click","keydown"].forEach(ev=>
   addEventListener(ev, ()=>{ if(!audioRunning()) unlockAudio(); }, {capture:true, passive:true}));
 addEventListener("focus",()=>{ if(!audioRunning()) unlockAudio(); });
-document.addEventListener("visibilitychange",()=>{ if(!document.hidden && !audioRunning()) unlockAudio(); });
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden){stopBGM();try{if(AC) AC.suspend();speechSynthesis.cancel();}catch(e){}}
+  else if(S.running && !S.muted){unlockAudio();ensureBGM();}
+});
+addEventListener("pagehide",()=>{stopBGM();try{if(AC)AC.suspend();speechSynthesis.cancel();}catch(e){}});
 function tone(f,d,type,vol,when){
   if(S.muted) return; const a=ac(); if(!a) return;
   const t=a.currentTime+(when||0), o=a.createOscillator(), g=a.createGain();
@@ -2635,41 +2883,118 @@ function ensureBGM(){
 }
 const bgm={mode:null, step:0, nextT:0, timer:null, boss:false};
 const midiF=m=>440*Math.pow(2,(m-69)/12);
+/* 16 小节原创芯片乐：A / A' / B / 回归，旋律、低音、琶音与轻节奏分轨。 */
+const MUSIC_COLORS=[
+  {name:"森林漫游",bpm:104,root:60,minor:false,type:"triangle"},
+  {name:"沙丘小舞曲",bpm:112,root:62,minor:true,type:"square"},
+  {name:"雪地八音盒",bpm:92,root:65,minor:false,type:"sine"},
+  {name:"晶洞回声",bpm:90,root:57,minor:true,type:"triangle"},
+  {name:"熔岩进行曲",bpm:120,root:62,minor:true,type:"square"},
+  {name:"海风圆舞",bpm:100,root:67,minor:false,type:"triangle"},
+  {name:"星空旅途",bpm:96,root:64,minor:false,type:"sine"}
+];
+const musicScoreCache=new Map();
+function arrangeMusic(sprite,floor,boss,shop=false){
+  const theme=MUSIC_COLORS[((floor-1)%7+7)%7];
+  const signature=[...sprite].reduce((n,c)=>n+c.charCodeAt(0),0);
+  const key=[sprite,(floor-1)%7,boss,shop].join(":");
+  if(musicScoreCache.has(key))return musicScoreCache.get(key);
+  const scale=(shop||!theme.minor)?[0,2,4,5,7,9,11]:[0,2,3,5,7,8,10];
+  const root=(shop?60:theme.root)+(signature%3)*2;
+  const note=(degree,octave=0)=>root+scale[((degree%7)+7)%7]+12*(Math.floor(degree/7)+octave);
+  const progression=shop?[0,5,3,4,0,3,1,4,5,3,0,4,3,4,0,0]:[0,3,5,4,0,5,3,4,5,3,0,4,3,4,0,0];
+  const contour=[0,2,4,2,1,3,2,0];
+  const score={name:theme.name,bpm:shop?96:theme.bpm+(signature%3-1)*4,type:shop?"triangle":theme.type,steps:[],root,scale};
+  for(let bar=0;bar<16;bar++){
+    const section=Math.floor(bar/4),chord=progression[bar];
+    for(let beat=0;beat<8;beat++){
+      let degree=chord+contour[(beat+(signature%2)*2)%8];
+      if(section===1 && beat>=4)degree=chord+[4,3,2,0][beat-4];
+      if(section===2)degree=chord+[4,6,7,6,4,2,3,1][beat];
+      if(section===3 && bar%4===3)degree=[4,2,1,0,2,1,0,0][beat];
+      const rest=(beat===7 && bar%2===1)||(section===0 && beat===3)||(shop&&beat%2===1);
+      const bass=beat%2===0?note(chord+(beat===4?4:0),-2):0;
+      const arp=(section!==0||bar>=2)&&beat%2===1?note(chord+[0,2,4,2][Math.floor(beat/2)],-1):0;
+      score.steps.push({lead:rest?0:note(degree),bass,arp,hat:beat%2===1,kick:beat===0||beat===4,snare:beat===2||beat===6,section});
+    }
+  }
+  musicScoreCache.set(key,score);return score;
+}
+function musicMaster(){
+  if(bgm.master && bgm.audioContext===AC)return bgm.master;
+  bgm.audioContext=AC;bgm.master=AC.createGain();bgm.master.gain.value=.72;
+  const compressor=AC.createDynamicsCompressor();compressor.threshold.value=-18;compressor.ratio.value=3;
+  bgm.master.connect(compressor);compressor.connect(AC.destination);bgm.nodes=new Set();bgm.noise=null;
+  return bgm.master;
+}
 function bgmTone(f,at,dur,type,vol){
-  const o=AC.createOscillator(), g=AC.createGain();
-  o.type=type; o.frequency.value=f;
-  g.gain.setValueAtTime(0.0001,at);
-  g.gain.linearRampToValueAtTime(vol,at+0.012);
-  g.gain.setValueAtTime(vol,at+dur*0.55);
-  g.gain.exponentialRampToValueAtTime(0.0001,at+dur);
-  o.connect(g); g.connect(AC.destination); o.start(at); o.stop(at+dur+0.03);
+  if(!AC)return;
+  const o=AC.createOscillator(),g=AC.createGain();
+  o.type=type;o.frequency.value=f;
+  g.gain.setValueAtTime(.0001,at);g.gain.linearRampToValueAtTime(vol,at+.008);
+  g.gain.exponentialRampToValueAtTime(Math.max(.0001,vol*.5),at+dur*.35);
+  g.gain.exponentialRampToValueAtTime(.0001,at+dur);
+  o.connect(g);g.connect(musicMaster());bgm.nodes.add(o);
+  o.onended=()=>{o.disconnect();g.disconnect();bgm.nodes.delete(o);};o.start(at);o.stop(at+dur+.02);
+}
+function bgmDrum(kind,at,vol){
+  if(kind==="kick"){
+    const o=AC.createOscillator(),g=AC.createGain();o.type="sine";
+    o.frequency.setValueAtTime(110,at);o.frequency.exponentialRampToValueAtTime(42,at+.09);
+    g.gain.setValueAtTime(vol,at);g.gain.exponentialRampToValueAtTime(.0001,at+.11);
+    o.connect(g);g.connect(musicMaster());bgm.nodes.add(o);o.onended=()=>{o.disconnect();g.disconnect();bgm.nodes.delete(o);};o.start(at);o.stop(at+.13);return;
+  }
+  musicMaster();
+  if(!bgm.noise){bgm.noise=AC.createBuffer(1,Math.ceil(AC.sampleRate*.15),AC.sampleRate);const samples=bgm.noise.getChannelData(0);for(let i=0;i<samples.length;i++)samples[i]=(Math.random()*2-1)*.6;}
+  const source=AC.createBufferSource(),filter=AC.createBiquadFilter(),gain=AC.createGain();source.buffer=bgm.noise;
+  filter.type="highpass";filter.frequency.value=kind==="hat"?6000:1800;
+  const duration=kind==="hat"?.045:.105;
+  gain.gain.setValueAtTime(vol,at);gain.gain.exponentialRampToValueAtTime(.0001,at+duration);
+  source.connect(filter);filter.connect(gain);gain.connect(bgm.master);bgm.nodes.add(source);
+  source.onended=()=>{source.disconnect();filter.disconnect();gain.disconnect();bgm.nodes.delete(source);};source.start(at);source.stop(at+duration+.01);
+}
+function scheduleMusicStep(score,step,at,boss=false,scene="battle"){
+  const row=score.steps[step%score.steps.length],duration=60/(score.bpm*(boss?1.08:1))/2;
+  const quiet=scene==="review"?.32:scene==="victory"?.55:scene==="shop"?.7:1;
+  const leadGain=(score.type==="square"?.023:.038)*quiet;
+  if(row.lead)bgmTone(midiF(row.lead),at,duration*(row.section===2?.8:1.25),score.type,leadGain);
+  if(row.bass)bgmTone(midiF(row.bass),at,duration*1.5,"triangle",.037*quiet);
+  if(row.arp)bgmTone(midiF(row.arp),at,duration*.72,"triangle",.014*quiet);
+  // B 段轻声对答，不把每个拍子都填满。
+  if(row.section===2 && row.lead && step%4===2)bgmTone(midiF(row.lead-12),at+duration*.6,duration*.7,"triangle",.009*quiet);
+  if(scene==="battle" && row.section!==0){
+    if(row.kick)bgmDrum("kick",at,boss?.035:.024);
+    if(row.hat)bgmDrum("hat",at,boss?.015:.008);
+    if(row.snare && (boss||row.section===2))bgmDrum("snare",at,boss?.02:.012);
+  }
+  return duration;
 }
 function bgmSchedule(){
-  if(!AC || !bgm.mode || S.muted) return;
-  /* 音频被浏览器挂起后 currentTime 不走，解锁回来时不要把积压的音符一次性全放出来 */
-  if(AC.currentTime-bgm.nextT>0.4) bgm.nextT=AC.currentTime+0.05;
-  const pat=MUSIC[bgm.mode]; if(!pat) return;
-  /* BOSS 变奏：整体提速 14%、主旋律高八度、低音更厚、偶数步加高位装饰音 */
-  const boss=bgm.boss;
-  const stepDur=60/(pat.bpm*(boss?1.14:1))/2;
-  const oct=boss?12:0, lg=pat.lg*(boss?1.15:1), bg=pat.bg*(boss?1.4:1);
-  while(bgm.nextT < AC.currentTime+0.22){
-    const i=bgm.step % pat.lead.length;
-    const L=pat.lead[i], B=pat.bass[i];
-    if(L) bgmTone(midiF(L+oct), bgm.nextT, stepDur*0.92, pat.leadType, lg);
-    if(B) bgmTone(midiF(B), bgm.nextT, stepDur*0.95, pat.bassType, bg);
-    if(boss && L && bgm.step%2===0) bgmTone(midiF(L+24), bgm.nextT, stepDur*0.4, pat.leadType, lg*0.45);
-    bgm.step++; bgm.nextT+=stepDur;
-  }
+  if(!AC||AC.state!=="running"||!bgm.mode||S.muted||document.hidden)return;
+  if(AC.currentTime-bgm.nextT>.4)bgm.nextT=AC.currentTime+.05;
+  const shop=!$("shop-panel").classList.contains("hidden");
+  const scene=S.waitingAnswer?"review":enemyEl.classList.contains("victory-scene")?"victory":shop?"shop":"battle";
+  const score=shop?bgm.shopScore:bgm.score;if(!score)return;
+  while(bgm.nextT<AC.currentTime+.22){bgm.nextT+=scheduleMusicStep(score,bgm.step,bgm.nextT,bgm.boss&&!shop,scene);bgm.step=(bgm.step+1)%128;}
 }
 function startBGM(mode){
-  bgm.mode=mode;
-  if(S.muted) return;
-  const a=ac(); if(!a) return;
-  bgm.step=0; bgm.nextT=AC.currentTime+0.06;
-  if(!bgm.timer) bgm.timer=setInterval(bgmSchedule,60);
+  const changed=bgm.mode!==mode || bgm.floor!==S.floor;
+  bgm.mode=mode;bgm.floor=S.floor;
+  bgm.score=arrangeMusic(mode,S.floor,bgm.boss);bgm.shopScore=arrangeMusic("shop",S.floor,false,true);
+  if(S.muted||document.hidden)return;
+  const audioContext=ac();if(!audioContext)return;
+  const master=musicMaster();master.gain.cancelScheduledValues(AC.currentTime);master.gain.setTargetAtTime(.72,AC.currentTime,.05);
+  // 换怪物从下一段接入，避免每次只听见同一个开头。
+  if(changed)bgm.step=((bgm.phraseCursor||0)%4)*32;
+  if(changed)bgm.phraseCursor=(bgm.phraseCursor||0)+1;
+  bgm.nextT=AC.currentTime+.06;
+  if(!bgm.timer)bgm.timer=setInterval(bgmSchedule,60);
 }
-function stopBGM(){ if(bgm.timer){ clearInterval(bgm.timer); bgm.timer=null; } }
+function stopBGM(){
+  if(bgm.timer){clearInterval(bgm.timer);bgm.timer=null;}
+  if(bgm.master&&AC){try{bgm.master.gain.cancelScheduledValues(AC.currentTime);bgm.master.gain.setTargetAtTime(.0001,AC.currentTime,.025);for(const source of bgm.nodes||[])try{source.stop(AC.currentTime+.08);}catch(e){}}catch(e){}}
+}
+
 
 /* ================= 倒计时 ================= */
 function battleTimeMax(){ return S.enemy && S.enemy.boss ? 60 : 45; }
@@ -2740,13 +3065,10 @@ function hueShift(hex,deg){
 }
 function showDamagePop(d,hue){
   lastDmg=d;
-  const el=$("side-damage"); if(!el) return;
-  el.textContent=d;
-  const box=el.parentElement;
-  /* 按伤害档位分级：0 / 1-9 / 10-24 / 25-59 / 60+，跳动幅度与颜色逐级增强 */
+  if(d>=10){enemyEl.classList.remove("heavy-impact");void enemyEl.offsetWidth;enemyEl.classList.add("heavy-impact");setTimeout(()=>enemyEl.classList.remove("heavy-impact"),1400);}
+
+  /* 顶栏已移除伤害徽章，这里只保留怪物身上的伤害飘字 */
   const tier = d<=0 ? 0 : d<10 ? 1 : d<25 ? 2 : d<60 ? 3 : 4;
-  box.classList.remove("pop","t2","t3","t4"); void box.offsetWidth;
-  box.classList.add("pop"); if(tier>=2) box.classList.add("t"+tier);
   /* 怪物身上跳出大伤害数字（跳动 + 变色 + 缩放） */
   const zone=$("enemy");
   if(zone && d>0){
@@ -2756,7 +3078,7 @@ function showDamagePop(d,hue){
     if(hue && tier<3) b.style.color=hue;
     b.textContent="-"+d;
     zone.appendChild(b);
-    setTimeout(()=>b.remove(),tier>=3?1050:950);
+    setTimeout(()=>b.remove(),tier>=2?1600:1100);
   }
 }
 function bumpVal(id,txt){
@@ -3149,14 +3471,39 @@ const PIP_POS={
   5:[[1,1],[1,3],[2,2],[3,1],[3,3]],
   6:[[1,1],[1,2],[1,3],[3,1],[3,2],[3,3]],
 };
+
+function applyDiceSpecies(){
+  const dice=$("lucky-dice");
+  if(!dice || !S.enemy) return;
+  const key=S.enemy.sprite || "imp", art=SPRITES[key] || SPRITES.imp;
+  const counts={};
+  art.rows.join("").split("").forEach(c=>{counts[c]=(counts[c]||0)+1;});
+  const colors=Object.entries(art.pal).filter(([c,hex])=>{
+    const rgb=hex.match(/[a-f0-9]{2}/gi).map(v=>parseInt(v,16));
+    const light=(rgb[0]*.299+rgb[1]*.587+rgb[2]*.114);
+    return counts[c] && light>65;
+  }).sort((a,b)=>(counts[b[0]]||0)-(counts[a[0]]||0));
+  const base=colors.length?colors[0][1]:"#9b6cc4";
+  const rgb=base.match(/[a-f0-9]{2}/gi).map(v=>parseInt(v,16));
+  const mix=(target,t)=>"rgb("+rgb.map(v=>Math.round(v*(1-t)+target*t)).join(",")+")";
+  const cell=dice.parentElement;
+  cell.style.setProperty("--dice-body",mix(20,.68));
+  cell.style.setProperty("--dice-accent","#fff3cf");
+  cell.style.setProperty("--dice-edge",mix(180,.28));
+  dice.style.setProperty("--dglow",base);
+  dice.dataset.species=key;
+
+}
+
 function rollLucky(){
+  applyDiceSpecies();
   S.luckyNum=1+Math.floor(Math.random()*6);
   const el=$("lucky-num"); const dice=$("lucky-dice");
   if(el){
     el.textContent=CN_NUM[S.luckyNum-1];
     el.classList.remove("spin"); void el.offsetWidth; el.classList.add("spin");
   }
-  if(dice){
+  if(dice && S.mode!=="recognize"){
     /* 骰面点数 = 幸运数字 */
     dice.innerHTML="";
     PIP_POS[S.luckyNum].forEach(([c,r])=>{
@@ -3166,12 +3513,11 @@ function rollLucky(){
       dice.appendChild(p);
     });
     /* 每次投掷随机糖果色 + 旋转动画 + 光环 + 多彩粒子迸发 */
-    const col=pick(DICE_COLORS);
+    const col=getComputedStyle(dice.parentElement).getPropertyValue("--dice-accent").trim();
     dice.style.setProperty("--pipc",col);
-    dice.style.setProperty("--dglow",col);
     dice.classList.remove("roll"); void dice.offsetWidth; dice.classList.add("roll");
     const dc=center(dice);
-    DICE_COLORS.forEach(c=>spawnParticles(dc.x,dc.y,c,4));   /* 6 色糖果粒子 × 4 */
+    [col,"#fff5c4"].forEach(c=>spawnParticles(dc.x,dc.y,c,8));   /* 6 色糖果粒子 × 4 */
     spawnParticles(dc.x,dc.y,"#ffffff",8);                   /* 白色闪光粒子 */
   }
 }
@@ -3213,7 +3559,59 @@ function rollStoneCard(){
 }
 const cardColor = c => (c.id%5)+1;
 
+/* 前两阶段沿用战斗结算，题目单独生成，保证恰好一个正确选项。 */
+const MODE_NAMES={recognize:"第一阶段",complete:"第二阶段",cards:"第三阶段"};
+const PRACTICE_EXCLUDED=new Set(["longgu","gegen","huashi","sanleng","wubeizi","gancao","chenpi","sangye","shenjincao","xuejie"]);
+const PRACTICE_BOSS_BLOCKED=new Set(["redimmune","oddimmune","min20"]);
+const PRACTICE_EN={"微信":"WeChat","支付宝":"Alipay","认识":"to know someone","高兴":"happy","贵姓":"May I have your surname?","上课":"to attend class","学习":"to study","留学生":"international student","老师":"teacher","医生":"doctor"};
+const isPractice=()=>S.mode!=="cards";
+function makeQuestion(){
+  const previous=S.question && S.question.word.w;
+  const word=pick(WORDS.filter(o=>o.w!==previous));
+  const index=Math.floor(Math.random()*word.w.length);
+  const answer=S.mode==="recognize"?word.w:word.w[index];
+  let distractor;
+  if(S.mode==="recognize"){
+    distractor=word.w==="学习"?"学生":pick(WORDS.filter(o=>o.w!==word.w && o.t===word.t)).w;
+  } else {
+    const similar=(MISLEAD[answer]||[]).filter(c=>c!==answer);
+    distractor=word.w==="学习" && index===1?"生":pick(similar.length?similar:CHAR_POOL.filter(c=>c!==answer));
+  }
+  S.question={word,index,answer,options:shuffle([answer,distractor])};
+  S.enemy.anchor=word.w;
+  S.enemy.companions=new Map([[answer,word]]);
+  S.enemy.list=[answer];
+  S.enemy.hintWord=word;
+}
+function dealChoices(){
+  makeQuestion();
+  S.selected.clear(); handEl.innerHTML="";
+  S.hand=S.question.options.map(c=>({c,id:nextId()}));
+  S.hand.forEach(card=>{
+    const b=document.createElement("button");
+    b.type="button"; b.className="choice-card"; b.dataset.id=card.id; b.setAttribute("aria-label",card.c);
+    b.innerHTML='<span class="ch">'+esc(card.c)+'</span>';
+    b.addEventListener("click",()=>{
+      if(S.busy || !S.running || !$("shop-panel").classList.contains("hidden")) return;
+      S.selected.clear(); S.selected.add(card.id); playSelected();
+    });
+    handEl.appendChild(b);
+  });
+  renderEnemy(); renderButtons();
+}
+function practiceFeedback(valid){
+  const q=S.question;
+  setFeedback(valid?"good":"bad",valid?pick(PRAISE):pick(ENCOURAGE),"");
+  feedback.insertAdjacentHTML("beforeend",'<span class="answer-note">'+esc(q.word.w)+' · '+esc(q.word.p)+'</span>');
+  handEl.querySelectorAll(".choice-card").forEach(b=>{
+    b.disabled=true;
+    if(b.textContent===q.answer) b.classList.add("answer");
+  });
+  speak(q.word.w);
+}
 function spawnEnemy(){
+  enemyEl.classList.remove("victory-scene","heavy-impact","targeted");
+  enemyEl.querySelectorAll(".victory-banner,.heavy-label").forEach(e=>e.remove());
   const anchor=pickAnchor();
   const companions=ANCHORS[anchor];
   const list=[...companions.keys()];
@@ -3224,6 +3622,9 @@ function spawnEnemy(){
   let ability=null, trait=null;
   if(boss){
     ability = BOSSES[(S.floor-1)%BOSSES.length].key;
+    // 单选练习不会出现必须多张出牌才能突破的免疫。
+    if(isPractice() && PRACTICE_BOSS_BLOCKED.has(ability)) ability="twolives";
+    if(S.mode==="recognize") ability=null;
     // 青蒿：抵消一次 BOSS 限制
     if(isRestriction(ability) && has("qinghao")){
       removeOne("qinghao");
@@ -3234,6 +3635,7 @@ function spawnEnemy(){
     trait = pickTrait();
   }
 
+  if(S.mode==="recognize" && (trait==="thorns" || trait==="flame")) trait=null;
   // 每场战斗重置
   S.battleScore=0; S.battlePlays=0; S.battleCards=0; S.discardedCount=0;
   S.lastColor=null; S.prevColor=null; S.firstAttackDone=false; S.firstDiscardDone=false; S.sangyeBonus=0; S.bossAtkMult=1; S.combo=0;
@@ -3248,7 +3650,8 @@ function spawnEnemy(){
 
   // 血量曲线：平方基础 × 每层 1.35 指数成长（跟上玩家道具成长，避免后期碾压）
   let hp = (5 + lvl*3 + lvl*lvl*0.5) * Math.pow(1.35, S.floor-1);
-  if(boss) hp=Math.round(hp*2.5); else hp=Math.round(hp);
+  if(isPractice()) hp=S.mode==="recognize"?6+Math.min(lvl,12):6+lvl*2;
+  if(boss) hp=Math.round(hp*(S.mode==="recognize"?1.5:2.5)); else hp=Math.round(hp);
   if(trait==="wall") hp=Math.round(hp*2);
   if(cnt("langdu")) hp=Math.round(hp*Math.pow(0.75,cnt("langdu")));
   const atk = boss?2:1;
@@ -3366,7 +3769,7 @@ function gauntletDefeated(){
     try{ speak(words); speak(words); }catch(e){}
   }
   updateHearts(); renderStats(); renderSide();
-  setTimeout(()=>{ showShop(); }, 700);
+  finishVictory(false);
 }
 
 /* ================= 手牌布局 ================= */
@@ -3386,6 +3789,7 @@ function deckPosInHand(){
   return {x: dr.left-hr.left + dr.width/2 - m.w/2, y: dr.top-hr.top + dr.height/2 - m.h/2};
 }
 function layoutHand(){
+  if(isPractice()) return;
   const m=cardMetrics();
   const n=S.hand.length;
   const w=handEl.clientWidth;
@@ -3444,6 +3848,13 @@ function flyInCard(card, to, onDone){
 }
 
 function refillHand(){
+  if(isPractice()){
+    // 先留出时间看正确答案，再换题。致命一击保留本题直到商店。
+    return new Promise(resolve=>setTimeout(()=>{
+      if(S.running && S.hp>0 && S.enemy.hp>0) dealChoices();
+      resolve();
+    },COMBAT_TIMING.recovery));
+  }
   const need=effHandSize() - S.hand.length;
   if(need<=0) return Promise.resolve();
   /* 滑石：先判定是否额外添加一张石头牌（不占用手牌位） */
@@ -3477,6 +3888,7 @@ function refillHand(){
   });
 }
 function initialDeal(){
+  if(isPractice()){ dealChoices(); return Promise.resolve(); }
   return new Promise(res=>{
     let i=0;
     const size=effHandSize();
@@ -3528,6 +3940,7 @@ function removeCardEls(ids, fly){
 
 /* ================= 渲染 ================= */
 function renderStats(){
+  meta.innerHTML='已学词语 <b>'+S.wordsLearned.size+'</b><br>击败 <b>'+S.kills+'</b>';
   $("st-score").textContent=S.score;
   const mEl=$("money-chip");
   if(mEl && String(mEl.dataset.m)!==String(S.money)){
@@ -3535,11 +3948,13 @@ function renderStats(){
     mEl.classList.remove("gain"); void mEl.offsetWidth; mEl.classList.add("gain");
   }
   $("st-money").textContent=S.money;
-  $("st-acc").textContent=accPct()+"%";
-  const au=$("st-mute");
-  au.textContent=S.muted?"🔇 静音":"🔊 声音";
-  au.title=S.muted?"点击开启音效与音乐":"点击静音";
-  au.style.opacity=S.muted?".65":"1";
+  /* 声音开关已移到开始界面（战斗顶栏不再放它） */
+  const au=$("st-mute2");
+  if(au){
+    au.textContent=S.muted?"🔇 静音":"🔊 声音";
+    au.title=S.muted?"点击开启音效与音乐":"点击静音";
+    au.style.opacity=S.muted?".65":"1";
+  }
   renderCombo();
 }
 
@@ -3641,11 +4056,27 @@ const FLOOR_ART={
 <path d="M210 36 l2.4 5.6 5.6 2.4 -5.6 2.4 -2.4 5.6 -2.4 -5.6 -5.6 -2.4 5.6 -2.4Z"/></g>
 <g fill="#8d94a6" opacity=".4"><circle cx="86" cy="140" r="10"/><circle cx="250" cy="150" r="7"/></g></svg>`,
 };
+function pixelScenery(key){
+  const palette={1:["#c2f0d3","#66b78b","#81c99d","#fff0a3"],2:["#ffe4b8","#dfa967","#efc681","#fff3ba"],3:["#dcf1ff","#94bddc","#bbdce9","#fff9d6"],4:["#e2d8f5","#aa8bc2","#c3a8d9","#ffe6b3"],5:["#ffd0b0","#e48b79","#f3b28c","#fff1a3"],6:["#c2eaff","#69b1d5","#8ed2e2","#fff0b2"],7:["#d6ccff","#9f8bd0","#baacf0","#fff0ad"]}[key];
+  let svg='<svg viewBox="0 0 400 80" preserveAspectRatio="xMidYMax slice" shape-rendering="crispEdges"><rect width="400" height="80" fill="'+palette[0]+'"/>';
+  const rect=(x,y,w,h,c)=>'<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" fill="'+c+'"/>';
+  svg+=rect(323,9,12,12,palette[3])+rect(319,13,20,4,palette[3]);
+  for(let i=0;i<24;i++){const x=(i*29+11)%398,y=5+(i*13)%30;svg+=rect(x,y,1,1,palette[3]);}
+  for(let layer=1;layer<=3;layer++){
+    for(let x=0;x<400;x+=8){const h=8+((x*7+key*13+layer*17)%23);svg+=rect(x,80-h-layer*6,8,h+layer*6,palette[layer]);}
+  }
+  if(key===1){for(const x of [8,34,117,147,225,310,370]){svg+=rect(x,35,4,40,palette[1])+rect(x-8,31,20,12,palette[2])+rect(x-4,23,12,8,palette[2])+rect(x-1,19,6,4,palette[2]);}}
+  if(key===2){for(const x of [24,139,230,350])svg+=rect(x,41,4,30,palette[1])+rect(x-6,49,6,4,palette[1])+rect(x-6,43,3,6,palette[1]);}
+  if(key===4)for(let x=0;x<400;x+=20)svg+=rect(x,0,10,12+(x%18),palette[1]);
+  if(key===5)for(let x=0;x<400;x+=24)svg+=rect(x,73,16,3,"#f7bd64");
+  if(key===6)for(let y=58;y<80;y+=7)svg+=rect((y*3)%30,y,370,2,palette[1]);
+  svg+=rect(0,77,400,3,palette[1]);return svg+'</svg>';
+}
 function applyFloorTheme(f){
   const t=FLOOR_THEMES[((Math.max(1,f)-1)%7)+1];
   document.body.dataset.floor=String(t.key);
   const art=document.querySelector("#bg-deco .deco-art");
-  if(art) art.innerHTML=FLOOR_ART[t.key]||FLOOR_ART[1];
+  if(art) art.innerHTML=pixelScenery(t.key)||FLOOR_ART[1];
 }
 function renderSide(){
   bumpVal("side-plays", S.battlePlays);
@@ -3654,9 +4085,12 @@ function renderSide(){
 }
 function renderEnemy(){
   if(!S.enemy) return;
+  applyDiceSpecies();
   puzzle.innerHTML="";
   const d=document.createElement("div");
-  d.className="slot"; d.textContent=S.enemy.anchor;
+  d.className="slot";
+  const q=S.question;
+  d.textContent=isPractice() && q ? (S.mode==="recognize"?PRACTICE_EN[q.word.w]:[...q.word.w].map((c,i)=>i===q.index?"＿":c).join("")) : S.enemy.anchor;
   d.title="敌人出示的字：能和它组成词语的字才能造成伤害";
   puzzle.appendChild(d);
   if(S.gauntlet){ renderGauntletUI(); return; }
@@ -3681,6 +4115,12 @@ function renderEnemy(){
   if(S.enemy.revealed.length){
     h += S.enemy.revealed.map((o,i)=>'<span class="rw" style="color:'+WORD_COLORS[i%WORD_COLORS.length]+'">'
       +o.w+' <i>'+o.p+'</i> <em>'+o.e+'</em></span>').join(' · ');
+  }
+  if(isPractice() && q){
+    h='';
+    if(S.mode==="complete") h+=' <span class="en-hint">'+esc(PRACTICE_EN[q.word.w])+'</span>';
+    if(S.enemy.boss && S.enemy.ability){ const b=BOSSES.find(x=>x.key===S.enemy.ability); if(b) h+=' <span class="trait-tag">'+esc(b.name+'：'+b.desc)+'</span>'; }
+    if(S.enemy.trait) h+=' <span class="trait-tag">'+esc(TRAITS[S.enemy.trait].name+'：'+TRAITS[S.enemy.trait].desc)+'</span>';
   }
   hint.innerHTML=h;
   const pct=Math.max(0,S.enemy.hp/S.enemy.maxHp*100);
@@ -3806,6 +4246,11 @@ function renderPlayer(){
   });
 }
 function renderButtons(){
+  ["btn-play","btn-discard","btn-select-all","deck","discard-info"].forEach(id=>$(id).classList.toggle("hidden",isPractice()));
+  $("btn-gauntlet").classList.toggle("hidden",isPractice());
+  handEl.querySelectorAll(".choice-card").forEach(b=>b.disabled=S.busy || !S.running);
+  const handLabel=document.querySelector("#hand-title .hl");
+  if(handLabel) handLabel.textContent=isPractice()?"":"你的手牌";
   discardInfo.textContent="弃牌 ×"+S.discards;
   const boss=S.enemy;
   const onecard = boss && boss.ability==="onecard";
@@ -3849,7 +4294,160 @@ function toggleSelect(id){
   layoutHand(); renderButtons();
 }
 
-function playSelected(){
+/* 蓄势 → 词牌飞行 → 命中；伤害在飞行结束后才结算。 */
+const COUNTER_PROFILES={
+  imp:{shape:"fire",color:"#ff699b"},goblin:{shape:"club",color:"#8cbb50",melee:true},
+  archer:{shape:"arrow",color:"#63c8f0"},swordsman:{shape:"blade",color:"#b6e4ff",melee:true},
+  swordsman2:{shape:"blade",color:"#ffd472",melee:true,count:2},
+  golem:{shape:"rock",color:"#9b9acb",size:50},giant:{shape:"rock",color:"#d1a265",size:58},
+  snake:{shape:"venom",color:"#8ee779",count:2},hedgehog:{shape:"spike",color:"#d5b993",count:3},
+  ghost:{shape:"wisp",color:"#c6edff",count:2},flame:{shape:"fire",color:"#ff9958",count:2},
+  flame2:{shape:"fire",color:"#ffcc4d",count:3},demonlord:{shape:"fire",color:"#e56dff",size:56,count:3},
+  warlock:{shape:"rune",color:"#c195ff",count:2},slime:{shape:"blob",color:"#91e477"},
+  skeleton:{shape:"bone",color:"#fff0cf"},zombie:{shape:"claw",color:"#9dc990",melee:true},
+  vampire:{shape:"bat",color:"#d48ab9",count:3},bug:{shape:"spike",color:"#c7e66a",count:2},
+  dwarf:{shape:"hammer",color:"#deb775",melee:true},dragon:{shape:"fire",color:"#ffb354",size:50,count:3},
+  dog:{shape:"claw",color:"#dcb283",melee:true},whitecat:{shape:"claw",color:"#e7edff",melee:true,count:2},
+  thief:{shape:"dagger",color:"#9ef3cf",count:2},robot:{shape:"laser",color:"#69e5ff",count:3},
+  demon:{shape:"fire",color:"#ff688c",size:48,count:2},darkwizard:{shape:"rune",color:"#b58bff",size:48},
+  bear:{shape:"claw",color:"#e0a574",melee:true,size:56},strongman:{shape:"fist",color:"#ffd2a2",melee:true,size:52}
+};
+const COUNTER_ART={
+  fire:'<path d="M2 16 11 11 8 5 21 10 26 6 30 16 24 25 12 27 15 21Z"/><path fill="#fff1a6" d="m13 16 9-4 5 5-8 5Z"/>',
+  club:'<path d="m3 20 16-9 2-5 7-2 3 8-5 5-5-1-16 9Z"/><path stroke="#fff2ba" d="m22 7 4 7"/>',
+  arrow:'<path d="m2 13 8 0 0 6-8 0 4-3Z"/><path stroke="#fff9dc" stroke-width="3" d="M6 16h18"/><path d="m22 8 10 8-10 8Z"/>',
+  blade:'<path d="M3 27 8 20 6 17 10 13 13 15 27 2 30 3 29 7 17 20 19 23 15 27 12 24 6 30Z"/><path stroke="#fff" d="m14 18 13-13"/>',
+  dagger:'<path d="m2 21 9-5-2-4 4-2 3 4L30 8l-7 12-6 0 0 4-5 1-1-4-7 5Z"/>',
+  rock:'<path d="m5 7 12-5 11 7 3 14-11 8-16-5-3-9Z"/><path fill="#ffffff55" d="m6 9 10-4 7 4-10 9-9 1Z"/><path fill="none" stroke="#453c5a" d="m17 16 7 4-3 8"/>',
+  venom:'<path d="M30 16Q16 1 8 9T2 20Q10 31 30 16Z"/><path stroke="#efffc9" d="m9 14 9 0"/>',
+  spike:'<path d="m2 8 30 8-30 8 7-8Z"/><path stroke="#fff9db" d="M10 16h15"/>',
+  wisp:'<path d="M31 16Q23 1 13 8T1 4Q3 15 12 17L3 23Q15 23 18 27T31 16Z"/><path fill="#fff" d="M23 12h3v3h-3Z"/>',
+  rune:'<path fill="none" stroke="currentColor" stroke-width="3" d="m16 2 14 14-14 14L2 16ZM7 16h18M16 7v18"/><path fill="#fff3ff" d="m16 11 5 5-5 5-5-5Z"/>',
+  blob:'<path d="M30 16Q26 4 16 8T2 10Q7 14 3 20T16 27Q27 28 30 16Z"/><path fill="#eaffd9" d="M18 12h7v4h-7Z"/>',
+  bone:'<path d="M3 9Q0 4 5 3T11 8L23 17Q28 14 31 19T27 25Q27 31 22 29T19 23L8 14Q2 18 2 13Z"/>',
+  claw:'<path d="M3 3 12 8 27 28 19 23ZM12 1 20 6 31 24 25 20ZM1 12 7 15 21 31 13 26Z"/>',
+  bat:'<path d="m1 6 10 6 5-5 5 5 10-6-3 16-7-3-5 8-5-8-7 3Z"/><path fill="#fff2e8" d="M12 13h3v3h-3Zm6 0h3v3h-3Z"/>',
+  hammer:'<path d="m4 29 14-18 4 3L9 32Z"/><path d="m11 3 9-2 12 10-2 8-8 2-13-11Z"/><path fill="#fff2c6" d="m12 5 6-1 10 8-5 2Z"/>',
+  laser:'<path d="M0 12h23V8l9 8-9 8v-4H0Z"/><path fill="#fff" d="M0 15h27v2H0Z"/>',
+  fist:'<path d="M2 12 10 8V4h5v3h5V5h5v5h5v14l-8 6H10l-8-8Z"/><path fill="none" stroke="#9b654b" d="M11 11v8m6-8v8m6-6v6"/>'
+};
+function counterGlyph(profile){
+  const node=document.createElement("div");node.className="counter-projectile";
+  node.style.color=profile.color;
+  const size=profile.size||40;node.style.width=size+"px";node.style.height=size+"px";
+  node.innerHTML='<svg viewBox="0 0 32 32" aria-hidden="true" fill="currentColor">'+COUNTER_ART[profile.shape]+'</svg>';
+  return node;
+}
+async function monsterCounterAttack(enemy){
+  const serial=S.runSerial,layer=$("combat-flight-layer"),nodes=[],animations=[];
+  const reduced=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const active=()=>serial===S.runSerial && S.running && S.enemy===enemy;
+  const attackers=S.gauntlet?S.gauntlet.monsters.filter(m=>m.hp>0):[enemy];
+  try{
+    const shots=attackers.map((m,i)=>{
+      const source=S.gauntlet?document.querySelectorAll(".gmon")[S.gauntlet.monsters.indexOf(m)]:$("monster");
+      return {profile:COUNTER_PROFILES[m.sprite]||COUNTER_PROFILES.imp,source:source||$("monster")};
+    });
+    for(const {profile,source} of shots){
+      const a=center(source),ring=document.createElement("div");ring.className="counter-charge";
+      ring.style.cssText="left:"+a.x+"px;top:"+a.y+"px;border-color:"+profile.color;
+      layer.appendChild(ring);nodes.push(ring);
+      animations.push(ring.animate([{transform:"translate(-50%,-50%) scale(1.2)",opacity:0},{transform:"translate(-50%,-50%) scale(.65)",opacity:1}],{duration:360,fill:"forwards"}));
+      if(!reduced) animations.push(source.animate([{transform:"translateY(0)"},{transform:profile.melee?"translateY(-9px) scale(.94)":"translateY(-8px) scale(1.06)"}],{duration:360,fill:"forwards"}));
+    }
+    tone(150,.22,"triangle",.035);
+    await combatWait(360);if(!active()) return false;
+    nodes.forEach(n=>n.remove());animations.forEach(a=>a.cancel());
+    const target=center(hearts);
+    for(const {profile,source} of shots){
+      const origin=center(source),dx=target.x-origin.x,dy=target.y-origin.y;
+      const angle=Math.atan2(dy,dx)*180/Math.PI;
+      if(!reduced && profile.melee) animations.push(source.animate([{transform:"translate(0,0)"},{transform:"translate("+(dx*.15)+"px,"+(dy*.15)+"px) scale(1.08)",offset:.55},{transform:"translate(0,0)"}],{duration:520}));
+      for(let i=0;i<(profile.count||1);i++){
+        const projectile=counterGlyph(profile),spread=(i-((profile.count||1)-1)/2)*13;
+        projectile.style.left=origin.x+"px";projectile.style.top=origin.y+"px";
+        layer.appendChild(projectile);nodes.push(projectile);
+        const pose=(x,y,scale)=>"translate(calc(-50% + "+x+"px),calc(-50% + "+y+"px)) rotate("+angle+"deg) scale("+scale+")";
+        animations.push(projectile.animate(reduced?[
+          {transform:pose(dx,dy,1),opacity:0},{transform:pose(dx,dy,1),opacity:1}
+        ]:[
+          {transform:pose(0,spread,.55),opacity:0},
+          {transform:pose(dx*.45,dy*.45+spread-18,1.15),opacity:1,offset:.5},
+          {transform:pose(dx,dy,1),opacity:1}
+        ],{duration:520,delay:i*35,fill:"forwards",easing:"cubic-bezier(.4,0,.75,.5)"}));
+      }
+    }
+    await combatWait(600);if(!active()) return false;
+    nodes.forEach(n=>n.remove());
+    const main=shots[0].profile;
+    const impact=counterGlyph(main);impact.classList.add("counter-impact");
+    impact.style.left=target.x+"px";impact.style.top=target.y+"px";
+    layer.appendChild(impact);nodes.push(impact);
+    animations.push(impact.animate([{transform:"translate(-50%,-50%) scale(.65)",opacity:1},{transform:"translate(-50%,-50%) scale(1.7)",opacity:0}],{duration:300,fill:"forwards"}));
+    spawnParticles(target.x,target.y,main.color,12);
+    return true;
+  }finally{
+    // 命中图形短暂保留，所有临时图形和动画均自动清理。
+    setTimeout(()=>{nodes.forEach(n=>n.remove());animations.forEach(a=>a.cancel());},300);
+  }
+}
+
+const COMBAT_TIMING={charge:360,flight:440,recovery:1000,death:2600};
+let answerResolve=null, answerRevealTimer=null;
+const combatWait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+function cancelAnswerReview(){
+  clearTimeout(answerRevealTimer); answerRevealTimer=null;
+  $("answer-overlay").classList.add("hidden"); S.waitingAnswer=false;
+  if(answerResolve){const done=answerResolve;answerResolve=null;done();}
+}
+function reviewWrongAnswer(picked){
+  const q=S.question, serial=S.runSerial;
+  S.waitingAnswer=true; S.paused=true;
+  $("answer-word").textContent=q.word.w;
+  $("answer-pinyin").textContent=q.word.p;
+  return new Promise(resolve=>{
+    answerResolve=resolve;
+    // 反击结束后再出示笔记，阅读期间不计时、不换题。
+    answerRevealTimer=setTimeout(()=>{
+      if(serial!==S.runSerial || !S.waitingAnswer) return;
+      $("answer-overlay").classList.remove("hidden");
+      $("btn-understood").focus({preventScroll:true});
+    },300);
+  });
+}
+$("btn-understood").addEventListener("click",()=>{
+  if(!S.waitingAnswer) return;
+  cancelAnswerReview(); S.paused=false;
+});
+async function playSelected(){
+  if(S.busy || !S.running || !S.enemy || !S.selected.size || S.hands<=0) return;
+  const serial=S.runSerial, enemy=S.enemy;
+  const cards=S.hand.filter(c=>S.selected.has(c.id));
+  if(enemy.ability==="onecard" && cards.length>1) return;
+  S.busy=true; renderButtons();
+  const source=handEl.querySelector('[data-id="'+cards[0].id+'"]') || handEl;
+  source.classList.add("charging");
+  enemyEl.classList.add("targeted");
+  setFeedback("","","");
+  tone(330,.18,"triangle",.045);tone(495,.15,"triangle",.035,.16);
+  await combatWait(COMBAT_TIMING.charge);
+  if(serial!==S.runSerial || !S.running){source.classList.remove("charging");enemyEl.classList.remove("targeted");return;}
+  const from=center(source), to=center($("monster"));
+  const flight=document.createElement("div");flight.className="word-projectile";
+  flight.textContent=isPractice()?cards[0].c:cards.map(c=>c.c).slice(0,4).join("");
+  flight.style.left=from.x+"px";flight.style.top=from.y+"px";
+  $("combat-flight-layer").appendChild(flight);
+  flight.animate([
+    {transform:"translate(-50%,-50%) scale(1)",opacity:1},
+    {transform:"translate(calc(-50% + "+((to.x-from.x)*.45)+"px),calc(-50% + "+((to.y-from.y)*.45-30)+"px)) scale(1.15) rotate(-8deg)",opacity:1,offset:.5},
+    {transform:"translate(calc(-50% + "+(to.x-from.x)+"px),calc(-50% + "+(to.y-from.y)+"px)) scale(.35) rotate(8deg)",opacity:.8}
+  ],{duration:COMBAT_TIMING.flight,easing:"cubic-bezier(.4,0,.7,1)",fill:"forwards"});
+  await combatWait(COMBAT_TIMING.flight);
+  flight.remove();source.classList.remove("charging");enemyEl.classList.remove("targeted");
+  if(serial!==S.runSerial || !S.running || S.enemy!==enemy) return;
+  S.busy=false;resolveSelectedPlay();
+}
+async function resolveSelectedPlay(){
   if(S.busy || S.selected.size<1 || !S.enemy || S.hands<=0) return;
   S.busy=true;
   const enemy=S.enemy;
@@ -3893,7 +4491,7 @@ function playSelected(){
     // 红色免疫 BOSS：红牌不造成伤害
     let dmgCards = cards;
     if(bossAbility(enemy,"redimmune")) dmgCards = cards.filter(c=>c.stone || cardColor(c)!==1);
-    let dmg = dmgCards.length;
+    let dmg = isPractice()?3:dmgCards.length;
     const stoneTrait = enemy.trait==="stone";
 
     // 每张牌 / 张数条件的加成（按件数叠加）
@@ -4027,13 +4625,11 @@ showDamagePop(dmg,hue);
     sfxWrong();
     showDamagePop(0);
     resetCombo();
-    /* 敌人挡下这一击：红色反击光扫过 + 红色多方向攻击（纯动画，无判定文字） */
-    attackFXSet(2,cards.length,true);
-    lightBurst(10,2,true);
-    hurtFX(1,true);
-    const c=center(hearts);
-    spawnParticles(c.x,c.y,"#ff5d8f",20);
-    flash("rgba(255,93,143,.45)");
+    const pauseBeforeCounter=S.paused;
+    S.paused=true;
+    setFeedback("bad",pick(ENCOURAGE),"");
+    if(!await monsterCounterAttack(enemy)) return;
+    if(!isPractice()) S.paused=pauseBeforeCounter;
     if(S.gauntlet){
       /* 全员挑战答错：被所有存活怪物围攻 */
       const alive=S.gauntlet.monsters.filter(m=>m.hp>0);
@@ -4066,7 +4662,16 @@ showDamagePop(dmg,hue);
   enemyRegen();
   rollLucky();
   renderStats(); renderEnemy(); renderSide();
-  refillHand().then(()=>{
+  if(S.mode==="recognize") S.money=0;
+  if(isPractice()) practiceFeedback(valid);
+  const serial=S.runSerial;
+  const review=isPractice() && !valid ? reviewWrongAnswer(cards.map(c=>c.c).join("")) : Promise.resolve();
+  review.then(()=>{
+    if(serial!==S.runSerial || !S.running) return false;
+    if(S.hp<=0){gameOver();return false;}
+    return refillHand().then(()=>true);
+  }).then(ready=>{
+    if(!ready || serial!==S.runSerial || !S.running || S.hp<=0) return;
     layoutHand(); renderButtons();
     if(gAllDead){
       setTimeout(()=>gauntletDefeated(), 420);
@@ -4158,7 +4763,7 @@ function playerHurt(d){
     for(let i=0;i<d*cnt("xuejie");i++){ const card=makeCard(); S.hand.push(card); handEl.appendChild(buildCardEl(card)); }
     layoutHand();
   }
-  if(S.hp<=0){ setTimeout(gameOver,500); }
+  if(S.hp<=0){ setTimeout(()=>{if(!S.waitingAnswer && S.running) gameOver();},500); }
 }
 
 function failRound(){
@@ -4308,7 +4913,7 @@ function useHint(){
   S.hints--;
   const hintCard=pick(pool);
   handEl.querySelectorAll(".card.hinted").forEach(e=>e.classList.remove("hinted"));
-  const el=handEl.querySelector('.card[data-id="'+hintCard.id+'"]');
+  const el=handEl.querySelector('[data-id="'+hintCard.id+'"]');
   if(el){
     el.classList.add("hinted");
     setTimeout(()=>el.classList.remove("hinted"),1900);
@@ -4320,6 +4925,9 @@ function useHint(){
     floater("提示：「"+hintCard.c+"」",c.x-20,c.y-46,"#ffd93d");
   }
   const o=S.enemy.companions.get(hintCard.c);
+  if(isPractice()){
+    setFeedback("","提示："+S.question.answer,""); renderButtons(); return;
+  }
   setFeedback("","「"+hintCard.c+"」＋「"+S.enemy.anchor+"」＝「"+(o?o.w:hintCard.c)+"」","");
   renderButtons();
 }
@@ -4373,9 +4981,46 @@ function enemyDefeated(skip){
     speak(words);
   }
   updateHearts(); renderStats(); renderSide();
-  setTimeout(()=>{ showShop(); }, 700);
+  if(S.mode==="recognize") S.money=0;
+  finishVictory(skip);
 }
 
+function advanceWithoutShop(){
+  if(!S.running || S.hp<=0) return;
+  $("shop-panel").classList.add("hidden");
+  S.money=0; S.items=[]; S.shopStock=[];
+  nextEnemy(); S.busy=false; renderButtons(); renderStats();
+  setFeedback("","",""); fitStage();
+}
+function finishVictory(skip){
+  const serial=S.runSerial;
+  enemyEl.classList.add("victory-scene");
+  // 粒子、退场与奖励分段出现，切场前保留结算画面。
+  setTimeout(()=>{
+    if(serial!==S.runSerial || !S.running) return;
+    const banner=document.createElement("div");banner.className="victory-banner";
+    const praise=document.createElement("strong");praise.textContent=pick(PRAISE);banner.appendChild(praise);
+    enemyEl.appendChild(banner);
+    if(S.mode!=="recognize") rewardCoins();
+    tone(523,.12,"square",.045);tone(659,.14,"square",.045,.15);tone(784,.25,"square",.04,.3);
+  },1000);
+  setTimeout(()=>{
+    if(serial!==S.runSerial || !S.running || S.hp<=0) return;
+    enemyEl.querySelectorAll(".victory-banner").forEach(e=>e.remove());
+    enemyEl.classList.remove("victory-scene");
+    if(S.mode==="recognize") advanceWithoutShop();else showShop();
+  },COMBAT_TIMING.death);
+}
+function rewardCoins(){
+  const from=center($("monster")),to=center($("money-chip"));
+  for(let i=0;i<7;i++){
+    const coin=document.createElement("div");coin.className="reward-coin";coin.textContent="◆";
+    coin.style.left=from.x+"px";coin.style.top=from.y+"px";
+    $("combat-flight-layer").appendChild(coin);
+    coin.animate([{transform:"translate(0,0)",opacity:1},{transform:"translate("+(to.x-from.x)+"px,"+(to.y-from.y)+"px)",opacity:0}],{duration:750,delay:i*75,easing:"ease-in",fill:"forwards"});
+    setTimeout(()=>coin.remove(),1400);
+  }
+}
 /* ================= 商店 ================= */
 function selectAll(){
   if(S.busy) return;
@@ -4394,7 +5039,7 @@ function shopPool(){
   for(const k in ITEMS){
     const it=ITEMS[k];
     /* 每个道具仅可购买一次：已拥有的一次性道具与被动道具都不再出现在货架 */
-    if(ownsItem(k)) continue;
+    if(ownsItem(k) || (isPractice() && PRACTICE_EXCLUDED.has(k))) continue;
     pool.push(k);
   }
   return pool;
@@ -4410,6 +5055,7 @@ function shopDisabled(key){
   return S.money < buyPrice(key);
 }
 function buyItem(key){
+  if(S.mode==="recognize") return;
   const it=ITEMS[key];
   if(ownsItem(key)){ setFeedback("","已经拥有「"+it.name+"」","每种道具只能购买一次"); return; }
   if(shopDisabled(key)) return;
@@ -4426,6 +5072,7 @@ function buyItem(key){
   renderShop(); renderPlayer(); renderStats(); renderSide(); renderButtons();
 }
 function sellItem(key){
+  if(S.mode==="recognize") return;
   const gain=sellPrice(key);
   removeOne(key);
   S.money += gain;
@@ -4516,6 +5163,7 @@ function renderShop(){
 
 }
 function showShop(){
+  if(S.mode==="recognize"){advanceWithoutShop();return;}
   S.busy=true;
   stopTimer();
   rollShop();
@@ -4527,6 +5175,7 @@ function showShop(){
 }
 
 function gameOver(){
+  cancelAnswerReview(); S.paused=false;
   S.busy=true; S.running=false;
   stopTimer(); stopBGM();
   try{ if("speechSynthesis" in window) window.speechSynthesis.cancel(); }catch(e){}
@@ -4545,6 +5194,15 @@ function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",
 
 /* ================= 流程控制 ================= */
 async function startRun(){
+  S.runSerial++; cancelAnswerReview();
+  $("combat-flight-layer").innerHTML="";
+  stopTimer();
+  S.mode=document.querySelector('input[name="learn-mode"]:checked').value;
+  S.question=null;
+  game.classList.toggle("practice",isPractice());
+  $("stage").classList.toggle("first-stage",S.mode==="recognize");
+  $("shop-panel").classList.add("hidden");
+  $("modal-over").classList.add("hidden");
   S.timerOn=!!($("opt-timer") && $("opt-timer").checked);
   S.hp=5; S.maxHp=5; S.score=0; S.money=0; S.kills=0; S.floor=1; S.step=0; S.combo=0;
   S.playedCards=0; S.baibuDone=false; S.longdanArmed=false; S.kindBonus=0; S.destroyMode=false;
@@ -4554,7 +5212,6 @@ async function startRun(){
   S.items=[]; S.handSize=6; S.discards=3; S.hands=Infinity;
   S.selected=new Set(); S.disabledItems=new Set(); S.instantBought=new Set(); S.shopStock=[];
   S.paused=false; S.battleWords=new Set(); lastDmg=0;
-  const sd=$("side-damage"); if(sd) sd.textContent="0";
   S.busy=true; S.running=true; S.hand=[];
   handEl.innerHTML='';
   overlay.classList.add("hidden");
@@ -4563,12 +5220,13 @@ async function startRun(){
   await initialDeal();
   S.busy=false;
   renderButtons(); renderSide();
-  setFeedback("","准备好了吗！","");
+  setFeedback("","","");
 }
 function nextEnemy(){
   S.step++;
   if(S.step>4){ S.floor++; S.step=0; }
   spawnEnemy();
+  if(isPractice()) dealChoices();
 }
 
 /* ================= 开场双语图文介绍（中文原文 + 英文翻译 + 像素插图） ================= */
@@ -4693,23 +5351,32 @@ function renderIntro(){
 renderIntro();
 
 /* ================= 事件 ================= */
+function updateModeHelp(){
+  const mode=document.querySelector('input[name="learn-mode"]:checked').value;
+  $("intro-guide").classList.toggle("hidden",mode!=="cards");
+  try{localStorage.setItem("hz_mode",mode);}catch(e){}
+}
+try{ const mode=localStorage.getItem("hz_mode"); const radio=document.querySelector('input[name="learn-mode"][value="'+mode+'"]'); if(radio) radio.checked=true; }catch(e){}
+document.querySelectorAll('input[name="learn-mode"]').forEach(r=>r.addEventListener("change",updateModeHelp));
+updateModeHelp();
 $("btn-start").addEventListener("click",()=>{ unlockAudio(); try{ localStorage.setItem("hz_timer", $("opt-timer").checked?"1":"0"); }catch(e){} startRun(); });
 $("btn-play").addEventListener("click",playSelected);
 $("btn-hint").addEventListener("click",()=>{ unlockAudio(); useHint(); });
 $("btn-discard").addEventListener("click",discardSelected);
 $("btn-select-all").addEventListener("click",selectAll);
 $("btn-gauntlet").addEventListener("click",()=>{ unlockAudio(); startGauntlet(); });
-$("btn-shop-next").addEventListener("click",()=>{ $("shop-panel").classList.add("hidden"); renderPlayer(); nextEnemy(); refillHand().then(()=>{ S.busy=false; layoutHand(); renderButtons(); }); });
+$("btn-shop-next").addEventListener("click",()=>{ $("shop-panel").classList.add("hidden"); renderPlayer(); nextEnemy(); (isPractice()?Promise.resolve():refillHand()).then(()=>{ S.busy=false; layoutHand(); renderButtons(); }); });
 $("btn-again").addEventListener("click",startRun);
 $("btn-home").addEventListener("click",()=>{ overlay.classList.remove("hidden"); $("modal-over").classList.add("hidden"); $("modal-start").classList.remove("hidden"); });
-$("st-mute").addEventListener("click",()=>{
+function toggleMute(){
   unlockAudio();
   S.muted=!S.muted;
   if(S.muted){ stopBGM(); try{ if("speechSynthesis" in window) window.speechSynthesis.cancel(); }catch(e){} }
   else { if(S.running && S.enemy) playMonsterBGM(S.enemy.sprite, S.enemy.boss); sfxItem(); }
   renderStats();
   if(!S.muted && !audioRunning()) setFeedback("","🔇 点「声音」开启","");
-});
+}
+$("st-mute2").addEventListener("click",toggleMute);
 
 /* ================= 全屏：像在线视频网站那样铺满整屏 ================= */
 /* iOS（含 iPadOS 的 Safari）不支持网页版 Fullscreen API，只有「添加到主屏幕」才能去掉地址栏 */
@@ -4749,7 +5416,7 @@ initHearts();
 renderButtons();
 renderSide();
 try{ if(localStorage.getItem("hz_timer")==="1") $("opt-timer").checked=true; }catch(e){}
-setFeedback("","欢迎！","");
+setFeedback("","","");
 </script>
 </body>
 </html>
