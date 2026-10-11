@@ -1621,531 +1621,7 @@ function isRestriction(k){ return RESTRICTION_KEYS.includes(k); }
    16×16 像素画，"."为透明，其余字符查调色板 */
 /* ================= 像素怪物图鉴（可爱糖果风） =================
    16×16 像素画，"."为透明，其余字符查调色板；W=大眼白 B=瞳孔 P=腮红 */
-const SPRITES = {
-  imp:{ name:"小恶魔", pal:{H:"#ffd93d",R:"#ff5d8f",W:"#ffffff",B:"#3d1a4d",P:"#ffb3d1"}, rows:[
-    "..H..........H..",
-    "..HH........HH..",
-    "..RRRRRRRRRRRR..",
-    ".RRRRRRRRRRRRRR.",
-    ".RRWWRRRRRRWWRR.",
-    ".RRWBRRRRRRWBRR.",
-    ".PRRRRRRRRRRRRP.",
-    ".RRRRROOOORRRRR.",
-    ".RRRRRRRRRRRRRR.",
-    ".RRWWWWWWWWWWRR.",
-    ".RRWWWWWWWWWWRR.",
-    "..RRWWWWWWWWRR..",
-    "..RRRRRRRRRRRR..",
-    "..RR.RRRRRR.RR..",
-    "..HH..HHHH..HH..",
-    "................",
-  ]},
-  goblin:{ name:"哥布林", pal:{G:"#5ede54",W:"#ffffff",B:"#3d1a4d",P:"#ffb3d1",D:"#2f9e44"}, rows:[
-    ".GG..........GG.",
-    ".GGG........GGG.",
-    "..GGGGGGGGGGGG..",
-    ".GGGGGGGGGGGGGG.",
-    ".GGWWGGGGGGWWGG.",
-    ".GGWBGGGGGGWBGG.",
-    ".PGGGGGGGGGGGGP.",
-    ".GGGGGOOOOGGGGG.",
-    ".GGGGGGGGGGGGGG.",
-    ".GGWWWWWWWWWWGG.",
-    ".GGWWWWWWWWWWGG.",
-    "..GGWWWWWWWWGG..",
-    "..GGGGGGGGGGGG..",
-    "..GG.GGGGGG.GG..",
-    "..DD..DDDD..DD..",
-    "................",
-  ]},
-  archer:{ name:"弓箭手", pal:{U:"#5bc8ff",F:"#ffe0c2",B:"#3d1a4d",P:"#ffb3d1",T:"#3ddc97"}, rows:[
-    "....UUUUUUUU....",
-    "...UUUUUUUUUU...",
-    "..UUUUUUUUUUUU..",
-    ".UUFFFFFFFFFFUU.",
-    ".UUFFWWFFWWFFUU.",
-    ".UUFFWBFFWBFFUU.",
-    ".UUPPFFFFFFPPUU.",
-    ".UUFFFOOOOFFFUU.",
-    ".UUUFFFFFFFFUUU.",
-    "..TTTTTTTTTTTT..",
-    ".TTTTTTTTTTTTTT.",
-    ".TTWWWWWWWWWWTT.",
-    "..TTTTTTTTTTTT..",
-    "..TT..TTTT..TT..",
-    "..FF..FFFF..FF..",
-    "................",
-  ]},
-  swordsman:{ name:"剑士", pal:{S:"#e8eef4",F:"#ffe0c2",B:"#3d1a4d",P:"#ffb3d1",A:"#7cc9ff",G:"#ffd93d"}, rows:[
-    "......SS........",
-    "....SSSSSSSS....",
-    "..SSSSSSSSSSSS..",
-    ".SSFFFFFFFFFFSS.",
-    ".SSFFWWFFWWFFSS.",
-    ".SSFFWBFFWBFFSS.",
-    ".SSPPFFFFFFPPSS.",
-    ".SSFFFOOOOFFFSS.",
-    ".SSFFFFFFFFFFSS.",
-    "..AAAAAAAAAAAA..",
-    ".AAWWWWWWWWWWAA.",
-    ".AAGGGGGGGGGGAA.",
-    "..AAAAAAAAAAAA..",
-    "..AA..AAAA..AA..",
-    "..SS..SSSS..SS..",
-    "................",
-  ]},
-  golem:{ name:"石魔像", pal:{G:"#a8b8f0",W:"#ffffff",B:"#3d1a4d",P:"#ffb3d1",D:"#7488c8",Y:"#ffd93d"}, rows:[
-    "......Y.........",
-    ".....YYY........",
-    "..GGGGGGGGGGGG..",
-    ".GGGGGGGGGGGGGG.",
-    ".GGWWGGGGGGWWGG.",
-    ".GGWBGGGGGGWBGG.",
-    ".PGGGGGGGGGGGGP.",
-    ".GGGGGOOOOGGGGG.",
-    ".GGGGGGGGGGGGGG.",
-    ".GGGWWWWWWWWGGG.",
-    ".GGGWWWWWWWWGGG.",
-    "..GGGGGGGGGGGG..",
-    "..GGGGGGGGGGGG..",
-    "..GG..GGGG..GG..",
-    "..DD..DDDD..DD..",
-    "................",
-  ]},
-  snake:{ name:"蛇精", pal:{G:"#4fd07a",W:"#ffffff",B:"#3d1a4d",P:"#ffb3d1",R:"#ff5d8f",Y:"#ffd93d"}, rows:[
-    ".....YY.........",
-    "....YRRY........",
-    "....GGGGGG......",
-    "...GGGGGGGG.....",
-    "...GWWGGGWWG....",
-    "...GWBGGGWBG....",
-    "...PGGGGGGGP....",
-    "....GOOOOG......",
-    "....GGGGGG......",
-    "....GGGGGGG.....",
-    "....GGGGGGGG....",
-    ".....GGGGGGG....",
-    ".....GGGGGGGG...",
-    "......GGGGGGGG..",
-    ".......GGGGGG...",
-    ".......RR.......",
-  ]},
-  hedgehog:{ name:"刺猬精", pal:{T:"#a8763e",F:"#ffe0c2",W:"#ffffff",B:"#3d1a4d",P:"#ffb3d1",D:"#7a4f22"}, rows:[
-    "...T...TT...T...",
-    "..TT..TTTT..TT..",
-    "..TTTTTTTTTTTT..",
-    ".TTTTTTTTTTTTTT.",
-    ".TTFFWWFFWWFFTT.",
-    ".TTFFWBFFWBFFTT.",
-    ".TTPPFFFFFFPPTT.",
-    ".TTFFFOOOOFFFTT.",
-    ".TTFFFFFFFFFFTT.",
-    ".TTFFFFFFFFFFTT.",
-    ".TFFFFFFFFFFFFT.",
-    "..FFFFFFFFFFFF..",
-    "..FFFFFFFFFFFF..",
-    "..FF..FFFF..FF..",
-    "..DD..DDDD..DD..",
-    "................",
-  ]},
-  ghost:{ name:"雾妖", pal:{W:"#f2f6ff",B:"#3d1a4d",P:"#ffb3d1"}, rows:[
-    ".....WWWWWW.....",
-    "....WWWWWWWW....",
-    "...WWWWWWWWWW...",
-    "..WWWWWWWWWWWW..",
-    "..WWBBWWWWBBWW..",
-    "..WWBBWWWWBBWW..",
-    "..WWPWWWWWWPWW..",
-    "..WWWWOOOOWWWW..",
-    "..WWWWWWWWWWWW..",
-    ".WWWWWWWWWWWWWW.",
-    ".WWWWWWWWWWWWWW.",
-    ".WWWWWWWWWWWWWW.",
-    "..W.WWW.WWW.WW..",
-    "................",
-    "................",
-    "................",
-  ]},
-  flame:{ name:"火灵", pal:{R:"#ff8f3d",Y:"#ffe066",W:"#ffffff",B:"#3d1a4d",P:"#ffb3d1"}, rows:[
-    "......Y.........",
-    ".....Y..Y.......",
-    "....YY..YY......",
-    "....YYYYYYY.....",
-    "...YYYYYYYYY....",
-    "..YRRRRRRRRRY...",
-    ".YRRRWWRRWWRRRY.",
-    ".YRRRWBRRWBRRRY.",
-    ".YRRPRRRRRRPRRY.",
-    ".YRRRROOOORRRRY.",
-    ".YRRRRRRRRRRRRY.",
-    "..YRRRRRRRRRRY..",
-    "...YRRRRRRRRY...",
-    "....YYRRRRYY....",
-    "......YYYY......",
-    "................",
-  ]},
-  demonlord:{ name:"魔王", pal:{C:"#ffd93d",R:"#e8455f",W:"#ffffff",B:"#3d1a4d",P:"#ffb3d1",G:"#ffd93d",V:"#7a1030"}, rows:[
-    "..C...CCCC...C..",
-    "..CC..CCCC..CC..",
-    "..RRRRRRRRRRRR..",
-    ".RRRRRRRRRRRRRR.",
-    ".RRWWWRRRRWWWRR.",
-    ".RRWBWRRRRWBWRR.",
-    ".PRRRRRRRRRRRRP.",
-    ".RRRRROOOORRRRR.",
-    ".RRRRRRRRRRRRRR.",
-    ".RRRWWWWWWWWRRR.",
-    ".RRRRGGGGGGRRRR.",
-    ".RRRRRRRRRRRRRR.",
-    "..RRRRRRRRRRRR..",
-    "..RR.RRRRRR.RR..",
-    "..VV..VVVV..VV..",
-    "................",
-  ]},
-  warlock:{ name:"巫师", pal:{H:"#c77dff",G:"#a8f0b8",W:"#ffffff",B:"#3d1a4d",P:"#ffb3d1",R:"#ff5d8f",Y:"#ffd93d"}, rows:[
-    "......HH........",
-    ".....HHHH.......",
-    "....HHHHHH......",
-    "...HHHHHHHH.....",
-    "..HHHHHHHHHH....",
-    "..HHHHHHHHHHH...",
-    ".HHHHHHHHHHHHH..",
-    "HHHHHHHHHHHHHHHH",
-    "..GGGGGGGGGGG...",
-    "..GWWGGGGGWWG...",
-    "..GWBGGGGGWBG...",
-    "..PGGGGGGGGGP...",
-    ".RRRRRRRRRRRRR..",
-    ".RRYRRRRRRYRR...",
-    ".RRRRRRRRRRRRR..",
-    ".RR.RRRRRRR.RR..",
-  ]},
-  /* ===== 新增怪物图鉴（18 种）===== */
-  slime:{ name:"史莱姆", pal:{G:"#7ee06a",D:"#3f9e46",W:"#ffffff",B:"#3d1a4d",O:"#1f6b2f"}, rows:[
-    "................",
-    "................",
-    "................",
-    "....GGGGGG......",
-    "..GGGGGGGGGG....",
-    ".GGGGGGGGGGGG...",
-    ".GGGGGGGGGGGG...",
-    ".GGWWGGGGWWGG...",
-    ".GGWBGGGGBWGG...",
-    ".GGWWGGGGWWGG...",
-    ".GGGGGOOGGGGG...",
-    ".GGGGGGGGGGGG...",
-    "..GGGGGGGGGG....",
-    "..GGGGGGGGGG....",
-    "...G..GGGG..G...",
-    "................",
-  ]},
-  skeleton:{ name:"骷髅", pal:{B:"#eef3ff",K:"#3d1a4d",D:"#c9d4e8"}, rows:[
-    "................",
-    "....BBBBBB......",
-    "..BBBBBBBBBB....",
-    "..BBBBBBBBBB....",
-    "..BBKKBBBBKKBB..",
-    "..BBKKBBBBKKBB..",
-    "..BBBBKKBBBB....",
-    "..BBBBBBBBBB....",
-    "....BBBBBBBB....",
-    "....B..B..B.....",
-    "....B..B..B.....",
-    "....BBBBBBBB....",
-    "....BBBBBBBB....",
-    ".....B....B.....",
-    ".....B....B.....",
-    "....BB....BB....",
-  ]},
-  zombie:{ name:"僵尸", pal:{G:"#7fc86a",D:"#4e8f45",W:"#ffffff",B:"#3d1a4d",P:"#ffb3d1",T:"#6b8f3a"}, rows:[
-    "................",
-    "...T........T...",
-    "..GGGGGGGGGGGG..",
-    ".GGGGGGGGGGGGGG.",
-    ".GGGWGGGGGWGGGG.",
-    ".GGGWBGGGWBGGGG.",
-    ".GGGGGGGGGGGGGG.",
-    ".PGGGGGGGGGGGGP.",
-    ".GGGGGOOGGGGGGG.",
-    ".GGGGGGGGGGGGGG.",
-    ".GGGGGGGGGGGGGG.",
-    "..DDDDDDDDDDDD..",
-    "..DD.DD..DD.DD..",
-    "..G..DD..DD..G..",
-    "..G...G..G...G..",
-    "................",
-  ]},
-  vampire:{ name:"吸血鬼", pal:{F:"#f6e7ff",C:"#6b2b8a",W:"#ffffff",B:"#3d1a4d",R:"#ff5d8f",K:"#3d1a4d"}, rows:[
-    "................",
-    "....C........C..",
-    "..CCCCCCCCCCCC..",
-    ".CFFFFFFFFFFFFC.",
-    ".FFFWWFFFFWWFFF.",
-    ".FFWBFFFFFWBFFF.",
-    ".FFRFFFFFFFRFFF.",
-    ".FFFFWWKKWWFFFF.",
-    ".FFFFFFFFFFFFFF.",
-    ".FFFFFFFFFFFFFF.",
-    ".CCCCCCCCCCCCCC.",
-    ".CCCCCCCCCCCCCC.",
-    "..CCCCCCCCCCCC..",
-    "..C.CC.CC.CC....",
-    "..F..FF..FF..F..",
-    "................",
-  ]},
-  bug:{ name:"虫子", pal:{G:"#8fd94f",D:"#4f8f2f",W:"#ffffff",B:"#3d1a4d",P:"#ffb3d1",A:"#ff9f43"}, rows:[
-    "..A..........A..",
-    "...A........A...",
-    "..GGGGGGGGGGGG..",
-    ".GGGGGGGGGGGGGG.",
-    ".GGWWGGGGWWGGGG.",
-    ".GGWBGGGGWBGGGG.",
-    ".PGGGGGGOGGGGGP.",
-    ".GGGGGGGGGGGGGG.",
-    "..GGGGGGGGGGGG..",
-    "..GGGGGGGGGGGG..",
-    "..GG.GGGGGG.GG..",
-    "..G..G.GGG.G..G.",
-    "..A..G.GGG.G..A.",
-    ".....A.....A....",
-    "................",
-    "................",
-  ]},
-  dwarf:{ name:"矮人", pal:{F:"#ffd9b3",B:"#3d1a4d",W:"#ffffff",P:"#ffb3d1",D:"#a8763e",S:"#cfd8e8",G:"#8cf5c4"}, rows:[
-    "................",
-    "....DDDDDDDD....",
-    "...DDDDDDDDDD...",
-    "..DDDDDDDDDDDD..",
-    "..DDFFFFFFFFDD..",
-    "..FFWWFFFFWWFF..",
-    "..FFWBFFFFBWFF..",
-    "..PPFFFFFFFFFF..",
-    "..FFFFFFFFFFFF..",
-    "...DDDDDDDDDD...",
-    "...DBBBBBBBBD...",
-    "...DDBBBBBBDD...",
-    "...DDDDDDDDDD...",
-    "..GGG......GGG..",
-    "..SS........SS..",
-    "..SS........SS..",
-  ]},
-  giant:{ name:"巨人", pal:{F:"#ffd9b3",B:"#3d1a4d",W:"#ffffff",D:"#c98a25",G:"#7ee06a"}, rows:[
-    "................",
-    ".....DDDDDD.....",
-    "....DDDDDDDD....",
-    "....FFWWFFWW....",
-    "....FFWBFFBW....",
-    "....FFFFFFFF....",
-    "....DDFFDD......",
-    "...DFFFFFFFD....",
-    "..GGFFFFFFGG....",
-    ".GGGGGGGGGGGG...",
-    ".DDDDDDDDDDDD...",
-    ".DDDDDDDDDDDD...",
-    ".DDDDDDDDDDDD...",
-    "..DD..DDDD..DD..",
-    "..DD..DDDD..DD..",
-    "................",
-  ]},
-  dragon:{ name:"龙", pal:{G:"#5ede54",D:"#2f9e44",W:"#ffffff",B:"#3d1a4d",Y:"#ffd93d",R:"#ff5d8f"}, rows:[
-    "...Y........Y...",
-    "....Y..YY..Y....",
-    "..YYGGGGGGYY....",
-    "...GGGGGGGG.....",
-    ".GGWWGGWWGGGGGG.",
-    ".GGBWGGGWBGGGGG.",
-    ".GGGGGGGGGGGGGG.",
-    ".PGGGGOOGGGGGGP.",
-    "..GGGGGGGGGGGG..",
-    ".DGGGGGGGGGGGGD.",
-    ".DGGGGGGGGGGGGD.",
-    "..DGGGGGGGGGGD..",
-    "..GGGGGGGGGGGG..",
-    "...GGGGGGGGGG...",
-    "...GG..GG..GG...",
-    "................",
-  ]},
-  dog:{ name:"恶狗", pal:{T:"#a8763e",D:"#7a4f22",W:"#ffffff",B:"#3d1a4d",P:"#ffb3d1"}, rows:[
-    "................",
-    "..T..........T..",
-    "..TT........TT..",
-    "..TTTTTTTTTTTT..",
-    "..TTWWTTTTWWTT..",
-    "..TTWBTTTTWBTT..",
-    "..TTPPTTTTPPTT..",
-    "..TTTTTTTTTTTT..",
-    "...TTTTTTTTTT...",
-    "..TTTTTTTTTTTT..",
-    ".TTTTT..TTTTTTT.",
-    "TTTTTT..TTTTTTTT",
-    ".DDDD....DDDD...",
-    ".DD........DD...",
-    "................",
-    "................",
-  ]},
-  whitecat:{ name:"白猫", pal:{W:"#ffffff",D:"#d8d8e8",K:"#3d1a4d",P:"#ffb3d1",Y:"#ffd93d"}, rows:[
-    "................",
-    "..W..........W..",
-    "..WW........WW..",
-    "..WWWWWWWWWWWW..",
-    "..WWWWWWWWWWWW..",
-    "..WWKWWWWWWKWW..",
-    "..WWKWWWWWWKWW..",
-    "..WWPPWWWWPPWW..",
-    "..WWWWWWWWWWWW..",
-    "...WWWWWWWWWW...",
-    "..WWWWWWWWWWWW..",
-    "..WW..WWWW..WW..",
-    ".WWWW..WW..WWWW.",
-    "................",
-    "...D........D...",
-    "....D......D....",
-  ]},
-  thief:{ name:"盗窃者", pal:{K:"#3d1a4d",F:"#ffd9b3",W:"#ffffff",S:"#8cf5c4",Y:"#ffd93d"}, rows:[
-    "................",
-    "....KKKKKKKK....",
-    "...KKKKKKKKKK...",
-    "..KKFFFFFFFFKK..",
-    "..FFWWFFFFWWFF..",
-    "..FFWBFFFFBWFF..",
-    "..PPFFFFFFFFFF..",
-    "..FFFFFFFFFFFF..",
-    "...KKKKKKKKKK...",
-    "..SSSSSSSSSSSS..",
-    ".SSSSSSSSSSSSSS.",
-    ".SSSSSSSSSSSSSS.",
-    "..SSSSSSSSSSSS..",
-    "..KK......KK....",
-    "..KK......KK....",
-    "................",
-  ]},
-  robot:{ name:"机器人", pal:{C:"#c4d4e8",D:"#8fa3bd",W:"#ffffff",B:"#3d1a4d",R:"#ff5d8f",Y:"#ffd93d"}, rows:[
-    "......YY........",
-    "......CC........",
-    "..CCCCCCCCCCCC..",
-    ".CCDDDDDDDDDDCC.",
-    ".CCDDWWDDWWDDCC.",
-    ".CCDDWBDDWBDDCC.",
-    ".CCDDDDDDDDDDCC.",
-    ".CCDDRRRRRRDCC..",
-    "..CCCCCCCCCCCC..",
-    ".DDDDDDDDDDDDDD.",
-    "..CCCCCCCCCCCC..",
-    "..CC.CC..CC.CC..",
-    "..CC.CC..CC.CC..",
-    "..DD.DD..DD.DD..",
-    "................",
-    "................",
-  ]},
-  flame2:{ name:"火焰", pal:{R:"#ff8f3d",O:"#ff5d3d",Y:"#ffe066",W:"#ffffff",B:"#3d1a4d"}, rows:[
-    ".......Y........",
-    "......YRY.......",
-    ".....YRRYR......",
-    "....YRRRRRY.....",
-    "...YRROORRRY....",
-    "..YRRROORRRRY...",
-    "..YRRROORRRRY...",
-    "...YRROORRRRY...",
-    "....YRRRRRY.....",
-    "....YRWWWWRY....",
-    "....YRWBWRY.....",
-    "....YRRRRRY.....",
-    "...YRRRRRRRRY...",
-    "..YRRRRRRRRRRY..",
-    "..YRRRYYRRRRRY..",
-    "...YY......YY...",
-  ]},
-  demon:{ name:"恶魔", pal:{R:"#e8455f",D:"#7a1030",W:"#ffffff",K:"#3d1a4d",Y:"#ffd93d"}, rows:[
-    "..Y..........Y..",
-    "..YY........YY..",
-    "..YYY..YY..YYY..",
-    "...RYYYYYYYR....",
-    ".RRRRRRRRRRRRRR.",
-    ".RRWWRRRRRRWWRR.",
-    ".RRWBRRRRRRWBRR.",
-    ".PRRRRRRRRRRRRP.",
-    ".RRRRROOOORRRRR.",
-    ".RRRRRRRRRRRRRR.",
-    "RRRRRRRRRRRRRRRR",
-    "RRRRRRRRRRRRRRRR",
-    ".RRRRRRRRRRRRRR.",
-    "..RR..RRRR..RR..",
-    "...Y........Y...",
-    "................",
-  ]},
-  darkwizard:{ name:"黑巫师", pal:{C:"#4b3b6b",H:"#2b2140",F:"#f6e7ff",W:"#ffffff",B:"#3d1a4d",G:"#a8f0b8",Y:"#ffd93d",O:"#3d1a4d"}, rows:[
-    ".......Y........",
-    "......YHY.......",
-    ".....YHCHY......",
-    "....YHCCCCY.....",
-    "...YHCCCCCHY....",
-    "..YHCCCCCCCY....",
-    "..HHCCCCCCCCH...",
-    "..HFFFFFFFFFFH..",
-    "..FFFWFFFFWFFF..",
-    "..FFFBFFFFBFFF..",
-    "..FFFFFFFFFFFF..",
-    "..FFFFFFOOFFFF..",
-    "...CCCCCCCCCC...",
-    "..GCCC....CCCG..",
-    "..G..........G..",
-    "..Y..........Y..",
-  ]},
-  bear:{ name:"大熊", pal:{T:"#a8763e",D:"#7a4f22",W:"#ffffff",B:"#3d1a4d",P:"#ffb3d1"}, rows:[
-    "...T........T...",
-    "..TTT......TTT..",
-    "..TTTTTTTTTTTT..",
-    ".TTTTTTTTTTTTTT.",
-    ".TTWWTTTTTTWWTT.",
-    ".TTWBTTTTTTBWTT.",
-    ".TTPPTTTTTTPPTT.",
-    ".TTTTTTTTTTTTTT.",
-    ".TTTTTOOTTTTTTT.",
-    ".TTTTTTTTTTTTTT.",
-    "TTTTTTTTTTTTTTTT",
-    "TTTTTTTTTTTTTTTT",
-    ".TTTTTTTTTTTTTT.",
-    "..TTTT....TTTT..",
-    "..DDD......DDD..",
-    "................",
-  ]},
-  swordsman2:{ name:"刀客", pal:{K:"#3d1a4d",F:"#ffd9b3",W:"#ffffff",S:"#e8eef4",R:"#ff5d8f",A:"#7cc9ff"}, rows:[
-    "..RRRRRRRRRRRR..",
-    "..KKKKKKKKKKKK..",
-    "..FFFFFFFFFFFF..",
-    "..FFWWFFFFWWFF..",
-    "..FFWBFFFFBWFF..",
-    "..PPFFFFFFFFFF..",
-    "..FFFFFFFFFFFF..",
-    "...FFFFFFFFFF...",
-    ".SSSSSSSSSSSSSS.",
-    ".SSSSSSSSSSSSSS.",
-    "..KKKK....KKKK..",
-    "..KKKK....KKKK..",
-    "..AA........AA..",
-    "................",
-    "................",
-    "................",
-  ]},
-  strongman:{ name:"大力士", pal:{F:"#ffd9b3",B:"#3d1a4d",W:"#ffffff",M:"#e8a87c",S:"#cfd8e8"}, rows:[
-    "................",
-    ".....FFFFFF.....",
-    "....FFWWFFWW....",
-    "....FFWBFFBW....",
-    "....FFPPPPFF....",
-    "...MMFFFFFFMM...",
-    "..MMMFFFFFFMMM..",
-    ".MMMMFFFFFFFFMMM",
-    ".SSSSFFFFFFSSSS.",
-    ".SSSSFFFFFFSSSS.",
-    "..SSS......SSS..",
-    "..SSS......SSS..",
-    "..FFF......FFF..",
-    "..FFF......FFF..",
-    "................",
-    "................",
-  ]},
-};
+const SPRITES = {"imp":{"name":"小恶魔","grid":32,"pal":{"K":"#352741","Y":"#ffdb75","R":"#e66b75","W":"#fff5db"},"rows":["................................",".......K.................K......",".......KK...............KK......",".......KYK.............KYK......",".......KYYK............KYK......",".......KYYYK..KKKKK...KYYK......","........KYYYKKRRRRRKKKYYYK......","........KYYKRRRRRRRRRKYYK.......","........KYKRRRRRRRRRRRKYK.......",".K......KKRRRRRRRRRRRRRKK......K",".KK.....KRWKKRRRRRRRWKKRK.....KK",".KRK....KRKKKRRRRRRRKKKRK....KRK",".KRRK...KRKKKRRRRRRRKKKRK...KRRK",".KRRRK..KRRRRRRRRRRRRRRRK..KRRRK",".KRRRRK.KRRRRRRRRRRRRRRRK.KRRRRK",".KRRRRRKKRRRRRRRRRRRRRRRKKRRRRRK",".KRRRRRRKKRRKKKKRRKKKKRKKRRRRRRK",".KRRRRRRRKKRRKWKRRRKWKKKRRRRRRRK",".KRRRRRRRKRKRKKRRRRKKKRKRRRRRRRK",".KRRRRRRRKRRKKKRRRRKKRRKRRRRRRRK",".KRRRRRRRKRRRRKKKKKRRRRKRRRRRRRK",".KRRRRKRRKRRRRRRRRRRRRRKRRKRRRRK",".KRRKK.KRKRRRRRRRRRRRRRKRK.KKRRK",".KKK...KRKRRRRRRRRRRRRRKRK...KKK",".K......KKKRRRRRRRRRRRKKK......K","........KKKRRRRRRRRRRRKKK.......",".........K.KRRRRRRRRRK.K........",".........KKKKKRRRRRKKKKK........","..........KKKKKKKKK.KKKK........","..........KKKK......KKKK........","..........KKKK......KKKK........","................................"]},"goblin":{"name":"哥布林","grid":32,"pal":{"K":"#352741","G":"#79c963","W":"#fff5db","L":"#cef08c","T":"#a57248","H":"#765039","Y":"#ffdb75"},"rows":["................................","................................","................................",".............KKKKKK.............","...........KKGGGGGGKK...........",".KKK......KGGGGGGGGGGK.......KKK","..KGKKKK.KGGGGGGGGGGGGK..KKKKGK.","..KGGGGGKKGGGGGGGGGGGGKKKGGGGGK.","...KGGGGGKGGGGGGGGGGGGKGGGGGGK..","...KGGGGGKGGGGGGGGGGGGKGGGGGGK..","....KGGGGGKWKKGGKGGWKKKGGGGGK...","....KGGGGGKKKKGGKKGKKKKGGGGGK...","...KKKKGGKKKKKGKLKGKKKKKGGGK....","..KTTTTKKKGGGGGKLLKGGGK.KKGK....","..KTTTTK.KGGGGKLLLKGGGK...K.....",".KTTTTTTKKKGGGKKKKKKGKK.........",".KTTTTTTKKTKKGGGGGGKKTK.........",".KTTTTTTKTTTTKKKKKKTTTTK........","..KTTTTKKTTTTTTTTTTTTTTK........","..KTTTTKKTTTTTTTTTTTTTTK........","...KKKK.KTTTTTTTTTTTTTTTK.......","....HHHKTTTTTTTTTTTTTTTTK.......","...HHH.KTTTTYYYYYYYYYTTTK.......","...HHH.KTTTTYYYYYYYYYTTTK.......","...HHHKTTTTTTTTTTTTTTTTTTK......","...HHHKTTTTTTTTTTTTTTTTTTK......","..HHH..KKTKKKKTTTTTKKKKKK.......","..HHH....KKKKKTTTTTKKKK.........","..........KKKKKKKKKKKKK.........","..........KKKK.....KKKK.........","..........KKKK.....KKKK.........","................................"]},"archer":{"name":"弓箭手","grid":32,"pal":{"W":"#fff5db","K":"#352741","G":"#79c963","T":"#a57248","S":"#efc18e","H":"#765039","D":"#397d55","Y":"#ffdb75"},"rows":[".......................W........","......................WWW.......","...........KKKKKKKKKWWWW........","..........KGGGGGGGGWWW..........","..........KGGGGGGGGGWGK.........",".........KGGGGGGGGGGGGGK........","........KGGGGGGGGGGGGGGK........","........KGGGGGGGGGGGGGGGK.......",".......KKKKKKKKKKKKKKKKKKK.WT...","........KSSSSSSSSSSSSSSK...WTT..","........KSSWKKSSSSSWKKSK...WTT..","........KSSKKKSSSSSKKKSK...WTTT.","........KSSKKKSSSSSKKKSK...W.TT.",".........KSSSSSSSSSSSSK....W.TTT",".........KSSSSHHHHSSSSK....W..TT",".........KKSSSSSSSSSSKK....W..TT",".........KDKKSSSSSSKKDK....W..TT","........KDDDDKKKKKKDDDDK...W..TT","........KDDDDDDDDDDDDDDK...W..TT","........KDDDDDDDDDDDDYYYYYYYYYYY","........KDDDDDDDDDDDDYYYYYYYYYYY",".......KDDDDDDDDDDDDDDDDK..W..TT",".......KDDDDDDDDDDDDDDDDK..W..TT",".......KDDDDDDDDDDDDDDDDK..W..TT","......KDDDDDDDDDDDDDDDDDDK.W..T.","......KDDDDDDDDDDDDDDDDDDK.W.TT.",".......KKDKKKKDDDDDKKKKKK..W.T..",".........KKKKKDDDDDKKKK....WTT..","..........KKKKKKKKKKKKK....WT...","..........KKKK.....KKKK....WT...","..........KKKK.....KKKK.........","................................"]},"swordsman":{"name":"剑士","grid":32,"pal":{"K":"#352741","A":"#adc4d2","W":"#fff5db","S":"#efc18e","H":"#765039","I":"#4277a0","Y":"#ffdb75"},"rows":["................................","............KKKKKKKKK...........","..........KKAAAAAAAAAK..........",".........KAAAAAAAAAAAAKK........","........KAAAAAAAAAAAAAAAK.......","........KAAAAAAAAAAAAAAAK.......","........KAAAAAAAAAAAAAAAK.......","..WW....KAAAAAAAAAAAAAAAK.......","..WW....KAKKKKKWWKKKKKKAK.......","..WW....KAKKKKKWWKKKKKKAK.......","..WW....KKKKKKKWWKKKKKKAK.......","..WW....KSSKKKSSSKKKKKKKK.......","..WW....KSSKKKSSSSSKKKSK........","..WW.....KSSSSSSSSSSSSK.........","..WW.....KSSSSHHHHSSSSK.........","..WW.....KKSSSSSSSSSSKK.........","..WW.....KAKKSSSSSSKKAKKKKK.....","..WW....KAAAAKKKKKKAAAAKIIIKKKK.","..WW....KAAAAAAAAAAAAAAKIIIIIIK.","..WW....KAAAAAAAAAAAAAAKIYYYIIK.","YYYYYYY.KAAAAAAAAAAAAAAKIYYYIIK.","YYYYYYYKAAAAAAAAAAAAAAKIIYYYIIK.","..WW...KAAAAAAAAAAAAAAKIIYYYIIK.","..WW...KAAAAAAAAAAAAAAKIIYYYIIK.","..WW..KAAAAAAAAAAAAAAAKIIYYYIIK.","......KAAAAAAAAAAAAAAAKIIYYYIIK.",".......KKAKKKKAAAAAKKKKKIIIIIK..",".........KKKKKAAAAAKKKK.KIIIK...","..........KKKKKKKKKKKKK..KIK....","..........KKKK.....KKKK...K.....","..........KKKK.....KKKK.........","................................"]},"golem":{"name":"石魔像","grid":32,"pal":{"K":"#352741","N":"#b8a5ab","B":"#72c7e7"},"rows":["................................",".............KKK................","...........KKNNNKKKK............",".........KKNNNNNNNNNKKK.........","........KNNNNNNNNNNKNNK.........","........KNNNNNNNNNKNNNNK........","........KNNNNNNNNNKNNNNK........",".........KNNNNNNNKNNNNNK........",".........KNBBBBNNNKBBBBNK.......",".........KNBBBBNNNKBBBBNK.......",".........KNNNNNNNNNKNNNNK.......",".........KNNNNNNNNNNNNNNNK......",".........KKNNNNNNNNNNNNNNK......","........KNKNNNNNNNNNNNNNK.......","......KKNNKKKNNNNNNNNNKKNK......",".....KNKNNNNNKKKBKNNNKNNKNK.....","....KNNNKNNNNNNBBBKKKNNNKNNK....","...KNNNNNKNNNNNBBNNNNNNKNNNNKK..","..KNNNNNNNKNNNBBBNNNNNKNNNNNNNK.",".KNNNNNNNNKNNNBBNNNNNNKNNNNNNNNK",".KNNNNNNNKNNNBBBNNNNNNNKNNNNNNNK",".KNNNNNNNKNNNBBBBBBBNNNKNNNNNNNK",".KNNNNNNNKNNNBBBBBBBNNNKNNNNNNNK","..KNNNNNKNNNNNNNNBBNNNNNKNNNNNK.","..KNNNNNKNNNNNNNNBBNNNNNKNNNNNK.","..KNNNNNKNNNNNNNBBNNNNNNKNNNNNK.","..KNNNNKKNNNNNNNBBNNNNNNKKNNNNK.","..KKKKKKKNNNNNNNNNNNNNNNKKKKKKK.","........KKKKKKKKKKKKKKKKKK......","........KKKKKK......KKKKKK......","........KKKKKK......KKKKKK......","........KKKKKK......KKKKKK......"]},"snake":{"name":"蛇精","grid":32,"pal":{"K":"#352741","G":"#79c963","W":"#fff5db","L":"#cef08c","R":"#e66b75"},"rows":["................................","................................","................................","................................","................................","..........KKKKKKK...............","........KKGGGGGGGKK.............",".......KGGGGGGGGGGGK............","......KGGGGGGGGGGGGGK...........","......KGWKKGGGGGWKKGK...........",".....KGGKKKGGGGGKKKGGK..........",".....KGGKKKGGGGGKKKGGK..........",".....KGGGGGGGGGGGGGGGK..........",".....KGGGLLLLLLLLLGGGK..........","......KGGLLLLLLLLLGGK...........","......KGGGGGGGGGGGGGK...........",".......KGGGGGGGGRRGK...K.R......",".......KKKGGGGGGGKRRRKKRRK......","........KGKKKKKKKGGGGRRGGKK.....","........KGGGGGGGGGGGGGGRRGKK....",".........KGGGGGGGGGGGGGGGRGKK...",".........KG.GGGGGGGGGGGGGGGGKK..","............GKKKKKKKKKKKGGGGG...","............K..........KGGGG....","......................KKGGGGGG..","......KKKKKKKKKKKKKKKKKGGGGGGKK.","......GGGGGGGGGGGGGGGGGGGGGGGK..","......GGGGGGGGGGGGGGGGGGGGGGKK..","......GGGGGGGGGGGGGGGGGGGGGGK...","......GGGGGGGGGGGGGGGGGGG.GKK...","......GGGGGGGGGGGGGGGGGGG..K....","......KKKKKKKKKKKKKKKKKKK......."]},"hedgehog":{"name":"刺猬精","grid":32,"pal":{"K":"#352741","H":"#765039","T":"#a57248","S":"#efc18e"},"rows":["................................","................................","................................","................................","...........K..........K.........","...........KK........KK.........","...........KHK.....KKHK.........","...........KHHK...KHHHK.........","...........KHHHK.KHHHHHK........","..........KHHHHHKHHHHHHK........","...KK.....KHHHHHHHHHHHHK.....KK.","...KHKKKK.KHHHHHHHHHHHHK.KKKKHK.","....KHHHHKKHHHHHHHHHHHHKKHHHHK..","....KHHHHHHHHHHHHHHHHHHHHHHHHK..",".....KHHHHHHHKKKKKKKHHHHHHHHK...",".....KHHHHHKKTTTTTTTKKHHHHHHK...","......KHHKKTTTTTTTTTTTKKHHHHK...","....KKKHKTTTTTTTTTTTTTTTKHHK....",".KKKHHHKTTTTTTTTTTTTTTTTTKHK....",".KHHHHHKTTTTTTTTTTKKKKKKKKHHK...",".KHHHHKTTTTTTTTTKKSSSSSSSKKHHKK.","..KHHHKTTTTTTTTKSSKKKSSSSSSKHHHK","..KHHHKTTTTTTTKSSSKKKSSSSSSSKHK.","..KHHHKTTTTTTKSSSSKKKSSSSSSKKKK.","..KHHHHKTTTTTKSSSSSSSSSSSSKKKKK.","...KHHHKTTTTTKSSSSSSSSSSSSKKKKK.","...KKKKKKTTTTTKSSSSSSSSSSSSKKK..",".........KKTTTTKSSSSSSSSSSSKK...","........KKKKKTTTKKSSSSKKKKKK....","........KKKKKKKKKKKKKKKKKK......","........KKKKK.........KKKK......","................................"]},"ghost":{"name":"雾妖","grid":32,"pal":{"K":"#352741","W":"#fff5db","B":"#72c7e7","U":"#61478c"},"rows":["................................","................................","................................","..............KKK...............","............KKWWWKK.............","..........KKWWWWWWWKKK..........","........KKWWWWWWWWWWWWKK........","........KWWWWWWWWWWWWWWK........",".......KWWWWWWWWWWWWWWWWK.......",".......KWWWWWWWWWWWWWWWWK.......","......KWWWWKKWWWWWWWKKWWWK......","......KWWWKKKKWWWWWKKKKWWK......",".....KWWWWKKKKWWWWWKKKKWWWK.....",".....KWWWWKKKKWWWWWKKKKWWWK.....",".....KWWWWKKKKWWWWWKKKKWWWK.....",".....KWWWWWKKWWWWWWWKKWWWWK.....","...B.KWWWWWWWWWWWWWWWWWWWWWK....","..BBBKWWWWWWWWWWWWWWWWWWWWWK....","..BB.KWWWWWWWWWKKKWWWWWWWWWK....",".BBB.KWWWWWWWWKUUUKWWWWWWWWK....","..B..KWWWWWWWWKUUUKWWWWWWWWK....",".....KWWWWWWWWKUUUKWWWWWWWWWK...",".....KWWWWWWWWKUUUKWWWWWWWWWK...",".....KWWWWWWWWWKKKWWWWWWWWWWK...",".....KWWWWWWWWWWWWWWWWWWWWWWK...",".....KWWWWWWWWWWWWWWWWWKKWWWK...",".....KWWWWWWWWWKWWWWWWK..KKWWK..",".....KWWWWWWWWK.KWWWWWK....KKK..",".....KWWWWWWKK...KKWWK.......K..",".....KKKWWWK.......KWK..........","........KKK.........K...........","................................"]},"flame":{"name":"火灵","grid":32,"pal":{"K":"#352741","F":"#f48649","Y":"#ffdb75","W":"#fff5db"},"rows":["................................","....................K...........","....................K...........","...................KFK..........",".......K...........KFK..........",".......KK.........KFFK..........",".......KFK........KFFFK.........",".......KFFK......KFFFFK.........",".......KFFFK.....KFFFFK.........","........KFFFK...KFFFFFK.........","........KFFFFK..KFFFFFFK........","........KFFFFFKKFFFFKFFK.....K..","........KFFFFFFKFFFFKFFK...KKK..",".......KFFFFFFFFFFFKYKFFKKKFFK..",".......KFFFFFFFFFFFKYKFFKFFFFK..","......KFFFFFFFFFFFKYYKFFFFFFFK..",".....KFFFFFFFFFFFFKYYYKFFFFFFK..","....KFFFFFFKFFFFFFKYYYKFFFFFFK..","....KFFFFFFKKFFFFKYYYYYKFFFFFFK.","...KFFFFFFWKKKKFFKYYWKKKFFFFFFK.","..KFFFFFFFKKKYYKKYYYKKKKFFFFFFK.","..KFFFFFFFKKKYYYKYYYKKKYKFFFFFK.","..KFFFFFFKYYYYYYYYYYYYYYKFFFFFK.","..KFFFFFFKYYYYYYYYYYYYYYKFFFFFK.","...KFFFFFKYYYYYYYYYYYYYYYKFFFFK.","...KFFFFKYYYYYYYYYYYYYYYYKFFFFK.","...KFFFFKYYYYYYYYYYYYYYYKFFFKK..","...KFFFFFKKYYYYYYYYYYYKKFFFK....","....KKFFFFFKYYYYYYYYYKFFFFK.....","......KKFFFFKKKKKKKKKFFFKK......","........KKKKKKKKKKKKKKKK........","................................"]},"demonlord":{"name":"魔王","grid":32,"pal":{"K":"#352741","Y":"#ffdb75","R":"#e66b75","U":"#61478c","W":"#fff5db"},"rows":[".........K......K......K........",".......K.KKK...KYK...KKK.K......",".......KKKYYKK.KYYK.KYYKKK......",".......KYKYYYYKRRRYKYYKKYK......",".......KYYKYYYYRRRYYYYKKYK......",".......KYYKYYYYRRRYYYYKYYK......","........KYKKKKKKKKKKKKKYYK......","........KYYKUUUUUUUUUKYYK.......","........KYKUUUUUUUUUUUKYK.......",".K......KKUUUUUUUUUUUUUKK......K",".KK.....KUWKKUUUUUUUWKKUK.....KK",".KUK....KUKKKUUUUUUUKKKUK....KUK",".KUUK...KUKKKUUUUUUUKKKUK...KUUK",".KUUUK..KUUUUUUUUUUUUUUUK..KUUUK",".KUUUUK.KUUUUUUUUUUUUUUUK.KUUUUK",".KUUUUUKKUUUUUUUUUUUUUUUKKUUUUUK",".KUUUUUUKKUUKKKKUUKKKKUKKUUUUUUK",".KUUUUUUUKKUUKWKUUUKWKKKUUUUUUUK",".KUUUUUUUKUKUKKUUUUKKKUKUUUUUUUK",".KUUUUUUUKUUKKKUUUUKKUUKUUUUUUUK",".KUUUUUUUKUUUUKKKKKUUUUKUUUUUUUK",".KUUUUKUUKUUUUUUUUUUUUUKUUKUUUUK",".KUUKK.KUKUUUUUYYYYUUUUKUK.KKUUK",".KKK...KUKUUUUUYYYYUUUUKUK...KKK",".K......KKKUUUUUUUUUUUKKK......K","........KKKUUUUUUUUUUUKKK.......",".........K.KUUUUUUUUUK.K........",".........KKKKKUUUUUKKKKK........","..........KKKKKKKKK.KKKK........","..........KKKK......KKKK........","..........KKKK......KKKK........","................................"]},"warlock":{"name":"巫师","grid":32,"pal":{"K":"#352741","V":"#a788d6","B":"#72c7e7","T":"#a57248","Y":"#ffdb75","W":"#fff5db"},"rows":["................................","...............KK...............",".............KKVVKK.............","...........KKVVVVVVKK.......KK..",".........KKVVVVVVVVVVKK....KBBK.","........KVVVVVVVVVVVVVVKK.KBBBBK","........KVVVVVVVVVVVVVVVK.KBBBBK","........KVVVVVVVVVVVVVVVK.KBBBBK","........KVVVKKKKKKKKKVVVK.KBBBBK","........KVVKKKKKKKKKKKVVK..KBBK.","........KVKKKKKKKKKKKKKVK...KK..","........KKKKKKKKKKKKKKKKK...TT..","........K.KKYYYKKKKYYYK.K...TT..","..........KKYYYKKKKYYYK.....TT..",".........KKKKKKKKKKKKKKK....TT..",".........KVKKKKKKKKKKKVK....TT..",".........KVKKKKKKKKKKKVK....TT..",".........KVVKKKKKKKKKVVK....TT..","........KVVVVKWWWWWWKVVVK...TT..","........KVVVVVKWWWWKVVVVK...TT..","........KVVVVVKWWWWKVVVVK...TT..","........KVVVVVKWWWKVVVVVVK..TT..",".......KVVVVVVVKWWKVVVVVVK..TT..",".......KVVVVVVVKWKVVVVVVVK..TT..",".......KVVVVVVVKWKVVVVVVVK..TT..","......KVVVVVVVYYYYYVVVVVVVK.TT..","......KVVVVVVVYYYYYVVVVVVVK.TT..","......KVVVVVVVYYYYYVVVVVVVK.TT..","......KVVVVVVVVVVVVVVVVVVVK.TT..",".....KVVVVVVVVVVVVVVVVVVVVVKTT..",".....KKKKKKKKKKKKKKKKKKKKKKK....","................................"]},"slime":{"name":"史莱姆","grid":32,"pal":{"K":"#352741","G":"#79c963","L":"#cef08c","W":"#fff5db","D":"#397d55"},"rows":["................................","................................","................................","................................","................................","................................","................................","................................","................................","..............KKK...............","............KKGGGKK.............","..........KKGGGGGGGKKK..........","........KKGGGGGGGGGGGGKK........",".......KGGGGGGGGGGGGGGGGK.......",".......KGLLLGGGGGGGGGGGGK.......","......KLLLLLLLGGGGGGGGGGGK......",".....KGLLLLLLLGGGGGGGGGGGGK.....",".....KGLLLLLLLGGGGGGGGGGGGGK....","....KGGGGLLLGGGGGGGGGGGGGGGK....","....KGGGGGGGGGGGGGGGGGGGGGGGK...","....KGGGGGGGGGGGGGGGGGGGGGGGK...","...KGGGGGGWKKGGGGGGWKKGGGGGGK...","...KGGGGGGKKKGGGGGGKKKGGGGGGGK..","...KGGGGGGKKKGGGGGGKKKGGGGGGGK..","...KGGGGGGGGGGGGGGGGGGGGGGGGGK..","..KGGGGGGGGGGGGGGGGGGGGGGGGGGK..","..KGGGGGGGGGGGDDDDDGGGGGGGGGGGK.","..KGGGGGGGGGGGDDDDDGGGGGGGGGGGK.","...KKGGGGGGGGGGGGGGGGGGGGGGGGKK.",".....KGGGGGGGGGGGGGGGGGGGGKKK...","......KKKKKKKKKKKKKKKKKKKK......","................................"]},"skeleton":{"name":"骷髅","grid":32,"pal":{"K":"#352741","W":"#fff5db"},"rows":["............KKKKKKKK............","..........KKKKKKKKKKKK..........",".........KKKKWWWWWWKKKK.........","........KKKWWWWWWWWWWKKK........","........KKWWWWWWWWWWWWKK........",".......KKKWWWWWWWWWWWWKKK.......",".......KKKKKKKWWWWKKKKKKK.......",".......KKKKKKKWWWWKKKKKKK.......",".......KKKKKKKWWWWKKKKKKK.......",".......KKKKKKKWKWWKKKKKKK.......",".......KKKKKKKWKKWKKKKKKK.......",".......KKKWWWWKKKWWWWWKKK.......","........KKWWWWWWWWWWWWKK........","........KKKWKWWKWWKWWKKK........","........KKKWKWWKWWKWWKK.........",".......KKWKWKWWKWWKWWKKKK.......",".....KKKWWWWKKWWWKKKWWKWKK......","....KKWWWWWWWWWWWWWWWWWWWKKK....","....KWWWKKWWWWWWWWWWWWKWWWWKK...","....KWWKKKWWKKWWWKKKWWKKKWWWK...","....KWWK.KWWWWWWWWWWWWK.KKWWK...","...KKWWK.KWWWWWWWWWWWWK..KWWKK..","..KKWWKK.KWWKKWWWKKKWWK..KKWWK..","..KWWWK..KWWWWWWWWWWWWK..KWWWK..","..KWWWK..KWWWWWWWWWWWWK..KWWWK..","..KWWWK..KKKKWKKKKKWKKK..KWWWK..","..KWWWK...KKWWK...KWWK...KWWWK..","..KKKKK..KKWWKK...KKWKK..KKKKK..",".......KKKWWWK.....KWWKK........",".......KWWWKKK.....KWWWKKK......",".......KKWKK.......KKKWWWK......","........KKK..........KKWKK......"]},"zombie":{"name":"僵尸","grid":32,"pal":{"K":"#352741","G":"#79c963","W":"#fff5db","Y":"#ffdb75","H":"#765039","V":"#a788d6"},"rows":["................................","................................","......KKKKKKKKKKKKKKKKKK........","......KKKKKKKKKKKKKKKKKK........","......KKKKKKKKKKKKKKKKKK........","......KKKKKKKKKKKKKKKKKK........",".........KGGGGGGGGGGGGK.........",".........KGGGGGGGGGGGGK.........","........KWWWWWGGGGGGGGGK........","........KWKKWWGGGGGGGGGK........","........KWKKWWGGGGGYYYYY........","........KWWWWWGGGGGYKKYY........","........KGGKKKGGGGGYKKYY........",".........KGGGGGGGGGGGGK.........",".G.......KGGGGHHHHGGGGK......G..",".GGGG....KKGKKKKWWKKKKK....GGG..","GGGGGGGG.KVKKGGGWWGKKVK...GGGGG.","GGGGGGGGKVVVVKKKWWKVVVVKGGGGGGG.","...GGGG.KVVVVVVVVVVVVVGGGGGGG...","......G.KVVVVVVVVVVVVVGGGGG.....","........KVVVVVVVVVVVVVVGGG......",".......KVVVVVVVVVVVVVVVGK.......",".......KVVVVVGGGGGVVVVVVK.......",".......KVVVVVGGGGGVVVVVVK.......","......KVVVVVVGGGGGVVVVVVVK......","......KVVVVVVGGGGGVVVVVVVK......",".......KKVKKKKVVVVVKKKKKK.......",".........KKKKKVVVVVKKKK.........","..........KKKKKKKKKKKKK.........","..........KKKK.....KKKK.........","..........KKKK.....KKKK.........","................................"]},"vampire":{"name":"吸血鬼","grid":32,"pal":{"K":"#352741","W":"#fff5db","R":"#e66b75","H":"#765039"},"rows":["................................","..........KKKKKKKKKKKK..........","..........KKKKKKKKKKKKK.........",".........KKKKKKKKKKKKKK.........",".........KKKKKKKKKKKKKKK........","........KKKWWKKKKKKWWKKK........","........KKWWWWWKKKWWWWK.K.......",".........KWWWWWWKWWWWWK.........","........KWWWWWWWWWWWWWWK........","........KWWWWWWWWWWWWWWK........","........KWWWKKWWWWWWKKWK........","...KK...KWWKKKWWWWWKKKWK....KK..","...KRKK.KWWKKKWWWWWKKKWK..KKRK..","...KRRRKKKWWKKKKWWKKKKK.KKRRRK..","...KRRRRRKWWWKWKHHWKWKKKRRRRRK..","....KRRRRKKWWKWKWWWKWKKRRRRRK...","....KRRRRKKKKWKWWWWKKKKRRRRRK...","....KRRRKKKKKKRRRRRKKKKKRRRRK...","....KRRRKKKKKKRRRRRKKKKKRRRRK...","....KRRRKKKKKKRRRRRKKKKKRRRRK...","....KRRRKKKKKKKKKKKKKKKKRRRRK...",".....KRKKKKKKKKKKKKKKKKKKRRK....",".....KRKKKKKKKKKKKKKKKKKKRRK....",".....KRKKKKKKKKKKKKKKKKKKRRK....",".....KKKKKKKKKKKKKKKKKKKKKRK....",".....KKKKKKKKKKKKKKKKKKKKKRK....",".....KRKKKKKKKKKKKKKKKKKRRRK....","......KRRKKKKKKKKKKKKKKRRRK.....","......KRRRKKKKKKKKKKKKKRRRK.....","......KRRRKKKKRRRRRKKKKRRRK.....","......KKKKKKKKKKKKKKKKKKKKK.....","................................"]},"bug":{"name":"虫子","grid":32,"pal":{"K":"#352741","D":"#397d55","W":"#fff5db","G":"#79c963","Y":"#ffdb75"},"rows":["................................","................................","................................","....KK....................K.....",".....KK..................KKK....",".....KK......KKKKKKK.....KK.....","......KK...KKDDDDDDDKK..KKK.....","......KK..KDDDDDDDDDDDKKKK......",".......KKKDDDDDDDDDDDDDKK.......",".......KKDWKKDDDDDDDWKKDK.......","........KDKKKDDDDDDDKKKDK.......","........KDKKKDDDDDDDKKKDK.......","...D....KDDDDDDDDDDDDDDDK.......","...DDDD.KDDDDDDDDDDDDDDDK....DD.","...D...DDKDDDDDDDDDDDDDK..DDDDD.","..DD.....KKDDDDDDDDDDDKKDD....DD","..D......KGKKDDDDDDDKKGK.......D",".DDD....KGGGGKKKKKKKGGGGK......D","...DDDD.KGGGGGGGDDGGGGGGK....DD.","...D...KGGGKKGGGDDGGGGGGGKDDDDD.","..DD...KGGKYYKGGDDGGGGGGGK....DD","..D....KGGKYYKGGDDGGGGGGGK.....D",".DDD...KGGGKKGGGDDGGGGGGGK.....D","...DDDDKGGGGGGGGDDGGGGGGGK...DD.","...D...DKGGGGGGGDDGGKKGGK.DDDDD.","..DD....KGGGGGGGDDGKYYKGKD....DD","..D......KGGGGGGDDGKYYKK.......D",".DD......KGGGGGGDDGGKKGK.......D","..........KKGGGGDDGGGKK.........","............KKGGDDGKK...........","..............KKKKK.............","................................"]},"dwarf":{"name":"矮人","grid":32,"pal":{"K":"#352741","O":"#dc944b","A":"#adc4d2","W":"#fff5db","S":"#efc18e","T":"#a57248","I":"#4277a0"},"rows":["................................","................................","..........KKKKKKKKKKKK..........","..........KOOOOOOOOOOK..........",".........KOOOOOOOOOOOOK.........",".........KOOOOOOOOOOOOK.........","........KOOOOOOOOOOOOOOK........","........KOOOOOOOOOOOOOOK........",".......KOOOOOOOOOOOOOOOOK.......","AWWWWWWWWWAKKKKKKKKKKKKKK.......","AWWWWWWWWWAWKKSSSSSWKKSK........","AAAAAAAAAAAKKKSSSSSKKKSK........","AAAAAAAAAAAKKKSSSSSKKKSK........","AAAAAAAAAAAKKSSSSSSSKKKK........","AAAAAAAAAAAWWSSSSSSSWWWK........","AAAAAAAAAAAWWSSSSSSSWWWK........","...TTT...KWWWWWWWWWWWWWK........","...TTT..KKWWWWWWWWWWWWWK........","...TTT..KKWWWWWWWWWWWWWK........","...TTT..KIKWWWWWWWWWWWKK........","...TTT..KIKWWWWWWWWWWWKIK.......","...TTT.KIIKWWWWWWWWWWWKIK.......","...TTT.KIIKWWWWWWWWWWWKIK.......","...TTT.KIIKWWWWWWWWWWWKIK.......","...TTTKIIIKWWWWWWWWWWWKIIK......","..TTT.KIIIIKKWWWWWWWKKIIIK......","..TTT..KKIKKKKWWWWWKKKKKK.......","..TTT....KKKKKKKWKKKKKK.........","..TTT.....KKKKKKKKKKKKK.........","..TTT.....KKKK.....KKKK.........","..........KKKK.....KKKK.........","................................"]},"giant":{"name":"巨人","grid":32,"pal":{"K":"#352741","H":"#765039","T":"#a57248","W":"#fff5db","D":"#397d55"},"rows":[".............KKK................","............KHHHKKKK............","...........KKKKKKKKKKKK.........",".........KKTTTTTTTTTKKK.........","........KTTTTTTTTTTTTTK.........","........KTTTTTTTTTTTTTTK........","........KTTTTTTKKKKKTTTK........",".........KTTTTKWWKKWKTTK........",".........KTTTKWWKKKKWKTTK.......",".........KTTTKWWKKKKWKTTK.......",".........KTTTKWWKKKKWKTTK.......",".........KTTTTKWWKKWKTTTTK......",".........KKTTTTKKKKKTTTTTK......","........KTKTTTTTTTTTTTTTK.......","......KKTTKKKKKKKKKKKKKKTK......",".....KTKTTTTTKKKKKKKKKTTKTK.....","....KTTTKTTTTTTTTTKKKTTTKTTK....","...KTTTTTKTTTTTTTTTTTTTKTTTTKK..","..KTTTTTTTKTTTTTTTTTTTKTTTTTTTK.",".KTTTTTTTTKTTTTTTTTTTTKTTTTTTTTK",".KTTTTTTTKTTTTTTTTTTTTTKTTTTTTTK",".KTTTTTTTKTTTTTTTTTTTTTKTTTTTTTK",".KTTTTTTTKTTTTTTTTTTTTTKTTTTTTTK","..KTTTTTKTTTTTTTTTTTTTTTKTTTTTK.","..KTTTTTKDDDDDDDDDDDDDDDDTTTTTK.","..KTTTTTKDDDDDDDDDDDDDDDDTTTTTK.","..KTTTTKKDDDDDDDDDDDDDDDDKTTTTK.","..KKKKKKKDDDDDDDDDDDDDDDDKKKKKK.","........KDDDDDDDDDDDDDDDDK......","........KKKKKK......KKKKKK......","........KKKKKK......KKKKKK......","........KKKKKK......KKKKKK......"]},"dragon":{"name":"龙","grid":32,"pal":{"K":"#352741","Y":"#ffdb75","G":"#79c963","D":"#397d55","W":"#fff5db"},"rows":["................................","................................",".........K............K.........",".........KK.........KKK.........",".........KYK.......KYYK.......K.","..K......KYYKK....KYYYK......KK.","..KK.....KYYYYKKKKKKYYK......KK.","..KK......KYKKGGGGGGKKYK....KDK.","..KDK.....KKGGGGGGGGGGKK....KDK.","..KDDK....KGGGGGGGGGGGGK...KDDK.","..KDDK....KWKKGGGGGGWKKK...KDDK.","..KDDDK..KGKKKGGGGGGKKKGK.KDDDK.","..KDDDDK.KGKKKGGGGGGKKKGKKDDDDK.","..KDDDDDKKGGGGGGGGGGGGGGGGGGGDK.",".KDDDDDDKKGGGGGGGGGGGGGGGGKKGDDK",".KDDDDDDDKKGGGGGGGGGGGGGGGKKGDDK",".KDDDDDDDDKGGGGGGGGGGGGGGGGGGDDK",".KDDDDDDDDKKGGGGGGGGGGGGGGGGGDDK",".KDDDDDDDKGGKKGGGGGGGGGGGGGGGDDK",".KDDDDDDDKGGGGKKKKKGGGGGGGGGGDDK",".KDDDKKDDKGGGGKYYYYKGGGGKDKDDDDK",".KDKK..KDKGGGKYYYYYYKGGGKK.KKDDK",".KK....KDKGGKYYYYYYYYKGGKK...KKK","........KDKGKYYYYYYYYKGKK......K","........KKKGKYYYYYYYYKGGK....GGG",".........K.KGKYYYYYYKGKGGG...GGG","............KGKYYYYKGK.GGGGG.GG.",".............KGKKKKGK....GGGGGG.","........YYYYYYKKKKKK.YYYYYYGGGG.","........YYYYYY.......YYYYYY..G..","........YYYYYY.......YYYYYY.....","................................"]},"dog":{"name":"恶狗","grid":32,"pal":{"K":"#352741","T":"#a57248","H":"#765039","W":"#fff5db","S":"#efc18e"},"rows":["................................",".....K......................K...",".....KK....................KK...",".....KTK..................KTK...",".....KTTK................KTTK...",".....KTTTKK.............KTTTK...",".....KKTTTTK..KKKKKK...KTTKKK...",".....KHKKTTKKKTTTTTTKKKTKKHKK...",".....KHHHKKTTTTTTTTTTTTKHHHKK...","....KHHHHHHKTTTTTTTTTTTKHHHHK...","....KHHHHHHKTTTTTTTTTTTKHHHHK...","....KHHHHHHKTTTTTTTTTTTKHHHHK...","....KHHHHHWKKTTTTTTTTWKKHHHHK...","....KHHHHHKKKTTTTTTTTKKKHHHHHK..","....KHHHHHKKKTTTTTTTTKKKHHHHHK..","...KHHHHHHKTTTTTTTTTTTTTKHHHHK..","...KHHHHHHKTTTTKKKKKTTTTKHHHHK..","...KHHHHHHKTTKKKKKKKKKTTKHHHHK..","...KKHHHHKTTKSSSKKKSSSKTKHHHHHK.",".....KKKHKTKSSSSKKKSSSSKKHHHHHK.",".......KKKTKSSSSSKSSSSSKKKKKKKK.",".......KTTKTKSSSSSSSSSKKTK......",".......KTTTKKKKSSSSSKKKTTK......",".......KTTTTTTKKKKKKTTTTTK......","........KTTTTTTTTTTTTTTTK.......","........TTTTTTTTTTTTTTTTTT......","........TTTTTTTTTTTTTTTTTT......","........TTTTTTTTTTTTTTTTTT......","........TTTTTTKKKKKKTTTTTT......","........TTTTTT......TTTTTT......","........TTTTTT......TTTTTT......","................................"]},"whitecat":{"name":"白猫","grid":32,"pal":{"K":"#352741","W":"#fff5db","P":"#ffb9c0","N":"#b8a5ab"},"rows":["................................",".....K......................K...",".....KK....................KK...",".....KWK..................KWK...",".....KWWK................KWWK...",".....KWWKKK.............KKWWK...",".....KWWKKWK..KKKKKK...KKKWWK...",".....KWWKPKKKKWWWWWWKKKKPKWWK...","......KWKPKWWWWWWWWWWWWKPKWWK...","......KWKKKKWWWWWWWWWWKKKKWK....","......KWKWWWWWWWWWWWWWWWWKWK....","......KKWWWWWWWWWWWWWWWWWWKK....","......KWWWWKKWWWWWWWWWKKWWWK....","......KWWWKKKWWWWWWWWKKKWWWK....","......KWWWKKKWWWWWWWWKKKWWWK....","......KWWWWWWWWWWWWWWWWWWWWK....","......KWWWWWWWWKKKKKWWWWWWWK....","......KWWWWWWKKKKKKKKKWWWWWK.WWW","...NNNNKWWWWKPPPKKKPPPKWWWKNNNNW",".......NNNNNPPPPKKKPPPPNNNN..WWW",".......KWKWKPPPPPKPPPPPKKK...WW.",".......KWWKWKPPPPPPPPPKKWK..WWW.",".......KWWWKKKKPPPPPKKKWWK..WWW.",".......KWWWWWWKKKKKKWWWWWWWWWWW.","........KWWWWWWWWWWWWWWWWWWWWW..","........WWWWWWWWWWWWWWWWWW......","........WWWWWWWWWWWWWWWWWW......","........WWWWWWWWWWWWWWWWWW......","........WWWWWWKKKKKKWWWWWW......","........WWWWWW......WWWWWW......","........WWWWWW......WWWWWW......","................................"]},"thief":{"name":"盗窃者","grid":32,"pal":{"K":"#352741","D":"#397d55","S":"#efc18e","W":"#fff5db","Y":"#ffdb75"},"rows":["................................","................................",".............KKKKKK.............","...........KKDDDDDDKK...........","..........KDDDDDDDDDDK..........",".........KDDDDDDDDDDDDK.........","........KDDDDDDDDDDDDDDK........",".......KDDDDDDDDDDDDDDDDK.......",".......KDSSSSSSSSSSSSSSDK.......",".......KDSSSSSSSSSSSSSSDK.......",".......KDKKWWKKKKKKWWKKDK.......",".......KDKKKKKKKKKKKKKKDK.......","........KSSSSSSSSSSSSSSK......K.",".........SSSSSSSSSSSSSS......KK.",".......K.KKDDDDDDDDDDKK.....KK..",".......K.KKKKDDDDDDKKKK....KWK..",".......KKKDKKKKKKKKKKDK...KWWK..","......KDKDDDDKKKKKKDDDDK.KWWWK..","......KDDKDDDDDDDDDDDDDK.KWWK...","......KDDKDDDDDDDDDDDDDK..KWK...","......KDDDKDDDDDDDDDDDDDK.KWK...","......KDDDKDDDDDDDDDDDDDK.KWK...",".....KDDDDDKDDDDDDDDDDDDK.KK....",".....KDDDDDYYYYYYYYYYYYDK..K....",".....KDDDDDYYYYYYYYYYYYDDK.K....",".....KDDDDDDKDDDDDDDDDDDDK......",".....KDDDDKKKKDDDDDKKKKKK.......",".....KDDKKKKKKDDDDDKKKK.........","....KDDK..KKKKKKKKKKKKK.........","....KKK...KKKK.....KKKK.........","....K.....KKKK.....KKKK.........","................................"]},"robot":{"name":"机器人","grid":32,"pal":{"K":"#352741","R":"#e66b75","A":"#adc4d2","I":"#4277a0","B":"#72c7e7","Y":"#ffdb75"},"rows":["...............KKK..............","..............KRRRK.............","..............KRRRK.............","...............KKK..............",".......KKKKKKKKAAKKKKKKKKK......",".......KAAAAAAAAAAAAAAAAAK......",".......KAAAAAAAAAAAAAAAAAK......",".......KAAAAAAAAAAAAAAAAAK......",".......KAAIIIIIIIIIIIIIAAK......",".......KAAIBBBIIIIIBBBIAAK......",".......KAAIBBBIIIIIBBBIAAK......",".......KAAIIIIIIIIIIIIIAAK......",".......KAAIIIIIIIIIIIIIAAK......",".......KAAAAAAAAAAAAAAAAAK......",".......KAAAAAAAAAAAAAAAAAK......",".......KAAAAAAAAAAAAAAAAAK......",".......KKKKKKKKKKKKKKKKKKK......","........AAAAAAAAAAAAAAAAA.......","..AAAAA.AAAAAAAAAAAAAAAAA.AAAAA.","..AAAAA.AAAAIIIIIIIIIAAAA.AAAAA.","..AAAAA.AAAAIIIYYYIIIAAAA.AAAAA.","..AAAAA.AAAAIIIYYYIIIAAAA.AAAAA.","..AAAAA.AAAAIIIYYYIIIAAAA.AAAAA.","..AAAAA.AAAAIIIYYYIIIAAAA.AAAAA.","..AAAAA.AAAAIIIIIIIIIAAAA.AAAAA.","..AAAAA.AAAAAAAAAAAAAAAAA.AAAAA.","..AAAAA.AAAAAAAAAAAAAAAAA.AAAAA.","........AAAAAAAAAAAAAAAAA.......",".........KKKKK......KKKKK.......",".........KKKKK......KKKKK.......",".........KKKKK......KKKKK.......",".........KKKKK......KKKKK......."]},"flame2":{"name":"火焰","grid":32,"pal":{"K":"#352741","B":"#72c7e7","W":"#fff5db"},"rows":["................................","....................K...........","....................K...........","...................KBK..........",".......K...........KBK..........",".......KK.........KBBK..........",".......KBK........KBBBK.........",".......KBBK......KBBBBK.........",".......KBBBK.....KBBBBK.........","........KBBBK...KBBBBBK.........","........KBBBBK..KBBBBBBK........","........KBBBBBKKBBBBKBBK.....K..","........KBBBBBBKBBBBKBBK...KKK..",".......KBBBBBBBBBBBKWKBBKKKBBK..",".......KBBBBBBBBBBBKWKBBKBBBBK..","......KBBBBBBBBBBBKWWKBBBBBBBK..",".....KBBBBBBBBBBBBKWWWKBBBBBBK..","....KBBBBBBKBBBBBBKWWWKBBBBBBK..","....KBBBBBBKKBBBBKWWWWWKBBBBBBK.","...KBBBBBBWKKKKBBKWWWKKKBBBBBBK.","..KBBBBBBBKKKWWKKWWWKKKKBBBBBBK.","..KBBBBBBBKKKWWWKWWWKKKWKBBBBBK.","..KBBBBBBKWWWWWWWWWWWWWWKBBBBBK.","..KBBBBBBKWWWWWWWWWWWWWWKBBBBBK.","...KBBBBBKWWWWWWWWWWWWWWWKBBBBK.","...KBBBBKWWWWWWWWWWWWWWWWKBBBBK.","...KBBBBKWWWWWWWWWWWWWWWKBBBKK..","...KBBBBBKKWWWWWWWWWWWKKBBBK....","....KKBBBBBKWWWWWWWWWKBBBBK.....","......KKBBBBKKKKKKKKKBBBKK......","........KKKKKKKKKKKKKKKK........","................................"]},"demon":{"name":"恶魔","grid":32,"pal":{"K":"#352741","Y":"#ffdb75","U":"#61478c","W":"#fff5db"},"rows":["................................",".......K.................K......",".......KK...............KK......",".......KYK.............KYK......",".......KYYK............KYK......",".......KYYYK..KKKKK...KYYK......","........KYYYKKUUUUUKKKYYYK......","........KYYKUUUUUUUUUKYYK.......","........KYKUUUUUUUUUUUKYK.......",".K......KKUUUUUUUUUUUUUKK......K",".KK.....KUWKKUUUUUUUWKKUK.....KK",".KUK....KUKKKUUUUUUUKKKUK....KUK",".KUUK...KUKKKUUUUUUUKKKUK...KUUK",".KUUUK..KUUUUUUUUUUUUUUUK..KUUUK",".KUUUUK.KUUUUUUUUUUUUUUUK.KUUUUK",".KUUUUUKKUUUUUUUUUUUUUUUKKUUUUUK",".KUUUUUUKKUUKKKKUUKKKKUKKUUUUUUK",".KUUUUUUUKKUUKWKUUUKWKKKUUUUUUUK",".KUUUUUUUKUKUKKUUUUKKKUKUUUUUUUK",".KUUUUUUUKUUKKKUUUUKKUUKUUUUUUUK",".KUUUUUUUKUUUUKKKKKUUUUKUUUUUUUK",".KUUUUKUUKUUUUUUUUUUUUUKUUKUUUUK",".KUUKK.KUKUUUUUUUUUUUUUKUK.KKUUK",".KKK...KUKUUUUUUUUUUUUUKUK...KKK",".K......KKKUUUUUUUUUUUKKK......K","........KKKUUUUUUUUUUUKKK.......",".........K.KUUUUUUUUUK.K........",".........KKKKKUUUUUKKKKK........","..........KKKKKKKKK.KKKK........","..........KKKK......KKKK........","..........KKKK......KKKK........","................................"]},"darkwizard":{"name":"黑巫师","grid":32,"pal":{"K":"#352741","U":"#61478c","V":"#a788d6","Y":"#ffdb75","T":"#a57248"},"rows":["................KKKK............",".............KKKUUUK............","............KUUUUUUUK...........","...........KUUUUUUUUK.......KK..","...........KUUUUUUUUK......KVVK.","..........KUUUUUUUUUUK....KVVVVK",".........KUUUUUUUUUUUK....KVVVVK","........KUUUUUUUUUUUUK....KVVVVK","........KUYYYYYYYYYYYYYY..KVVVVK",".......KUUYYYYYYYYYYYYYY...KVVK.","......KKKKYYYYYYYYYYYYYYKK..KK..","..........KKKKKKKKKKKKKKKKKKTT..","..........KKYYYKKKKYYYK.....TT..","..........KKYYYKKKKYYYK.....TT..",".........KKKKKKKKKKKKKKK....TT..",".........KUKKKKKKKKKKKUK....TT..",".........KUKKKKKKKKKKKUK....TT..",".........KUUKKKKKKKKKUUK....TT..","........KUUUUUKKKKKUUUUUK...TT..","........KUUUUUUUUUUUUUUUK...TT..","........KUUUUUUUUUUUUUUUK...TT..","........KUUUUUUUUUUUUUUUUK..TT..",".......KUUUUUUUUUUUUUUUUUK..TT..",".......KUUUUUUUUUUUUUUUUUK..TT..",".......KUUUUUUUUUUUUUUUUUK..TT..","......KUUUUUUUYYYYYUUUUUUUK.TT..","......KUUUUUUUYYYYYUUUUUUUK.TT..","......KUUUUUUUYYYYYUUUUUUUK.TT..","......KUUUUUUUUUUUUUUUUUUUK.TT..",".....KUUUUUUUUUUUUUUUUUUUUUKTT..",".....KKKKKKKKKKKKKKKKKKKKKKK....","................................"]},"bear":{"name":"大熊","grid":32,"pal":{"K":"#352741","H":"#765039","W":"#fff5db","S":"#efc18e"},"rows":["................................","................................","................................",".......KKK..............KKK.....",".....KKHHHKK..........KKHHHKK...",".....KHHHHHK..........KHHHHHK...","....KHHHHHHHKKKKKKKK.KHHHHHHHK..","....KHHHHHKKKHHHHHHHKKKHHHHHHK..","....KHHHHKHHHHHHHHHHHHHKHHHHHK..",".....KHHKHHHHHHHHHHHHHHHKHHHK...",".....KKKHHHHHHHHHHHHHHHHHKHKK...","......KHHHHHHHHHHHHHHHHHHHK.....","......KHHHWKKHHHHHHHHWKKHHK.....",".....KHHHHKKKHHHHHHHHKKKHHHK....",".....KHHHHKKKHHHHHHHHKKKHHHK....",".....KHHHHHHHHHHHHHHHHHHHHHK....",".....KHHHHHHHHHKKKKKHHHHHHHK....",".....KHHHHHHHKKKKKKKKKHHHHHK....","......KHHHHHKSSSKKKSSSKHHHK.....","......KHHHHKSSSSKKKSSSSKHHK.....",".......KHHHKSSSSSKSSSSSKHK......",".......KKHHHKSSSSSSSSSKHKK......",".......KHKHHHKKSSSSSKKHKHK......",".......KHHKKKHHKKKKKKKKHHK......","........KHHHHKKKKKKKHHHHK.......","........HHHHHHHHHHHHHHHHHH......","........HHHHHHHHHHHHHHHHHH......","........HHHHHHHHHHHHHHHHHH......","........HHHHHHKKKKKKHHHHHH......","........HHHHHH......HHHHHH......","........HHHHHH......HHHHHH......","................................"]},"swordsman2":{"name":"刀客","grid":32,"pal":{"K":"#352741","Y":"#ffdb75","W":"#fff5db","S":"#efc18e","H":"#765039","R":"#e66b75"},"rows":["................................","................................","...........................K....","...KK.....KKKKKKKKKKKK...KKK....","....KKKK.KKKKKKKKKKKKKK.KYYK....",".....KYYKKKKKKKKKKKKKKKKYYK.....",".....KYYYYKKKKKKKKKKKKKYYYK.....","......KYYYYKKKKKKKKKKKKKYYK.....",".......KKKKKKKKKKKKKKKKKKKK.....","......KKKKKKKKKKKKKKKKKKKKK..WW.",".......WWSKKKKKKKKKKKKKK.....WW.",".......WWSKKKKKKKKKKKKKK....WW..","......WWKSSKKKSSSSSKKKSK....WW..","......WW.KSSSSSSSSSSSSK.....WW..","......WW.KSSSSHHHHSSSSK....WW...",".....WW..KKSSSSSSSSSSKK....WW...",".....WW..KRKKSSSSSSKKRK....WW...",".....WW.KRRRRKKKKKKRRRRK..WW....","....WW..KRRRRRRRRRRRRRRK..WW....","....WW..KRRRRRRRRRRRRRRK.WW.....","....WW..KRRRRRRRRRRRRRRRKWW.....","...WW..KRRRRRRRRRRRRRRRRKWW.....","...WW..KRRRRRRRRRRRRRRRRWW......","...WW..KRRRRRRRRRRRRRRRRWW......","..WW..KRRRRRRRRRRRRRRRRRWW......","..WW..KRRRRRRRRRRRRRRRRWWK......","..WW...KKRKKKKRRRRRKKKKWW.......",".WW......KKKKKRRRRRKKKK.........",".WW.......KKKKKKKKKKKKK.........","..........KKKK.....KKKK.........","..........KKKK.....KKKK.........","................................"]},"strongman":{"name":"大力士","grid":32,"pal":{"K":"#352741","H":"#765039","S":"#efc18e","W":"#fff5db","T":"#a57248","R":"#e66b75","Y":"#ffdb75"},"rows":["................................","................................","..............KKKKK.............","...........HHHHHHHHHHH..........","...........HHHHHHHHHHH..........","..........KHHHHHHHHHHHK.........",".........KKSSSSSSSSSSSK.........",".........KSSSSSSSSSSSSSK........","........KKSSSSSSSSSSSSSK........","........KKSSSSSSSSSSSSSK........","........KKSWKKSSSSSWKKSK........","........KKSKKKSSSSSKKKSK........","........KSKKKKSSSSSKKKKK........",".....KKKKKKSSSSSSSSSSSKKKKKK....","....KSSSSSKKSSSSSSSSSKKSSSSSK...","...KSSSSSSKSKKSSSSSKKSKSSSSSSK..","..KSSSSSSKSSSSKKKKKSSSSKSSSSSSK.","..KSSTSSKSSTSSSSSSSSSSTSKSSSTSK.","..KSSSTSKSTSSSSSSSSSSSSTKSSTSSK.","..KSSSSTKTSSSSSSSSSSSSSSTSTSSSK.","..KSSSSSTSSSSSSSSSSSSSSSKTSSSSK.","...KSSSSKSSSSSSSSSSSSSSSKSSSSK..","....KSSSKSSSSSSSSSSSSSSSKSSSK...",".....KKKKKSSSSSSSSSSSSSKKKKK....","......KHHHKSSSSSSSSSSSKHHK......","......KHRRRRRRYYYYYRRRRRRK......",".......KRRRRRRYYYYYRRRRRR.......","........RRRRRRYYYYYRRRRRR.......","........RRRRRRRRRRRRRRRRR.......","..........KKKK.....KKKK.........","..........KKKK.....KKKK.........","................................"]}};
 /* 调色板补全：个别精灵的嘴巴(O)/眼白(W)/瞳孔(B)/腮红(P) 未单独定义时给出同风格默认值 */
 const PAL_FALLBACK={O:"#7a2a3a",W:"#ffffff",B:"#3d1a4d",P:"#ffb3d1"};
 Object.keys(SPRITES).forEach(k=>{
@@ -2201,6 +1677,7 @@ function paletteExtreme(sp, wantDark){
 }
 /* 表情像素：返回 [x,y,颜色]，直接落在精灵自身的 16×16 网格上 */
 function expressionPixels(sp, mood, key){
+  if(sp.grid===32) return mood==="proud"?[]:mood==="tense"?[[25,6,"#72c7e7"],[25,7,"#72c7e7"]]:[[7,15,"#72c7e7"],[7,16,"#72c7e7"],[24,15,"#72c7e7"],[24,16,"#72c7e7"]];
   const e=spriteEyes(sp, key);
   if(!e) return [];
   const ink=paletteExtreme(sp,true), lite=paletteExtreme(sp,false), tear="#5cc8ff";
@@ -2232,7 +1709,7 @@ function expressionPixels(sp, mood, key){
 function monsterHTML(key, boss, mood){
   const sp=SPRITES[key]||SPRITES.imp;
   const size=boss?112:88;
-  let svg='<svg viewBox="0 0 16 16" width="'+size+'" height="'+size+'" shape-rendering="crispEdges" aria-label="'+sp.name+'">';
+  let svg='<svg viewBox="0 0 '+(sp.grid||16)+' '+(sp.grid||16)+'" width="'+size+'" height="'+size+'" shape-rendering="crispEdges" aria-label="'+sp.name+'">';
   const px=mood?expressionPixels(sp, mood, key):[];
   sp.rows.forEach((row,y)=>{
     for(let x=0;x<row.length;x++){
@@ -3540,15 +3017,42 @@ function rollLucky(){
     spawnParticles(dc.x,dc.y,"#ffffff",8);                   /* 白色闪光粒子 */
   }
 }
+function spacedRandom(pool,history,keyOf,gap=6){
+  const unique=[...new Map(pool.map(v=>[keyOf(v),v])).values()];
+  if(!unique.length)return undefined;
+  let candidates=[];
+  for(let distance=gap;distance>=0;distance--){
+    const blocked=new Set(distance?history.slice(-distance):[]);
+    candidates=unique.filter(v=>!blocked.has(keyOf(v)));
+    if(candidates.length)break;
+  }
+  // 先覆盖未出现的词，之后在满足间隔的候选中随机。
+  const fresh=candidates.filter(v=>!history.includes(keyOf(v)));
+  const chosen=pick(fresh.length?fresh:candidates);
+  history.push(keyOf(chosen));
+  if(history.length>64)history.splice(0,history.length-64);
+  return chosen;
+}
+function pickSpacedWord(pool){
+  S.wordHistory=S.wordHistory||[];
+  return spacedRandom(pool,S.wordHistory,w=>w.w,6);
+}
 function pickAnchor(){
   let anchors=Object.keys(ANCHORS).filter(a=>ANCHORS[a].size>=1);
   const lvl=(S.floor-1)*5+S.step+1;
-  if(lvl<=3){
-    const easy=anchors.filter(a=>ANCHORS[a].size<=2);
-    if(easy.length) anchors=easy;
+  if(lvl<=3){const easy=anchors.filter(a=>ANCHORS[a].size<=2);if(easy.length)anchors=easy;}
+  if(S.mode==="cards"){
+    const history=S.wordHistory||[];
+    for(let gap=Math.min(6,history.length);gap>0;gap--){
+      const recent=new Set(history.slice(-gap));
+      const eligible=anchors.filter(a=>[...ANCHORS[a].values()].some(w=>!recent.has(w.w)));
+      if(eligible.length){anchors=eligible;break;}
+    }
   }
-  return pick(anchors);
+  S.anchorHistory=S.anchorHistory||[];
+  return spacedRandom(anchors,S.anchorHistory,a=>a,6);
 }
+
 function buildBag(){
   const list=S.enemy.list;
   /* 答案牌占比：可搭配字少时提高，保证牌库里找得到 */
@@ -3585,8 +3089,7 @@ const PRACTICE_BOSS_BLOCKED=new Set(["redimmune","oddimmune","min20"]);
 const PRACTICE_EN={"微信":"WeChat","支付宝":"Alipay","认识":"to know someone","高兴":"happy","贵姓":"May I have your surname?","上课":"to attend class","学习":"to study","留学生":"international student","老师":"teacher","医生":"doctor"};
 const isPractice=()=>S.mode!=="cards";
 function makeQuestion(){
-  const previous=S.question && S.question.word.w;
-  const word=pick(WORDS.filter(o=>o.w!==previous));
+  const word=pickSpacedWord(WORDS);
   const index=Math.floor(Math.random()*word.w.length);
   const answer=S.mode==="recognize"?word.w:word.w[index];
   let distractor;
@@ -3678,7 +3181,7 @@ function spawnEnemy(){
 
   S.enemy={anchor, companions, list, hp, maxHp:hp, atk, boss, trait, ability,
     revealed:[], lives:(boss&&ability==="twolives")?2:0, letter,
-    hintWord:pick([...companions.values()])};
+    hintWord:isPractice()?null:pickSpacedWord([...companions.values()])};
 
   // 像素怪物形象
   let sprite;
@@ -3740,7 +3243,7 @@ function startGauntlet(){
   S.enemy.companions=ANCHORS[anchor];
   S.enemy.list=[...ANCHORS[anchor].keys()];
   S.enemy.revealed=[];
-  S.enemy.hintWord=pick([...S.enemy.companions.values()]);
+  S.enemy.hintWord=pickSpacedWord([...S.enemy.companions.values()]);
   S.enemy.trait=null; S.enemy.ability=null; S.enemy.lives=0;
   S.enemy.boss=false;
   S.handsBase=Infinity; S.hands=Infinity;
@@ -5305,7 +4808,7 @@ function introCard(x,y,letter,color,angle=0,w=32,h=43){
 function introMonster(key,x,y,size){
   const art=SPRITES[key];let pixels='';
   art.rows.forEach((row,py)=>[...row].forEach((c,px)=>{if(c!=='.'&&art.pal[c])pixels+='<rect x="'+px+'" y="'+py+'" width="1" height="1" fill="'+art.pal[c]+'"/>';}));
-  return '<g transform="translate('+x+' '+y+') scale('+size/16+')" shape-rendering="crispEdges">'+pixels+'</g>';
+  return '<g transform="translate('+x+' '+y+') scale('+size/(art.grid||16)+')" shape-rendering="crispEdges">'+pixels+'</g>';
 }
 function introArrow(x,y,color,reverse=false){
   return '<g transform="translate('+x+' '+y+')'+(reverse?' rotate(180)':'')+'"><path d="M-12 0H9m-5-5 6 5-6 5" fill="none" stroke="'+color+'" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g>';
