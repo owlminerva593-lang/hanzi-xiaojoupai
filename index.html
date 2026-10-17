@@ -4055,9 +4055,8 @@ $("btn-understood").addEventListener("click",()=>{
   if(!S.waitingAnswer) return;
   cancelAnswerReview(); S.paused=false;
 });
-function playerAttackLevel(cards,enemy){
-  const correct=cards.filter(c=>!c.stone).every(c=>enemy.companions.has(c.c));
-  return correct?Math.min(7,S.combo+1):1;
+function playerAttackLevel(){
+  return 1+Math.floor(Math.random()*7);
 }
 async function animatePlayerAttack(level,from,to,cards,serial){
   const layer=$("combat-flight-layer"),nodes=[],animations=[];
@@ -4160,7 +4159,7 @@ async function playSelected(){
   await combatWait(COMBAT_TIMING.charge);
   if(serial!==S.runSerial || !S.running){source.classList.remove("charging");enemyEl.classList.remove("targeted");return;}
   const from=center(source), to=center($("monster"));
-  const attackLevel=playerAttackLevel(cards,enemy);
+  const attackLevel=playerAttackLevel();
   try{
     await animatePlayerAttack(attackLevel,from,to,cards,serial);
   }finally{
