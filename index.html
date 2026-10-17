@@ -2306,10 +2306,67 @@ let audioHinted=false;
   addEventListener(ev, ()=>{ if(!audioRunning()) unlockAudio(); }, {capture:true, passive:true}));
 addEventListener("focus",()=>{ if(!audioRunning()) unlockAudio(); });
 document.addEventListener("visibilitychange",()=>{
-  if(document.hidden){stopBGM();try{if(AC) AC.suspend();speechSynthesis.cancel();}catch(e){}}
+  if(document.hidden){stopWeaponAudio();stopBGM();try{if(AC) AC.suspend();speechSynthesis.cancel();}catch(e){}}
   else if(S.running && !S.muted){unlockAudio();ensureBGM();}
 });
-addEventListener("pagehide",()=>{stopBGM();try{if(AC)AC.suspend();speechSynthesis.cancel();}catch(e){}});
+addEventListener("pagehide",()=>{stopWeaponAudio();stopBGM();try{if(AC)AC.suspend();speechSynthesis.cancel();}catch(e){}});
+const weaponAudioVoices=new Set();
+function stopWeaponAudio(){
+  for(const voice of [...weaponAudioVoices]) voice.stop();
+}
+function playWeaponAudio(kind,reduced=false){
+  if(S.muted || document.hidden) return;
+  const a=ac();if(!a)return;
+  const scale=reduced?.12:1;
+  function voice(noise,start,duration,f0,f1,volume,type='triangle'){
+    const t=a.currentTime+start*scale,d=Math.max(.025,duration*scale);
+    const src=noise?a.createBufferSource():a.createOscillator();
+    const filter=a.createBiquadFilter(),gain=a.createGain();
+    if(noise){
+      const buffer=a.createBuffer(1,Math.ceil(a.sampleRate*d),a.sampleRate),data=buffer.getChannelData(0);
+      for(let i=0;i<data.length;i++)data[i]=Math.random()*2-1;
+      src.buffer=buffer;filter.type='bandpass';filter.Q.value=.7;
+    }else{src.type=type;filter.type='lowpass';filter.frequency.value=5000;}
+    const frequency=noise?filter.frequency:src.frequency;
+    frequency.setValueAtTime(f0,t);frequency.exponentialRampToValueAtTime(f1,t+d);
+    gain.gain.setValueAtTime(.0001,t);
+    gain.gain.exponentialRampToValueAtTime(volume,t+Math.min(.012,d*.2));
+    gain.gain.exponentialRampToValueAtTime(.0001,t+d);
+    src.connect(filter);filter.connect(gain);gain.connect(a.destination);
+    let ended=false;
+    const cleanup=()=>{if(ended)return;ended=true;src.disconnect();filter.disconnect();gain.disconnect();weaponAudioVoices.delete(handle);};
+    const handle={stop(){try{src.stop();}catch(e){}cleanup();}};
+    weaponAudioVoices.add(handle);src.onended=cleanup;
+    src.start(t);src.stop(t+d+.015);
+  }
+  const hiss=(t,d,f0,f1,v)=>voice(true,t,d,f0,f1,v);
+  const pitch=(t,d,f0,f1,v,type)=>voice(false,t,d,f0,f1,v,type);
+  switch(kind){
+    case 1:
+      hiss(0,.30,1800,450,.11);pitch(.34,.09,210,80,.09);break;
+    case 2:
+      pitch(0,.25,170,300,.045);pitch(.26,.16,1050,220,.10);
+      hiss(.26,.26,4500,1000,.12);pitch(.52,.10,180,65,.13);break;
+    case 3:
+      hiss(.38,.24,500,2800,.19);pitch(.57,.19,150,38,.20);
+      hiss(.57,.18,1800,200,.18);pitch(.58,.20,1400,850,.045,'sine');break;
+    case 4:
+      for(let i=0;i<6;i++){
+        const t=.1+i*.095;hiss(t,.065,3200,650,.16);pitch(t,.07,170,55,.085,'square');
+      }break;
+    case 5:
+      hiss(.02,.54,5500,3000,.045);pitch(.64,.30,125,28,.24);
+      hiss(.64,.30,2200,100,.30);break;
+    case 6:
+      pitch(0,.29,320,1500,.05,'sine');pitch(.30,.44,2300,170,.12,'sawtooth');
+      pitch(.30,.39,3400,480,.045,'sine');hiss(.50,.20,2600,500,.08);break;
+    case 7:
+      pitch(0,.64,90,620,.09,'sine');pitch(.1,.54,135,930,.045);
+      hiss(.12,.52,180,2600,.09);pitch(.66,.58,180,52,.17,'sawtooth');
+      hiss(.66,.58,1600,220,.23);pitch(.96,.28,110,32,.13);break;
+  }
+}
+
 function tone(f,d,type,vol,when){
   if(S.muted) return; const a=ac(); if(!a) return;
   const t=a.currentTime+(when||0), o=a.createOscillator(), g=a.createGain();
@@ -4088,6 +4145,7 @@ async function animatePlayerAttack(level,from,to,cards,serial){
     anim(n,[{transform:`translateY(-50%) rotate(${angle}deg) scaleX(0)`,opacity:0},{transform:`translateY(-50%) rotate(${angle}deg) scaleX(1)`,opacity:1,offset:.24},{transform:`translateY(-50%) rotate(${angle}deg) scaleX(1) scaleY(.7)`,opacity:1}],time,delay);
   }
   try{
+    playWeaponAudio(level,reduced);
     if(reduced){ring(to.x,to.y,'#fff2a5',90);}
     else if(level===1){
       const n=node(from.x,from.y,'',80,64);n.className='word-projectile';n.style.width='';n.style.height='';
@@ -4098,21 +4156,21 @@ async function animatePlayerAttack(level,from,to,cards,serial){
       anim(bow,[{transform:`translate(-50%,-50%) rotate(${angle}deg) scale(.7)`,opacity:0},{opacity:1,offset:.18},{transform:`translate(-50%,-50%) rotate(${angle}deg) scale(1.1)`,opacity:1,offset:.45},{opacity:0}],620);
       projectile(svg(104,24,'<path d="M4 12H83" stroke="#fff2c9" stroke-width="5"/><path d="M80 2L103 12L80 22Z" fill="#a5f4ff" stroke="#4d5670" stroke-width="2"/><path d="M6 3L22 12L6 21" stroke="#fa848e" stroke-width="6"/>'),104,24,260,360);
       ring(to.x,to.y,'#ffe793',90,440);
-      tone(880,.08,'triangle',.04,.2);
+      
     }else if(level===3){
       const blade=node(to.x,to.y-65,svg(100,190,'<path d="M50 3L72 33L63 130H37L28 33Z" fill="#c3ecff" stroke="#453850" stroke-width="5"/><path d="M50 10V125" stroke="white" stroke-width="6"/><path d="M16 132H84V145H16Z" fill="#ffcb60" stroke="#55385e" stroke-width="4"/><path d="M42 145H58V183H42Z" fill="#a55773" stroke="#55385e" stroke-width="4"/>'),100,190);
       blade.style.transformOrigin='50% 95%';
       anim(blade,[{transform:'translate(-50%,-80%) rotate(-115deg) scale(.7)',opacity:0},{transform:'translate(-50%,-90%) rotate(-135deg) scale(1.2)',opacity:1,offset:.5},{transform:'translate(-50%,-30%) rotate(30deg) scale(1.2)',opacity:1,offset:.92},{opacity:0}],780);
       const slash=node(to.x,to.y,svg(230,190,'<path d="M18 7Q175 40 202 174Q128 94 18 7" fill="#fff0b1"/><path d="M29 12Q170 57 194 160" stroke="white" stroke-width="10"/>'),230,190);
       anim(slash,[{opacity:0,transform:'translate(-50%,-50%) scale(.3)'},{opacity:1,offset:.6},{opacity:0,transform:'translate(-50%,-50%) scale(1.1)'}],220,560);
-      tone(100,.22,'sawtooth',.035,.5);
+      
     }else if(level===4){
       const gun=node(from.x,from.y,svg(108,56,'<path d="M5 17H74V36H5Z" fill="#576781" stroke="#322940" stroke-width="4"/><path d="M69 21H105V31H69Z" fill="#b5d5db"/><path d="M28 35L21 53H42L48 35" fill="#845c6e"/><path d="M44 6H61V17H44Z" fill="#ffcf75"/>'),108,56);
       anim(gun,Array.from({length:13},(_,i)=>({transform:`translate(calc(-50% + ${i%2?-6:0}px),-50%) rotate(${angle}deg)`,opacity:i===12?0:1})),860);
       for(let i=0;i<6;i++){
         projectile(svg(60,12,'<path d="M0 6H42" stroke="#ffbd3d" stroke-width="4"/><path d="M37 1H53L60 6L53 11H37Z" fill="#fff7ae"/>'),60,12,100+i*95,285,(i%3-1)*12);
         ring(to.x+(i%2?12:-12),to.y+(i%3-1)*13,'#ffd45d',44,330+i*95);
-        tone(120+i*9,.035,'sawtooth',.025,(100+i*95)/1000);
+        
       }
     }else if(level===5){
       const bomb=node(from.x,from.y,svg(72,82,'<path d="M40 17Q70 3 61 24" stroke="#eeb879" stroke-width="5"/><path d="M57 4L67 14M66 3L57 16" stroke="#ffdc62" stroke-width="4"/><path d="M27 17H46V30H27Z" fill="#a5a6b6"/><circle cx="36" cy="51" r="27" fill="#38374f" stroke="#202b3e" stroke-width="4"/><path d="M19 46Q18 33 30 32" stroke="#a1b7d1" stroke-width="6"/>'),72,82);
@@ -4122,13 +4180,13 @@ async function animatePlayerAttack(level,from,to,cards,serial){
         const a=i*Math.PI*2/9,n=node(to.x,to.y,svg(54,54,'<circle cx="27" cy="27" r="25" fill="#ff8c48"/><circle cx="27" cy="27" r="17" fill="#ffe26e"/><circle cx="24" cy="24" r="9" fill="#fff7d2"/>'),54,54);
         anim(n,[{transform:'translate(-50%,-50%) scale(.2)',opacity:0},{opacity:1,offset:.2},{transform:`translate(calc(-50% + ${Math.cos(a)*85}px),calc(-50% + ${Math.sin(a)*65}px)) scale(1.8)`,opacity:0}],320,640);
       }
-      ring(to.x,to.y,'#ffcb57',210,650);tone(65,.3,'sawtooth',.04,.64);
+      ring(to.x,to.y,'#ffcb57',210,650);
     }else if(level===6){
       ring(from.x,from.y,'#ff91ef',82);
       const sight=node(to.x,to.y,svg(88,88,'<circle cx="44" cy="44" r="29" stroke="#ff9eea" stroke-width="3"/><path d="M44 0V24M44 64V88M0 44H24M64 44H88" stroke="#fff1ff" stroke-width="4"/>'),88,88);
       anim(sight,[{transform:'translate(-50%,-50%) rotate(0) scale(1.6)',opacity:0},{transform:'translate(-50%,-50%) rotate(90deg) scale(1)',opacity:1,offset:.45},{opacity:0}],780);
       beam('#ef76ff',12,300,480);ring(to.x,to.y,'#ffc9ff',140,500);
-      tone(1400,.23,'sine',.035,.3);
+      
     }else{
       const orb=node(from.x,from.y,svg(120,120,'<circle cx="60" cy="60" r="49" fill="#28b8ff" opacity=".35"/><circle cx="60" cy="60" r="34" fill="#6deaff"/><circle cx="60" cy="60" r="24" fill="white"/><path d="M5 50L28 42M88 78L112 93M54 7L65 30M12 99L34 79" stroke="#d7ffff" stroke-width="5"/>'),120,120);
       anim(orb,[{transform:'translate(-50%,-50%) scale(.15)',opacity:0},{transform:'translate(-50%,-50%) scale(1.1)',opacity:1,offset:.5},{transform:'translate(-50%,-50%) scale(1.4)',opacity:1}],1260);
@@ -4136,11 +4194,12 @@ async function animatePlayerAttack(level,from,to,cards,serial){
       beam('#49d6ff',70,660,600);
       const head=node(from.x,from.y,svg(100,100,'<circle cx="50" cy="50" r="46" fill="#49d6ff"/><circle cx="50" cy="50" r="33" fill="#b5faff"/><circle cx="50" cy="50" r="23" fill="white"/>'),100,100);
       anim(head,[{transform:'translate(-50%,-50%) scale(.1)',opacity:0},{opacity:1,offset:.15},{transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) scale(1.6)`,opacity:1}],320,660);
-      ring(to.x,to.y,'#adf9ff',230,940);tone(180,.5,'triangle',.04,.15);tone(540,.4,'sawtooth',.025,.66);
+      ring(to.x,to.y,'#adf9ff',230,940);
     }
     await combatWait(duration);
     return serial===S.runSerial && S.running;
   }finally{
+    if(serial!==S.runSerial || !S.running) stopWeaponAudio();
     animations.forEach(a=>a.cancel());nodes.forEach(n=>n.remove());
   }
 }
@@ -4155,7 +4214,7 @@ async function playSelected(){
   source.classList.add("charging");
   enemyEl.classList.add("targeted");
   setFeedback("","","");
-  tone(330,.18,"triangle",.045);tone(495,.15,"triangle",.035,.16);
+
   await combatWait(COMBAT_TIMING.charge);
   if(serial!==S.runSerial || !S.running){source.classList.remove("charging");enemyEl.classList.remove("targeted");return;}
   const from=center(source), to=center($("monster"));
@@ -4964,6 +5023,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",
 
 /* ================= 流程控制 ================= */
 async function startRun(){
+  stopWeaponAudio();
   S.runSerial++; cancelAnswerReview();
   $("combat-flight-layer").innerHTML="";
   stopTimer();
@@ -5096,7 +5156,7 @@ $("btn-home").addEventListener("click",()=>{ overlay.classList.remove("hidden");
 function toggleMute(){
   unlockAudio();
   S.muted=!S.muted;
-  if(S.muted){ stopBGM(); try{ if("speechSynthesis" in window) window.speechSynthesis.cancel(); }catch(e){} }
+  if(S.muted){ stopWeaponAudio();stopBGM(); try{ if("speechSynthesis" in window) window.speechSynthesis.cancel(); }catch(e){} }
   else { if(S.running && S.enemy) playMonsterBGM(S.enemy.sprite, S.enemy.boss); sfxItem(); }
   renderStats();
   if(!S.muted && !audioRunning()) setFeedback("","🔇 Enable Sound","");
