@@ -2343,7 +2343,8 @@ function playWeaponAudio(kind,reduced=false){
   const pitch=(t,d,f0,f1,v,type)=>voice(false,t,d,f0,f1,v,type);
   switch(kind){
     case 1:
-      hiss(0,.30,1800,450,.11);pitch(.34,.09,210,80,.09);break;
+      pitch(0,.25,800,1600,.045,'sine');hiss(.27,.24,3200,1400,.10);
+      for(let i=0;i<6;i++)pitch(.35+i*.065,.12,2200+i*210,1400+i*110,.045,'sine');break;
     case 2:
       pitch(0,.25,170,300,.045);pitch(.26,.16,1050,220,.10);
       hiss(.26,.26,4500,1000,.12);pitch(.52,.10,180,65,.13);break;
@@ -2364,6 +2365,17 @@ function playWeaponAudio(kind,reduced=false){
       pitch(0,.64,90,620,.09,'sine');pitch(.1,.54,135,930,.045);
       hiss(.12,.52,180,2600,.09);pitch(.66,.58,180,52,.17,'sawtooth');
       hiss(.66,.58,1600,220,.23);pitch(.96,.28,110,32,.13);break;
+    case 8:
+      hiss(0,.23,240,1800,.12);hiss(.18,.65,1100,180,.21);
+      pitch(.22,.48,140,48,.10,'sawtooth');break;
+    case 9:
+      pitch(.05,.52,90,450,.09,'sawtooth');hiss(.05,.53,250,2400,.17);
+      pitch(.61,.30,125,30,.20);hiss(.61,.30,1900,120,.25);break;
+    case 10:
+      for(let i=0;i<3;i++){hiss(i*.105,.23,4200,1000,.09);pitch(.30+i*.105,.09,1800,900,.045,'sine');}break;
+    case 11:
+      for(let i=0;i<5;i++)hiss(i*.19,.15,650+i*200,1700-i*180,.09);
+      pitch(.48,.12,240,95,.10);break;
   }
 }
 
@@ -4113,13 +4125,13 @@ $("btn-understood").addEventListener("click",()=>{
   cancelAnswerReview(); S.paused=false;
 });
 function playerAttackLevel(){
-  return 1+Math.floor(Math.random()*7);
+  return 1+Math.floor(Math.random()*11);
 }
 async function animatePlayerAttack(level,from,to,cards,serial){
   const layer=$("combat-flight-layer"),nodes=[],animations=[];
   const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const dx=to.x-from.x,dy=to.y-from.y,angle=Math.atan2(dy,dx)*180/Math.PI;
-  const duration=reduced?160:({1:440,2:620,3:780,4:860,5:960,6:780,7:1260}[level]);
+  const duration=reduced?160:({1:1040,2:620,3:780,4:860,5:960,6:780,7:1260,8:1060,9:1000,10:860,11:1050}[level]);
   const svg=(w,h,body)=>`<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" fill="none" xmlns="http://www.w3.org/2000/svg">${body}</svg>`;
   function node(x,y,art,w,h){
     const n=document.createElement('div');n.className='combo-weapon';
@@ -4148,9 +4160,14 @@ async function animatePlayerAttack(level,from,to,cards,serial){
     playWeaponAudio(level,reduced);
     if(reduced){ring(to.x,to.y,'#fff2a5',90);}
     else if(level===1){
-      const n=node(from.x,from.y,'',80,64);n.className='word-projectile';n.style.width='';n.style.height='';
-      n.textContent=isPractice()?cards[0].c:cards.map(c=>c.c).slice(0,4).join('');
-      anim(n,[{transform:'translate(-50%,-50%) scale(1)',opacity:1},{transform:`translate(calc(-50% + ${dx*.45}px),calc(-50% + ${dy*.45-30}px)) scale(1.15) rotate(-8deg)`,opacity:1,offset:.5},{transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) scale(.35) rotate(8deg)`,opacity:.8}],COMBAT_TIMING.flight,0,'cubic-bezier(.4,0,.7,1)');
+      const wand=node(from.x,from.y,svg(100,120,'<path d="M25 110L65 38" stroke="#4d3a6a" stroke-width="14"/><path d="M25 110L65 38" stroke="#ac87da" stroke-width="7"/><path d="M70 3L90 24L70 48L50 24Z" fill="#a9f5ff" stroke="#5177ae" stroke-width="4"/><path d="M70 7V43M54 24H86" stroke="white" stroke-width="3"/>'),100,120);
+      anim(wand,[{transform:'translate(-50%,-50%) rotate(-30deg)',opacity:0},{transform:'translate(-50%,-50%) rotate(20deg)',opacity:1,offset:.35},{opacity:0}],650);
+      beam('#9feaff',16,270,260);
+      for(let i=0;i<6;i++){
+        const shard=node(to.x+(i-2.5)*25,to.y+20,svg(50,115,'<path d="M25 2L46 40L39 108H11L4 40Z" fill="#b1efff" fill-opacity=".75" stroke="#f0ffff" stroke-width="3"/><path d="M25 2V108M4 40L25 57L46 40" stroke="#70badf" stroke-width="3"/>'),50,115);
+        anim(shard,[{transform:'translate(-50%,-20%) scaleY(.05)',opacity:0},{transform:`translate(-50%,-55%) rotate(${(i-2.5)*9}deg) scaleY(1)`,opacity:1,offset:.35},{opacity:.9,offset:.75},{transform:`translate(calc(-50% + ${(i-2.5)*15}px),-70%) scale(.6)`,opacity:0}],560,350+i*18);
+      }
+      ring(to.x,to.y,'#c3faff',170,400);
     }else if(level===2){
       const bow=node(from.x,from.y,svg(90,100,'<path d="M25 8Q92 50 25 92" stroke="#49314f" stroke-width="12"/><path d="M25 8Q92 50 25 92" stroke="#eab865" stroke-width="7"/><path d="M25 8L8 50L25 92" stroke="#fff7d8" stroke-width="3"/>'),90,100);
       anim(bow,[{transform:`translate(-50%,-50%) rotate(${angle}deg) scale(.7)`,opacity:0},{opacity:1,offset:.18},{transform:`translate(-50%,-50%) rotate(${angle}deg) scale(1.1)`,opacity:1,offset:.45},{opacity:0}],620);
@@ -4187,7 +4204,29 @@ async function animatePlayerAttack(level,from,to,cards,serial){
       anim(sight,[{transform:'translate(-50%,-50%) rotate(0) scale(1.6)',opacity:0},{transform:'translate(-50%,-50%) rotate(90deg) scale(1)',opacity:1,offset:.45},{opacity:0}],780);
       beam('#ef76ff',12,300,480);ring(to.x,to.y,'#ffc9ff',140,500);
       
-    }else{
+    }else if(level===8){
+      ring(from.x,from.y,'#ffbf54',100);
+      for(let i=0;i<7;i++){
+        const flame=node(to.x+(i-3)*22,to.y+55,svg(56,110,'<path d="M27 3Q49 34 42 48Q61 32 51 77Q43 107 26 105Q-4 98 7 67Q24 50 27 3Z" fill="#ff793e" stroke="#c84c53" stroke-width="3"/><path d="M28 43Q45 77 29 99Q9 89 22 69Z" fill="#fff39c"/>'),56,110);
+        anim(flame,[{transform:'translate(-50%,-20%) scale(.1)',opacity:0},{transform:'translate(-50%,-70%) scale(1.2)',opacity:1,offset:.4},{transform:'translate(-50%,-120%) scale(.7)',opacity:0}],550,180+i*45);
+      }
+      ring(to.x,to.y,'#ffc76b',170,390);
+    }else if(level===9){
+      const missile=node(from.x,from.y,svg(132,52,'<path d="M39 16H92L125 26L92 36H39Z" fill="#d4e6ef" stroke="#3b3e59" stroke-width="4"/><path d="M93 16L125 26L93 36Z" fill="#f66c7b"/><path d="M43 17L29 3H58L70 17M43 35L29 49H58L70 35" fill="#6d83ac"/><path d="M35 19L2 26L35 33" fill="#ffbc49"/><path d="M30 23L10 26L30 29" fill="#fff5ba"/>'),132,52);
+      anim(missile,[{transform:`translate(-50%,-50%) rotate(${angle-35}deg)`,opacity:0},{transform:`translate(calc(-50% + ${dx*.15}px),calc(-50% + ${dy*.15-70}px)) rotate(${angle-15}deg)`,opacity:1,offset:.45},{transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) rotate(${angle}deg)`,opacity:1,offset:.9},{opacity:0}],600,50,'ease-in');
+      for(let i=0;i<5;i++)ring(from.x+dx*i*.15,from.y+dy*i*.15-30,'#c7d8e8',32+i*9,110+i*65);
+      ring(to.x,to.y,'#ffb449',210,610);ring(to.x,to.y,'#fff2b0',120,650);
+    }else if(level===10){
+      for(let i=0;i<3;i++){
+        const star=node(from.x,from.y,svg(68,68,'<path d="M34 2L43 24L66 34L44 43L34 66L24 44L2 34L24 24Z" fill="#c7e9f5" stroke="#3b405e" stroke-width="4"/><path d="M34 2L34 34L66 34M34 66L34 34L2 34" stroke="#829bb7" stroke-width="3"/><circle cx="34" cy="34" r="6" fill="#494760"/>'),68,68);
+        anim(star,[{transform:'translate(-50%,-50%) rotate(0)',opacity:0},{opacity:1,offset:.08},{transform:`translate(calc(-50% + ${dx*.5}px),calc(-50% + ${dy*.5+(i-1)*55}px)) rotate(540deg)`,offset:.55},{transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) rotate(1080deg)`,opacity:0}],370,i*105,'linear');
+        ring(to.x,to.y,'#d6faff',70,300+i*105);
+      }
+    }else if(level===11){
+      const boom=node(from.x,from.y,svg(106,106,'<path d="M8 84L36 13Q43 2 52 13L98 77L77 92L45 44L27 94Z" fill="#e8aa58" stroke="#67435b" stroke-width="5"/><path d="M17 73L34 80M26 50L42 57M70 52L56 66M86 73L71 86" stroke="#fff0af" stroke-width="6"/>'),106,106);
+      anim(boom,[{transform:'translate(-50%,-50%) rotate(0)',opacity:0},{transform:`translate(calc(-50% + ${dx*.45-75}px),calc(-50% + ${dy*.45}px)) rotate(360deg)`,opacity:1,offset:.25},{transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) rotate(720deg)`,offset:.5},{transform:`translate(calc(-50% + ${dx*.5+85}px),calc(-50% + ${dy*.5}px)) rotate(1080deg)`,offset:.75},{transform:'translate(-50%,-50%) rotate(1440deg)',opacity:0}],1050,0,'linear');
+      ring(to.x,to.y,'#ffe5a8',120,480);
+    }else if(level===7){
       const orb=node(from.x,from.y,svg(120,120,'<circle cx="60" cy="60" r="49" fill="#28b8ff" opacity=".35"/><circle cx="60" cy="60" r="34" fill="#6deaff"/><circle cx="60" cy="60" r="24" fill="white"/><path d="M5 50L28 42M88 78L112 93M54 7L65 30M12 99L34 79" stroke="#d7ffff" stroke-width="5"/>'),120,120);
       anim(orb,[{transform:'translate(-50%,-50%) scale(.15)',opacity:0},{transform:'translate(-50%,-50%) scale(1.1)',opacity:1,offset:.5},{transform:'translate(-50%,-50%) scale(1.4)',opacity:1}],1260);
       for(let i=0;i<3;i++)ring(from.x,from.y,'#95f2ff',130+i*28,i*180);
@@ -4250,7 +4289,7 @@ async function resolveSelectedPlay(attackLevel=1){
   const valid=realCards.every(c=>enemy.companions.has(c.c));
 
   S.hand=S.hand.filter(c=>!S.selected.has(c.id));
-  removeCardEls(selIds, attackLevel===1);
+  removeCardEls(selIds, false);
   S.selected.clear();
 
   let baibuFired=false;
@@ -4344,12 +4383,12 @@ async function resolveSelectedPlay(attackLevel=1){
       hitStop();
       quakeEnemy();
       vibrateByTier(tier);
-      if(attackLevel===1) attackFXSet(tier,cards.length,false);   /* 纯动画：不返回、不弹字 */
+         /* 纯动画：不返回、不弹字 */
       lightBurst(FXTIER[tier].rays,tier,false);
       if(FXTIER[tier].core) hitCore();
       if(tier>=3) slamFlash();
       if(tier>=4) monsterLaunched();
-      sfxCorrect(); if(attackLevel===1) sfxSlash(tier);
+      sfxCorrect();
       impactRing();
       shake(FXTIER[tier].shake);
       colorBurst(hue,tier);
@@ -4379,12 +4418,12 @@ showDamagePop(dmg,hue);
     const ec=center(enemyEl), hue=handFxColor(cards);
     hitStop();
     vibrateByTier(tier);
-    if(attackLevel===1) attackFXSet(tier,cards.length,false);   /* 纯动画：不返回、不弹字 */
+       /* 纯动画：不返回、不弹字 */
     lightBurst(FXTIER[tier].rays,tier,false);
     if(FXTIER[tier].core) hitCore();
     if(tier>=3) slamFlash();
     if(tier>=4) monsterLaunched();
-    sfxCorrect(); if(attackLevel===1) sfxSlash(tier);
+    sfxCorrect();
     impactRing();
     shake(FXTIER[tier].shake);
     colorBurst(hue,tier);
