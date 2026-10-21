@@ -5499,7 +5499,7 @@ setFeedback("","","");
 <script id="word-runner">
 /* Sixth mode: an original vocabulary team runner. */
 class VocabularyRun {
- constructor(words,random=Math.random){this.words=words;this.random=random;this.team=3;this.distance=0;this.recruits=0;this.history=[];this.dead=false;this.y=0;this.vy=0;this.grounded=true;this.next=2;this.encounter=null;this.eventCount=0;this.hazard=null;this.terrain=null;this.terrainIndex=0;this.hit=0;this.spark=0;this.impact=null;this.lastCandidate=null;}
+ constructor(words,random=Math.random){this.words=words;this.random=random;this.team=3;this.distance=0;this.recruits=0;this.history=[];this.dead=false;this.y=0;this.vy=0;this.grounded=true;this.next=.7;this.encounter=null;this.eventCount=0;this.hazard=null;this.terrain=null;this.terrainIndex=0;this.hit=0;this.spark=0;this.impact=null;this.lastCandidate=null;}
  question(){let pool=this.words.filter(w=>!this.history.slice(-(this.words.length-1)).includes(w.w));if(!pool.length)pool=this.words;const word=pool[Math.floor(this.random()*pool.length)];this.history.push(word.w);this.history=this.history.slice(-12);let candidates=this.random()<.5?[word]:this.words.filter(w=>w.w!==word.w);const fresh=candidates.filter(w=>w.w!==this.lastCandidate);if(fresh.length)candidates=fresh;const candidate=candidates[Math.floor(this.random()*candidates.length)];this.lastCandidate=candidate.w;this.encounter={word,people:[{word:candidate,x:1050,resolved:false,skipped:false}]};return this.encounter;}
  answer(i=0){if(!this.encounter||this.dead||!this.encounter.people[i]||this.encounter.people[i].resolved)return;const p=this.encounter.people[i];p.resolved=true;const ok=p.word.w===this.encounter.word.w;if(ok){this.team++;this.recruits++;this.spark=.7;}else this.damage();return ok;}
  damage(kind="wrong"){if(this.dead)return;this.team=Math.max(0,this.team-1);this.hit=.65;this.impact=kind;this.dead=this.team===0;}
@@ -5516,10 +5516,10 @@ class VocabularyRun {
  if(!this.grounded){this.y+=this.vy*dt;this.vy-=1700*dt;if(this.vy<=0&&prevY>=floor&&this.y<=floor){this.y=floor;this.vy=0;this.grounded=true;}}
  if(floor>oldFloor&&this.y<floor-3){this.fail();return;}
  if(this.y< -85){this.fail();return;}
- if(this.terrain){const t=this.terrain,r=225-t.x;if(t.kind==='lower'&&r>=300&&r<=320&&this.y>=90){this.fail();return;}if(t.x+620<0){this.terrain=null;this.next=1.4;}return;}
- if(this.encounter){for(const [i,p] of this.encounter.people.entries()){p.x-=dt*speed;if(!p.resolved&&p.x<245){if(this.y>=80){p.resolved=true;p.skipped=true;}else this.answer(i);}}if(this.encounter.people.every(p=>p.x<100)){this.encounter=null;this.next=1.5;}}
- else if(this.hazard){const h=this.hazard;h.x-=dt*speed;if(!h.resolved&&h.x<245){h.resolved=true;if(this.y<h.height+8)this.damage(h.kind);}if(h.x<100){this.hazard=null;this.next=1.2;}}
- else {this.next-=dt;if(this.next<=0){this.eventCount++;if(this.eventCount%4===0){const kinds=['gap','steps','upper','lower'];this.terrain={kind:kinds[this.terrainIndex++%4],x:950};}else if(this.eventCount%4===2){const kinds=['spikes','gas','zombie','skeleton','bomb'];this.hazard={kind:kinds[Math.floor(this.random()*5)],x:950,height:50,resolved:false};}else this.question();}}
+ if(this.terrain){const t=this.terrain,r=225-t.x;if(t.kind==='lower'&&r>=300&&r<=320&&this.y>=90){this.fail();return;}if(t.x+620<0){this.terrain=null;this.next=.35;}return;}
+ if(this.encounter){for(const [i,p] of this.encounter.people.entries()){p.x-=dt*speed;if(!p.resolved&&p.x<245){if(this.y>=80){p.resolved=true;p.skipped=true;}else this.answer(i);}}if(this.encounter.people.every(p=>p.x<100)){this.encounter=null;this.next=.35;}}
+ else if(this.hazard){const h=this.hazard;h.x-=dt*speed;if(!h.resolved&&h.x<245){h.resolved=true;if(this.y<h.height+8)this.damage(h.kind);}if(h.x<100){this.hazard=null;this.next=.3;}}
+ else {this.next-=dt;if(this.next<=0){this.eventCount++;if(this.eventCount%4===0){const kinds=['gap','steps','upper','lower'];this.terrain={kind:kinds[this.terrainIndex++%4],x:800};}else if(this.eventCount%4===2){const kinds=['spikes','gas','zombie','skeleton','bomb'];this.hazard={kind:kinds[Math.floor(this.random()*5)],x:760,height:50,resolved:false};}else this.question();}}
  }
 }
 const runner=(()=>{
