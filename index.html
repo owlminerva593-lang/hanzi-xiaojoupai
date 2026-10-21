@@ -1319,6 +1319,10 @@ header{border-bottom:1px solid #ead1ff55;box-shadow:0 1px 0 #76509925;padding-bo
 .learning-audio button,.writing-actions button{padding:8px 12px;border-radius:12px;min-height:40px;}
 #learning-status,.writing-status{font-size:13px;line-height:1.4;}
 #game.practice.writing-mode #hand{display:block;height:auto;min-height:235px;padding:8px;}
+#game.writing-mode #hand,#game.writing-mode #hand *{
+  -webkit-user-select:none!important;user-select:none!important;-webkit-touch-callout:none!important;
+}
+#game.writing-mode .writing-canvas{touch-action:none;-webkit-user-drag:none;}
 .writing-area{display:grid;grid-template-columns:minmax(140px,220px) minmax(90px,1fr);gap:10px;max-width:420px;margin:10px auto 0;}
 .writing-canvas{display:block;width:100%;height:auto;aspect-ratio:1;touch-action:none;user-select:none;border:2px solid #dd9ab0;border-radius:12px;background-color:#fffaf0;background-image:repeating-linear-gradient(90deg,#e9adb9 0 7px,transparent 7px 14px),repeating-linear-gradient(0deg,#e9adb9 0 7px,transparent 7px 14px);background-size:100% 1px,1px 100%;background-position:center;background-repeat:no-repeat;box-shadow:0 4px 0 #65467633;}
 .writing-actions{display:flex;flex-direction:column;justify-content:center;gap:9px;}
@@ -3283,6 +3287,16 @@ const isPractice=()=>S.mode!=="cards";
 const isSimplePractice=()=>["recognize","dictation","writing"].includes(S.mode);
 const isWordChoice=()=>S.mode==="recognize" || S.mode==="dictation";
 let writingSession=null;
+const guardedWritingSurfaces=new WeakSet();
+function protectWritingSurface(surface){
+  if(guardedWritingSurfaces.has(surface))return;
+  guardedWritingSurfaces.add(surface);
+  for(const type of ["contextmenu","selectstart","dragstart"]){
+    surface.addEventListener(type,e=>{
+      if(S.mode==="writing")e.preventDefault();
+    });
+  }
+}
 function pronunciationAvailable(){
   return "speechSynthesis" in window && "SpeechSynthesisUtterance" in window;
 }
@@ -3370,12 +3384,17 @@ function recognizeWriting(canvas,answer){
   return {kind:"unclear"};
 }
 function renderWritingQuestion(){
+  protectWritingSurface(handEl);
   learningAudioControls();
   const area=document.createElement("div");area.className="writing-area";
   const canvas=document.createElement("canvas");canvas.width=canvas.height=300;canvas.className="writing-canvas";canvas.setAttribute("aria-label","Handwriting pad");canvas.setAttribute("role","img");
   const buffer=document.createElement("canvas");buffer.width=buffer.height=300;
   const actions=document.createElement("div");actions.className="writing-actions";
   const session={question:S.question,canvas,buffer,strokes:[],active:null,pointer:null};writingSession=session;
+  // iOS WebKit can still start text selection despite Pointer Events capture.
+  for(const type of ["touchstart","touchmove"]){
+    canvas.addEventListener(type,e=>{if(e.cancelable)e.preventDefault();},{passive:false});
+  }
   const status=document.createElement("div");status.className="writing-status";status.setAttribute("role","status");
   function paint(){
     const g=buffer.getContext("2d");g.clearRect(0,0,300,300);g.lineCap=g.lineJoin="round";g.strokeStyle="#513662";g.lineWidth=15;
@@ -3390,8 +3409,10 @@ function renderWritingQuestion(){
   function point(e){const r=canvas.getBoundingClientRect();return {x:Math.max(0,Math.min(300,(e.clientX-r.left)*300/r.width)),y:Math.max(0,Math.min(300,(e.clientY-r.top)*300/r.height))};}
   function writable(){return S.running&&!S.busy&&S.question===session.question;}
   canvas.addEventListener("pointerdown",e=>{
+    e.preventDefault();
     if(!writable()||session.pointer!==null)return;
-    e.preventDefault();canvas.setPointerCapture(e.pointerId);session.pointer=e.pointerId;
+    const selection=window.getSelection?.();if(selection&&!selection.isCollapsed)selection.removeAllRanges();
+    canvas.setPointerCapture(e.pointerId);session.pointer=e.pointerId;
     session.active=[point(e)];session.strokes.push(session.active);status.textContent="";paint();
   });
   canvas.addEventListener("pointermove",e=>{
