@@ -2454,6 +2454,14 @@ function playWeaponAudio(kind,reduced=false){
   const hiss=(t,d,f0,f1,v)=>voice(true,t,d,f0,f1,v);
   const pitch=(t,d,f0,f1,v,type)=>voice(false,t,d,f0,f1,v,type);
   switch(kind){
+    case 'siege-bomb':
+      hiss(0,.16,4200,550,.17);pitch(0,.65,130,28,.16,'sine');
+      hiss(.05,.85,950,80,.14);pitch(.02,.24,210,45,.06,'triangle');break;
+    case 'siege-split':
+      for(let i=0;i<3;i++){const t=i*.075;hiss(t,.22,700,6500,.075);pitch(t,.18,420,2100,.035,'sine');}break;
+    case 'siege-trap':
+      for(let i=0;i<4;i++){const t=i*.035;hiss(t,.025,5200,1800,.045);pitch(t,.035,1400-i*180,650,.03,'square');}
+      hiss(.15,.07,3500,800,.11);pitch(.15,.18,900,250,.065,'triangle');pitch(.16,.12,2150,1800,.025,'sine');break;
     case 1:
       pitch(0,.25,800,1600,.045,'sine');hiss(.27,.24,3200,1400,.10);
       for(let i=0;i<6;i++)pitch(.35+i*.065,.12,2200+i*210,1400+i*110,.045,'sine');break;
@@ -5705,7 +5713,7 @@ class WordSiege {
  constructor(words,random=Math.random){this.words=words;this.random=random;this.width=480;this.height=700;this.hp=5;this.score=0;this.time=0;this.next=.8;this.cooldown=0;this.enemies=[];this.shots=[];this.effects=[];this.events=[];this.lastWord='';this.dead=false;this.ammo=[...new Set(words.flatMap(w=>[...w.w]))];this.selected=this.ammo[0];this.loads=[];this.traps=[];this.spawnCount=0;}
  get anchor(){return {x:this.width/2,y:this.height-105};}
  spawn(){const pool=this.words.filter(w=>w.w!==this.lastWord);const word=(pool.length?pool:this.words)[Math.floor(this.random()*(pool.length||this.words.length))];this.lastWord=word.w;const chars=[...word.w],slot=Math.floor(this.random()*chars.length);const kind=Math.floor(this.random()*3),roll=this.random(),tier=roll<.6?0:roll<.9?1:2,hp=[1,2,3][tier];const size=[1,1.4,1.85][tier],special=++this.spawnCount%3===0;const margin=48*size;const x=margin+this.random()*(this.width-margin*2);this.enemies.push({word,slot,mask:chars.map((c,i)=>i===slot?'＿':c).join(''),x,y:-65,r:34*size,size,special,drop:["bomb","split","trap"][Math.floor(this.random()*3)],hp,maxHp:hp,kind,speed:(kind===1?25:kind===2?14:19)+Math.min(25,this.time*.08),flash:0});}
- fire(dx,dy,charge=0){if(this.dead||this.cooldown>0||!this.ammo.includes(this.selected))return false;const length=Math.hypot(dx,dy);if(length<12||dy>=-4)return false;const speed=330+Math.min(100,length)*3.2,a=this.anchor,kind=this.loads.shift()||'letter';const targets=this.enemies.filter(e=>e.hp>0).sort((e,f)=>Math.hypot(e.x-a.x,e.y-a.y)-Math.hypot(f.x-a.x,f.y-a.y)).slice(0,3);for(let i=0;i<(kind==='split'?3:1);i++)this.shots.push({x:a.x,y:a.y,vx:dx/length*speed+(kind==='split'?(i-1)*100:0),vy:dy/length*speed,char:this.selected,life:5,kind,bounces:0,homing:kind==='split',target:targets[i]||targets[0],charged:charge>=1.2});this.cooldown=.32;this.events.push('fire');return true;}
+ fire(dx,dy,charge=0){if(this.dead||this.cooldown>0||!this.ammo.includes(this.selected))return false;const length=Math.hypot(dx,dy);if(length<12||dy>=-4)return false;const speed=330+Math.min(100,length)*3.2,a=this.anchor,kind=this.loads.shift()||'letter';const targets=this.enemies.filter(e=>e.hp>0).sort((e,f)=>Math.hypot(e.x-a.x,e.y-a.y)-Math.hypot(f.x-a.x,f.y-a.y)).slice(0,3);for(let i=0;i<(kind==='split'?3:1);i++)this.shots.push({x:a.x,y:a.y,vx:dx/length*speed+(kind==='split'?(i-1)*100:0),vy:dy/length*speed,char:this.selected,life:5,kind,bounces:0,homing:kind==='split',target:targets[i]||targets[0],charged:charge>=1.2});this.cooldown=.32;this.events.push(kind==='split'?'split':'fire');return true;}
  matches(enemy,char){const chars=[...enemy.word.w];if(chars.length===1)return char===enemy.word.w;chars[enemy.slot]=char;return this.words.some(w=>w.w===chars.join(''));}
  burst(x,y,color,label=''){this.effects.push({x,y,color,label,life:.7});}
  defeat(e){if(e.rewarded)return;e.hp=0;e.rewarded=true;this.score++;this.events.push('defeat');this.burst(e.x,e.y,'#ffe48f','✦');if(e.special){this.collect(e.drop);this.effects.push({x:e.x,y:e.y,color:'#fff0b0',label:{bomb:'💣',split:'✦',trap:'⚙'}[e.drop],life:1.4,drop:true});this.events.push('drop');}}
@@ -5726,7 +5734,7 @@ const slingshot=(()=>{
  document.body.append(panel);const canvas=$('siege-canvas'),ctx=canvas.getContext('2d');let model,active=false,paused=false,raf=0,last=0,drag=null,scale=1,dpr=1,feedbackTime=0;
  const t=s=>window.gameLocalization?.translate(s)||s;
  function resize(){if(!model)return;const w=canvas.clientWidth||480,h=canvas.clientHeight||700;dpr=Math.min(window.devicePixelRatio||1,2);model.width=Math.max(340,w/h*700);scale=w/model.width;model.height=h/scale;const cw=Math.round(w*dpr),ch=Math.round(h*dpr);if(canvas.width!==cw)canvas.width=cw;if(canvas.height!==ch)canvas.height=ch;drag=null;}
- function audio(kind){if(S.muted||document.hidden)return;if(kind==='ricochet'){tone(1250,.045,'triangle',.075,0);tone(640,.075,'sine',.045,.025);return;}const notes={bomb:[90,55,35],trap:[340,140],split:[660,990,1320],drop:[880,1108,1320],fire:[490,260],hit:[660,880],defeat:[784,1047],wrong:[180,150],breach:[150,80]};(notes[kind]||[]).forEach((f,i)=>tone(f,.11,kind==='breach'?'triangle':'sine',.06,i*.07));}
+ function audio(kind){if(S.muted||document.hidden)return;if(['bomb','split','trap'].includes(kind)){playWeaponAudio('siege-'+kind);return;}if(kind==='ricochet'){tone(1250,.045,'triangle',.075,0);tone(640,.075,'sine',.045,.025);return;}const notes={drop:[880,1108,1320],fire:[490,260],hit:[660,880],defeat:[784,1047],wrong:[180,150],breach:[150,80]};(notes[kind]||[]).forEach((f,i)=>tone(f,.11,kind==='breach'?'triangle':'sine',.06,i*.07));}
  function feedback(key){$('siege-feedback').textContent=key;window.gameLocalization?.apply();feedbackTime=2;}
  function sync(){const hp='♥'.repeat(model.hp)+'♡'.repeat(5-model.hp);if($('siege-hp').textContent!==hp)$('siege-hp').textContent=hp;if($('siege-score').textContent!==String(model.score))$('siege-score').textContent=model.score;$('siege-over').hidden=!model.dead;if(model.dead){drag=null;stopBGM();}}
  function ammo(){const tray=$('siege-ammo');tray.replaceChildren();for(const char of model.ammo){const b=document.createElement('button');b.textContent=char;b.setAttribute('translate','no');b.setAttribute('aria-pressed',String(char===model.selected));b.onclick=()=>{if(model.dead||paused)return;model.selected=char;for(const child of tray.children)child.setAttribute('aria-pressed',String(child===b));};tray.append(b);}}
