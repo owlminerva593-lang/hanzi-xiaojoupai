@@ -1332,6 +1332,8 @@ header{border-bottom:1px solid #ead1ff55;box-shadow:0 1px 0 #76509925;padding-bo
 
 
 #runner-panel[hidden],#runner-panel [hidden]{display:none!important;}
+#runner-panel,#runner-panel *{-webkit-user-select:none!important;user-select:none!important;-webkit-touch-callout:none!important;}
+#runner-panel #run-jump,#runner-panel #run-canvas{touch-action:none;-webkit-user-drag:none;}
 #runner-panel{position:fixed;inset:0;z-index:1000;overflow:auto;background:linear-gradient(145deg,#d6f5e4,#b4dfc9);display:grid;place-items:center;padding:12px;box-sizing:border-box;color:#533764;font-family:system-ui,sans-serif;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;}
 .run-shell{width:min(1080px,100%);padding:14px;box-sizing:border-box;border:4px solid #8963a8;border-radius:30px;background:linear-gradient(145deg,#c39ce9,#9360c6);box-shadow:0 0 0 4px #fff0b6,0 15px 35px #67508240;}
 .run-hud{display:flex;flex-wrap:wrap;gap:8px;align-items:center;border:0;padding:0 0 12px;margin:0;}
@@ -5650,8 +5652,12 @@ let model=null,raf=0,last=0,paused=false,active=false,heldPointer=null,heldKey=f
  function stop(){heldPointer=null;heldKey=false;model?.releaseJump();stopRunnerVoice();active=false;cancelAnimationFrame(raf);panel.hidden=true;stopBGM();stopWeaponAudio();}
  function start(){stop();S.running=false;S.busy=true;stopBGM();window.speechSynthesis?.cancel();model=new VocabularyRun([...WORDS]);paused=false;last=0;active=true;panel.hidden=false;resizeView();$('overlay').classList.add('hidden');$('run-pause').textContent='Pause';$('run-sound').textContent=S.muted?'Muted':'Sound';bgm.step=0;startRunnerBGM(model.scene);showQuestion();sync();raf=requestAnimationFrame(frame);}
  function releaseJump(){heldPointer=null;heldKey=false;model?.releaseJump();}
+ // iOS/WebView long presses can select nearby labels even after pointerdown.
+ function clearRunnerSelection(){window.getSelection?.()?.removeAllRanges();}
+ for(const type of ['contextmenu','selectstart','dragstart'])panel.addEventListener(type,e=>{e.preventDefault();clearRunnerSelection();});
  for(const surface of [$('run-jump'),$('run-canvas')]){
-  surface.addEventListener('pointerdown',e=>{if(!active||paused||model.dead||heldPointer!==null||heldKey||(e.button!==undefined&&e.button!==0))return;e.preventDefault();heldPointer=e.pointerId;surface.setPointerCapture?.(e.pointerId);model.jump();});
+  surface.addEventListener('touchstart',e=>{e.preventDefault();clearRunnerSelection();},{passive:false});
+  surface.addEventListener('pointerdown',e=>{e.preventDefault();clearRunnerSelection();if(!active||paused||model.dead||heldPointer!==null||heldKey||(e.button!==undefined&&e.button!==0))return;e.preventDefault();heldPointer=e.pointerId;surface.setPointerCapture?.(e.pointerId);model.jump();});
   for(const type of ['pointerup','pointercancel','lostpointercapture'])surface.addEventListener(type,e=>{if(e.pointerId===heldPointer)releaseJump();});
   surface.addEventListener('contextmenu',e=>e.preventDefault());
  }
