@@ -5567,7 +5567,7 @@ const RUN_SCENES=[
 ];
 /* Sixth mode: an original vocabulary team runner. */
 class VocabularyRun {
- constructor(words,random=Math.random){this.words=words;this.random=random;this.team=3;this.distance=0;this.recruits=0;this.history=[];this.dead=false;this.y=0;this.vy=0;this.grounded=true;this.next=.7;this.encounter=null;this.eventCount=0;this.hazard=null;this.scroll=0;this.sections=[];this.mapEnd=0;this.ensureMap();this.hit=0;this.spark=0;this.impact=null;this.lastCandidate=null;this.scene=0;this.previousScene=0;this.sceneBlend=1;this.sceneAt=120;}
+ constructor(words,random=Math.random){this.words=words;this.random=random;this.team=3;this.distance=0;this.elapsed=0;this.recruits=0;this.history=[];this.dead=false;this.y=0;this.vy=0;this.grounded=true;this.next=.7;this.encounter=null;this.eventCount=0;this.hazard=null;this.scroll=0;this.sections=[];this.mapEnd=0;this.ensureMap();this.hit=0;this.spark=0;this.impact=null;this.lastCandidate=null;this.scene=0;this.previousScene=0;this.sceneBlend=1;this.sceneAt=120;}
  question(){let pool=this.words.filter(w=>!this.history.slice(-(this.words.length-1)).includes(w.w));if(!pool.length)pool=this.words;const word=pool[Math.floor(this.random()*pool.length)];this.history.push(word.w);this.history=this.history.slice(-12);let candidates=this.random()<.5?[word]:this.words.filter(w=>w.w!==word.w);const fresh=candidates.filter(w=>w.w!==this.lastCandidate);if(fresh.length)candidates=fresh;const candidate=candidates[Math.floor(this.random()*candidates.length)];this.lastCandidate=candidate.w;const position=this.spawnPosition(920);if(!position){this.next=.3;return null;}this.encounter={word,people:[{word:candidate,...position,resolved:false,skipped:false}]};return this.encounter;}
  answer(i=0){if(!this.encounter||this.dead||!this.encounter.people[i]||this.encounter.people[i].resolved)return;const p=this.encounter.people[i];p.resolved=true;const ok=p.word.w===this.encounter.word.w;if(ok){this.team++;this.recruits++;this.spark=.7;}else this.damage();return ok;}
  damage(kind="wrong"){if(this.dead)return;this.team=Math.max(0,this.team-1);this.hit=.65;this.impact=kind;this.dead=this.team===0;}
@@ -5578,12 +5578,17 @@ class VocabularyRun {
  releaseJump(){if(!this.grounded&&this.vy>280)this.vy=280;}
  surfaceAt(x){const levels=this.surfacesAt(x).filter(p=>p.height<=this.y+1);return levels.length?Math.max(...levels.map(p=>p.height)):-Infinity;}
  spawnPosition(x,obstacle=false){for(let step=0;step<8;step++){const position=x+step*60;const surfaces=this.surfacesAt(position).filter(p=>position+this.scroll>=p.x+55&&position+this.scroll<=p.x+p.w-(obstacle?260:90));if(surfaces.length){const surface=surfaces[Math.floor(this.random()*surfaces.length)];return {x:position,base:surface.height};}}return null;}
- update(dt){if(this.dead)return;dt=Math.min(Math.max(dt,0),.04);const speed=220+Math.min(40,this.distance/12);this.distance+=dt*9;this.sceneBlend=Math.min(1,this.sceneBlend+dt/2.5);if(this.distance>=this.sceneAt){this.previousScene=this.scene;this.scene=(this.scene+1+Math.floor(this.random()*7))%8;this.sceneBlend=0;this.sceneAt+=120;}this.hit=Math.max(0,this.hit-dt);this.spark=Math.max(0,this.spark-dt);this.scroll+=dt*speed;this.ensureMap();const floor=this.surfaceAt(225),prevY=this.y;
+ speed(){return 220+200*(1-Math.exp(-this.elapsed/100));}
+ touches(p,oldX,oldY,width,height){
+ // Swept body overlap: test the full movement interval, including a descending landing.
+ let enter=0,leave=1;for(const [from,to,min,max] of [[oldX,p.x,225-18-width,225+18+width],[oldY,this.y,p.base-72,p.base+height]]){const delta=to-from;if(Math.abs(delta)<1e-9){if(from<min||from>max)return false;}else{let a=(min-from)/delta,b=(max-from)/delta;if(a>b)[a,b]=[b,a];enter=Math.max(enter,a);leave=Math.min(leave,b);if(enter>leave)return false;}}return true;
+ }
+ update(dt){if(this.dead)return;dt=Math.min(Math.max(dt,0),.04);this.elapsed+=dt;const speed=this.speed();this.distance+=dt*speed/25;this.sceneBlend=Math.min(1,this.sceneBlend+dt/2.5);if(this.distance>=this.sceneAt){this.previousScene=this.scene;this.scene=(this.scene+1+Math.floor(this.random()*7))%8;this.sceneBlend=0;this.sceneAt+=120;}this.hit=Math.max(0,this.hit-dt);this.spark=Math.max(0,this.spark-dt);this.scroll+=dt*speed;this.ensureMap();const floor=this.surfaceAt(225),prevY=this.y;
  if(this.grounded&&floor<prevY-1)this.grounded=false;
  if(!this.grounded){this.y+=this.vy*dt;this.vy-=1700*dt;if(this.vy<=0&&prevY>=floor&&this.y<=floor){this.y=floor;this.vy=0;this.grounded=true;}}
  if(this.y< -85){this.fail();return;}
- if(this.encounter){for(const [i,p] of this.encounter.people.entries()){p.x-=dt*speed;if(!p.resolved&&p.x<245){if(this.y<p.base-10||this.y>=p.base+80){p.resolved=true;p.skipped=true;}else this.answer(i);}}if(this.encounter.people.every(p=>p.x<100)){this.encounter=null;this.next=.35;}}
- else if(this.hazard){const h=this.hazard;h.x-=dt*speed;if(!h.resolved&&h.x<245){h.resolved=true;if(this.y>=h.base-10&&this.y<h.base+h.height+8)this.damage(h.kind);}if(h.x<100){this.hazard=null;this.next=.3;}}
+ if(this.encounter){for(const [i,p] of this.encounter.people.entries()){const oldX=p.x;p.x-=dt*speed;if(!p.resolved){if(this.touches(p,oldX,prevY,18,74))this.answer(i);else if(p.x<189){p.resolved=true;p.skipped=true;}}}if(this.encounter.people.every(p=>p.x<100)){this.encounter=null;this.next=.35;}}
+ else if(this.hazard){const h=this.hazard,oldX=h.x;h.x-=dt*speed;const width=h.kind==="gas"?42:h.kind==="spikes"?35:25;const height=["zombie","skeleton"].includes(h.kind)?74:h.height;if(!h.resolved){if(this.touches(h,oldX,prevY,width,height)){h.resolved=true;this.damage(h.kind);}else if(h.x<225-18-width)h.resolved=true;}if(h.x<100){this.hazard=null;this.next=.3;}}
  else {this.next-=dt;if(this.next<=0){this.eventCount++;if(this.eventCount%2===0){const kinds=['spikes','gas','zombie','skeleton','bomb'];const position=this.spawnPosition(760,true);if(position)this.hazard={kind:kinds[Math.floor(this.random()*5)],...position,height:50,resolved:false};else this.next=.3;}else this.question();}}
  }
 }
@@ -5602,7 +5607,12 @@ function startRunnerBGM(scene=0){
  const master=musicMaster();master.gain.cancelScheduledValues(audio.currentTime);master.gain.setTargetAtTime(.55,audio.currentTime,.08);bgm.nextT=audio.currentTime+.06;
  if(!bgm.timer)bgm.timer=setInterval(bgmSchedule,60);
 }
-function runnerContactSound(kind){if(S.muted||document.hidden)return;const audio=ac();if(!audio)return;const notes=kind==='recruit'?[523,659,784]:kind==='bomb'?[90,65,42]:kind==='gas'?[220,170,130]:kind==='skeleton'?[360,240,180]:kind==='zombie'?[140,110,85]:[260,170,100];notes.forEach((f,i)=>tone(f,kind==='recruit'?.18:.12,kind==='recruit'?'sine':'triangle',.07,i*.085));}
+function stopRunnerVoice(){try{window.speechSynthesis?.cancel();}catch(e){}}
+function runnerContactSound(kind){
+ if(S.muted||document.hidden)return;
+ if(kind==='recruit'&&window.speechSynthesis&&window.SpeechSynthesisUtterance){try{stopRunnerVoice();const voice=new window.SpeechSynthesisUtterance('你好');voice.lang='zh-CN';voice.rate=1;voice.pitch=1.15;voice.volume=.9;const chinese=window.speechSynthesis.getVoices().find(v=>/^zh(-|_)/i.test(v.lang));if(chinese)voice.voice=chinese;window.speechSynthesis.speak(voice);return;}catch(e){}}
+ const audio=ac();if(!audio)return;const notes=kind==='recruit'?[523,659,784]:kind==='bomb'?[130,85,48]:kind==='gas'?[240,155,95]:kind==='skeleton'?[390,220,125]:kind==='zombie'?[180,120,75]:[280,175,100];notes.forEach((f,i)=>tone(f,kind==='recruit'?.18:.16,kind==='recruit'?'sine':'triangle',.1,i*.07));
+}
 const runner=(()=>{
  const panel=document.createElement('section');panel.id='runner-panel';panel.hidden=true;panel.innerHTML=`<div class="run-shell"><header class="run-hud"><span><span>Team</span> <b id="run-team">3</b></span><span><span>Distance</span> <b id="run-distance">0</b> m</span><span><span>Recruited</span> <b id="run-recruits">0</b></span><button id="run-sound">Sound</button><button id="run-pause">Pause</button><button id="run-home">Back</button></header><div id="run-clue" aria-live="polite"></div><div class="run-scene"><canvas id="run-canvas" width="960" height="430" aria-label="Word Runner"></canvas><div id="run-end" hidden><h2>Game Over</h2><button id="run-retry">Play Again</button></div></div><footer><button id="run-jump">Jump</button><small>Tap for a small jump; hold for a big jump</small></footer></div>`;document.body.append(panel);
  const canvas=$('run-canvas'),ctx=canvas.getContext('2d');let view={width:960,height:430,x:0,offsetY:0,scale:1,dpr:1};
@@ -5637,7 +5647,7 @@ let model=null,raf=0,last=0,paused=false,active=false,heldPointer=null,heldKey=f
  function sync(){ for(const [id,value] of [['run-team',model.team],['run-distance',Math.floor(model.distance)],['run-recruits',model.recruits]]){if($(id).textContent!==String(value))$(id).textContent=String(value);}$('run-end').hidden=!model.dead;$('run-jump').disabled=paused||model.dead;if(model.dead)stopBGM(); }
  function showQuestion(){const q=model.encounter;$('run-clue').textContent=q?(PRACTICE_EN[q.word.w]||q.word.e):'\u00a0';window.gameLocalization?.apply();}
  function frame(now){if(!active)return;const dt=last?(now-last)/1000:0;last=now;if(!paused&&!document.hidden){const previous=model.encounter,team=model.team,scene=model.scene;model.update(dt);if(previous!==model.encounter)showQuestion();if(scene!==model.scene){stopBGM();bgm.step=0;startRunnerBGM(model.scene);}if(team!==model.team)runnerContactSound(model.team>team?'recruit':model.impact);sync();}draw();drawActors();raf=requestAnimationFrame(frame);}
- function stop(){heldPointer=null;heldKey=false;model?.releaseJump();active=false;cancelAnimationFrame(raf);panel.hidden=true;stopBGM();stopWeaponAudio();}
+ function stop(){heldPointer=null;heldKey=false;model?.releaseJump();stopRunnerVoice();active=false;cancelAnimationFrame(raf);panel.hidden=true;stopBGM();stopWeaponAudio();}
  function start(){stop();S.running=false;S.busy=true;stopBGM();window.speechSynthesis?.cancel();model=new VocabularyRun([...WORDS]);paused=false;last=0;active=true;panel.hidden=false;resizeView();$('overlay').classList.add('hidden');$('run-pause').textContent='Pause';$('run-sound').textContent=S.muted?'Muted':'Sound';bgm.step=0;startRunnerBGM(model.scene);showQuestion();sync();raf=requestAnimationFrame(frame);}
  function releaseJump(){heldPointer=null;heldKey=false;model?.releaseJump();}
  for(const surface of [$('run-jump'),$('run-canvas')]){
@@ -5645,13 +5655,13 @@ let model=null,raf=0,last=0,paused=false,active=false,heldPointer=null,heldKey=f
   for(const type of ['pointerup','pointercancel','lostpointercapture'])surface.addEventListener(type,e=>{if(e.pointerId===heldPointer)releaseJump();});
   surface.addEventListener('contextmenu',e=>e.preventDefault());
  }
- $('run-sound').onclick=()=>{unlockAudio();S.muted=!S.muted;$('run-sound').textContent=S.muted?'Muted':'Sound';if(S.muted){stopBGM();stopWeaponAudio();}else if(!paused&&!model.dead)startRunnerBGM(model.scene);renderStats();};
- $('run-pause').onclick=()=>{if(model.dead)return;releaseJump();paused=!paused;if(paused)stopBGM();else startRunnerBGM(model.scene);last=0;$('run-pause').textContent=paused?'Resume':'Pause';sync();};
+ $('run-sound').onclick=()=>{unlockAudio();S.muted=!S.muted;$('run-sound').textContent=S.muted?'Muted':'Sound';if(S.muted){stopRunnerVoice();stopBGM();stopWeaponAudio();}else if(!paused&&!model.dead)startRunnerBGM(model.scene);renderStats();};
+ $('run-pause').onclick=()=>{if(model.dead)return;releaseJump();paused=!paused;if(paused){stopRunnerVoice();stopBGM();}else startRunnerBGM(model.scene);last=0;$('run-pause').textContent=paused?'Resume':'Pause';sync();};
  $('run-home').onclick=returnToMenu;$('run-retry').onclick=start;
  document.addEventListener('keydown',e=>{if(active&&e.code==='Space'){e.preventDefault();if(!e.repeat&&!paused&&!heldKey&&heldPointer===null){heldKey=true;model.jump();}}});
  document.addEventListener('keyup',e=>{if(active&&e.code==='Space'){e.preventDefault();releaseJump();}});
  window.addEventListener('blur',releaseJump);
- document.addEventListener('visibilitychange',()=>{last=0;if(active&&document.hidden){releaseJump();stopBGM();paused=true;$('run-pause').textContent='Resume';sync();}});
+ document.addEventListener('visibilitychange',()=>{last=0;if(active&&document.hidden){releaseJump();stopRunnerVoice();stopBGM();paused=true;$('run-pause').textContent='Resume';sync();}});
  window.addEventListener('pagehide',stop);return {start,stop};
 })();
 
