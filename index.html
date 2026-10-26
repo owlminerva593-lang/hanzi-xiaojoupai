@@ -1519,6 +1519,9 @@ html[lang] body{font-family:system-ui,'Noto Sans Thai','Noto Sans Lao',sans-seri
 /* Fish cross the full water column; pointer press fires without dragging. */
 .scene-fishing{background:linear-gradient(#8ad0d5,#58abc1 40%,#356e9c)}.scene-fishing .lake-sky{display:none}.scene-fishing .lake-water{inset:0}.scene-fishing .word-fish{touch-action:none;-webkit-user-drag:none;user-select:none;cursor:crosshair;filter:hue-rotate(var(--fish-hue));will-change:left,top}.scene-fishing .word-fish:before{animation:fish-tail .5s ease-in-out infinite alternate;transform-origin:100% 50%}.scene-fishing .word-fish.left:before{transform-origin:0 50%}@keyframes fish-tail{to{transform:scaleX(.7)}}@media(prefers-reduced-motion:reduce){.scene-fishing .word-fish:before{animation:none}}
 
+/* Fish are moving targets, not pressable UI tiles. */
+#extra-panel .word-fish:active{transform:translate(-50%,-50%);translate:none;box-shadow:0 5px 0 #285f8930}#extra-panel .scene-fishing.mistake{animation:none;transform:none}
+
 </style>
 </head>
 <body>
