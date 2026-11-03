@@ -6087,14 +6087,14 @@ const slingshot=(()=>{
  }
  function frame(now){if(!active)return;const dt=last?Math.min(.04,(now-last)/1000):0;last=now;if(!paused&&!document.hidden){if(drag&&Math.hypot(drag.x,drag.y)>12)drag.charge=Math.min(2,drag.charge+dt);model.update(dt);for(const event of model.events){audio(event);if(event==='drop')feedback('Power-up collected!');if(event==='wrong')feedback('No match. Try another character.');if(event==='hit')feedback('Word matched!');if(event==='breach')feedback('An enemy reached the base!');}model.events=[];feedbackTime-=dt;if(feedbackTime<=0&&feedbackTime+dt>0)feedback('Match the missing character to break the shield.');sync();}draw();raf=requestAnimationFrame(frame);}
  function stop(){active=false;drag=null;cancelAnimationFrame(raf);panel.hidden=true;stopBGM();stopWeaponAudio();}
- function start(){stop();S.running=false;S.busy=true;model=new WordSiege([...WORDS]);paused=false;last=0;active=true;panel.hidden=false;$('overlay').classList.add('hidden');$('siege-pause').textContent='Pause';$('siege-sound').textContent=S.muted?'Muted':'Sound';ammo();resize();feedback('Match the missing character to break the shield.');sync();startSiegeBGM();raf=requestAnimationFrame(frame);}
+ function start(){stop();S.running=false;S.busy=true;model=new WordSiege([...WORDS]);paused=false;last=0;active=true;panel.hidden=false;$('overlay').classList.add('hidden');$('siege-pause').textContent='Pause';$('siege-sound').textContent=S.muted?'Muted':'Sound';ammo();resize();feedback('Match the missing character to break the shield.');sync();document.dispatchEvent(new Event('siege-started'));startSiegeBGM();raf=requestAnimationFrame(frame);}
  function point(e){const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)/scale,y:(e.clientY-r.top)/scale};}
  const clearSelection=()=>window.getSelection?.()?.removeAllRanges();
  for(const type of ['contextmenu','selectstart','dragstart'])panel.addEventListener(type,e=>{e.preventDefault();clearSelection();});
  canvas.addEventListener('touchstart',e=>{e.preventDefault();clearSelection();},{passive:false});
  canvas.addEventListener('pointerdown',e=>{e.preventDefault();clearSelection();if(!active||paused||model.dead||drag||(e.button!==undefined&&e.button!==0))return;const p=point(e),a=model.anchor;if(Math.hypot(p.x-a.x,p.y-a.y)>85)return;unlockAudio();drag={id:e.pointerId,x:0,y:0,charge:0,start:p};canvas.setPointerCapture?.(e.pointerId);});
  canvas.addEventListener('pointermove',e=>{if(!drag||drag.id!==e.pointerId)return;e.preventDefault();const p=point(e),x=p.x-drag.start.x,y=p.y-drag.start.y,f=Math.min(1,95/(Math.hypot(x,y)||1));drag.x=x*f;drag.y=y*f;});
- canvas.addEventListener('pointerup',e=>{if(!drag||drag.id!==e.pointerId)return;e.preventDefault();if(!paused&&!model.dead)model.fire(-drag.x,-drag.y,drag.charge);drag=null;});
+ canvas.addEventListener('pointerup',e=>{if(!drag||drag.id!==e.pointerId)return;e.preventDefault();if(!paused&&!model.dead&&model.fire(-drag.x,-drag.y,drag.charge))document.dispatchEvent(new Event('siege-shot-fired'));drag=null;});
  for(const type of ['pointercancel','lostpointercapture'])canvas.addEventListener(type,()=>{drag=null;});
  $('siege-home').onclick=returnToMenu;$('siege-retry').onclick=start;
  function pause(){if(!active||model.dead)return;paused=!paused;drag=null;last=0;$('siege-pause').textContent=paused?'Resume':'Pause';if(paused)stopBGM();else startRunnerBGM(0);window.gameLocalization?.apply();}
@@ -6281,9 +6281,11 @@ window.GAME_LOCALES={"zh-CN":{"Language":"语言","Choose a level":"选择关卡
  function visible(el){return el&&el.getClientRects().length&&!el.closest('[hidden],.hidden')&&!el.disabled;}
  function draw(){current=null;box.hidden=true;const mode=S.mode,list=steps[mode],n=Number(progress[mode])||0;if(!list||!list[n]||!document.getElementById('overlay').classList.contains('hidden')||S.waitingAnswer||document.querySelector('dialog[open]'))return;const [selector,label]=list[n],el=document.querySelector(selector);if(!visible(el))return;if(mode==='runner'&&visible(document.getElementById('run-over'))||mode==='slingshot'&&visible(document.getElementById('siege-over')))return;const r=el.getBoundingClientRect();let x=r.x+r.width/2,y=r.y;if(mode==='slingshot'&&n===1)y=r.bottom-r.width/700*105;y=Math.max(120,Math.min(innerHeight-12,y));current={mode,n,el};box.hidden=false;box.firstChild.textContent=window.gameLocalization?.translate(label)||label;box.style.left=Math.max(4,Math.min(innerWidth-224,x-110))+'px';box.style.top=Math.max(4,y-box.offsetHeight-5)+'px';}
  function advance(c){if(!c||progress[c.mode]>c.n)return;progress[c.mode]=c.n+1;draw();}
- document.addEventListener('click',e=>{if(current&&current.el.contains(e.target)&&!['.writing-canvas','#siege-canvas','#run-jump'].includes(steps[current.mode][current.n][0]))advance(current);},true);
+ document.addEventListener('click',e=>{if(current&&e.target.closest(steps[current.mode][current.n][0])&&!['.writing-canvas','#siege-canvas','#run-jump'].includes(steps[current.mode][current.n][0]))advance(current);},true);
  document.addEventListener('pointerdown',e=>{if(current&&current.el.contains(e.target))down={...current,x:e.clientX,y:e.clientY,time:performance.now()};},true);
- document.addEventListener('pointerup',e=>{const d=down;down=null;if(!d)return;const sel=steps[d.mode][d.n][0],distance=Math.hypot(e.clientX-d.x,e.clientY-d.y);if(sel==='.writing-canvas'&&distance>8||sel==='#siege-canvas'&&e.clientY-d.y>15||sel==='#run-jump'&&(d.n===0||performance.now()-d.time>400))advance(d);},true);
+ document.addEventListener('pointerup',e=>{const d=down;down=null;if(!d)return;const sel=steps[d.mode][d.n][0],distance=Math.hypot(e.clientX-d.x,e.clientY-d.y);if(sel==='.writing-canvas'&&distance>8||sel==='#run-jump'&&(d.n===0||performance.now()-d.time>400))advance(d);},true);
+ document.addEventListener('siege-shot-fired',()=>{progress.slingshot=steps.slingshot.length;down=null;draw();});
+ document.addEventListener('siege-started',()=>{progress.slingshot=0;down=null;draw();});
  document.addEventListener('pointercancel',()=>down=null,true);window.addEventListener('blur',()=>down=null);setInterval(draw,250);
 })();
 
