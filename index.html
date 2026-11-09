@@ -1791,6 +1791,88 @@ html,body{height:100%;overflow:hidden;overscroll-behavior:none}
 #discovery-panel[data-mode=bridge] #discovery-scene{container-type:size}
 
 </style>
+<style id="conquest-style">
+#conquest-panel[hidden]{display:none!important}
+#conquest-panel{position:fixed;inset:0;z-index:1600;padding:18px;background:#172d39;color:#253d43;font:18px/1.4 system-ui,"Microsoft YaHei",sans-serif;overflow:hidden;user-select:none;-webkit-user-select:none}
+#conquest-panel *{box-sizing:border-box}
+#conquest-panel .cq-shell{height:100%;max-width:1920px;margin:auto;display:flex;flex-direction:column;gap:14px;position:relative}
+#conquest-panel button{width:auto;flex:none;min-width:0;min-height:46px;border:2px solid #354d52;border-radius:10px;padding:10px 16px;font:700 18px/1.3 system-ui,sans-serif;background:#fff2d0;color:#253d43;box-shadow:0 4px 0 #142e352b;cursor:pointer;text-shadow:none;white-space:normal;transition:background .15s,transform .15s}
+#conquest-panel button:disabled{cursor:default;opacity:.55;transform:none}
+#conquest-panel button:focus-visible{outline:4px solid #ffda66;outline-offset:4px}
+#conquest-panel button:not(:disabled):hover{background:#ffe29b;transform:translateY(-2px)}
+#conquest-panel .cq-primary{background:#ffd468;border-color:#8a6424;min-height:56px;font-size:22px}
+#conquest-panel header{display:flex;align-items:center;gap:15px;flex:none;background:#fff1cf;padding:12px 16px;border:2px solid #ffe49a;border-radius:14px;margin:0}
+#conquest-panel h1{margin:0;font-size:clamp(22px,2.2vw,36px);white-space:nowrap}
+#conquest-panel h2{font-size:clamp(25px,2.4vw,38px);margin:0;line-height:1.25}
+#conquest-panel h3,#conquest-panel p{margin:0}
+#conquest-panel .cq-scores{display:flex;gap:10px;flex:1;justify-content:center}
+#conquest-panel .cq-scores>span{padding:7px 14px;border:2px solid transparent;border-radius:9px;white-space:nowrap;font-size:24px}
+#conquest-panel .cq-scores small{display:block;font-size:14px}
+#conquest-panel .red{color:#ba3e38}#conquest-panel .blue{color:#146baf}
+#conquest-panel .cq-scores .active{background:#ffffff99;border-color:currentColor}
+#conquest-panel .cq-main{display:grid;grid-template-columns:minmax(0,1fr) minmax(290px,26%);gap:16px;flex:1;min-height:0}
+#conquest-panel .cq-map{position:relative;min-height:0;overflow:hidden;border:4px solid #fff0bf;border-radius:16px;background:radial-gradient(ellipse at 12% 20%,#c3d88c 0 10%,transparent 10.5%),radial-gradient(ellipse at 92% 80%,#c3d88c 0 10%,transparent 10.5%),repeating-linear-gradient(0deg,#a7c878 0 44px,#a5c576 44px 46px);isolation:isolate}
+#conquest-panel .cq-water{position:absolute;left:42%;top:-30%;height:160%;width:17%;transform:rotate(17deg);background:repeating-linear-gradient(0deg,#6ac2cb 0 33px,#a4e5df 34px 37px,#6ac2cb 38px 63px);border:8px solid #ddd7a1;animation:cq-water 8s linear infinite;opacity:.85}
+#conquest-panel .cq-mountains{position:absolute;inset:0;pointer-events:none;background:linear-gradient(135deg,transparent 50%,#6c9c6980 51% 70%,transparent 71%) 3% 4%/80px 60px no-repeat,linear-gradient(45deg,transparent 50%,#6c9c6980 51% 70%,transparent 71%) 97% 95%/100px 70px no-repeat}
+#conquest-panel .cq-roads{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+#conquest-panel .cq-roads line{stroke:#e9d6a5;stroke-width:2.1;stroke-linecap:round}
+#conquest-panel button.cq-site{position:absolute;transform:translate(-50%,-50%);width:16%;min-height:0;display:flex;flex-direction:column;align-items:center;padding:6px 2px;background:transparent;border:2px solid transparent;box-shadow:none;opacity:1;z-index:2;border-radius:14px}
+#conquest-panel button.cq-site:hover{transform:translate(-50%,-50%);background:#fff3c84d}
+#conquest-panel .cq-site svg{width:clamp(60px,7.4vw,140px);height:auto;max-width:100%;image-rendering:pixelated;filter:drop-shadow(0 4px 0 #173b3029)}
+#conquest-panel .cq-site strong{font-size:clamp(16px,1.55vw,26px);line-height:1.1;padding:4px;background:#fff7d9;border:2px solid #576846;white-space:normal;border-radius:5px;text-align:center}
+#conquest-panel .cq-site .cq-shields{letter-spacing:2px;font-size:20px;line-height:1.15;background:#fff9e2d9;padding:0 5px;border-radius:4px;margin-top:4px}
+#conquest-panel .cq-site.available{border-color:#fff4ad;background:#fff6b733;cursor:pointer}
+#conquest-panel .cq-site.chosen{border-color:#ffe174;box-shadow:0 0 0 4px #e1a82a;background:#fff2ac80}
+#conquest-panel .cq-site.chosen:before{content:'▼';position:absolute;top:-22px;color:#fff4b2;font-size:25px;animation:cq-arrow .7s steps(2) infinite}
+#conquest-panel .cq-legend{position:absolute;bottom:9px;left:12px;display:flex;gap:15px;padding:5px 12px;background:#fff7d4ed;border-radius:6px;font-size:15px;z-index:3}
+#conquest-panel .cq-sidebar{display:flex;flex-direction:column;gap:16px;min-height:0;overflow:auto;background:#fff5dc;padding:24px;border:3px solid #efd99f;border-radius:14px}
+#conquest-panel .cq-sidebar p{font-size:clamp(16px,1.4vw,22px);line-height:1.5}
+#conquest-panel .cq-sidebar label{display:flex;align-items:center;justify-content:space-between;gap:10px}
+#conquest-panel select{font:inherit;padding:6px;background:#fffdf4;color:#253d43;border:2px solid #9b8f66;border-radius:6px}
+#conquest-panel .cq-sidebar>.cq-primary{margin-top:auto}
+#conquest-panel .cq-kicker{font-weight:bold;color:#887342;font-size:18px}
+#conquest-panel .cq-target{padding:16px;background:#e5edcc;border-left:6px solid #86a263;font-size:25px;font-weight:bold}
+#conquest-panel .cq-target b{display:block;font-size:17px;font-weight:normal;margin-top:5px}
+#conquest-panel .cq-good{color:#267849}#conquest-panel .cq-bad{color:#ba3e38}
+#conquest-panel .cq-answer{font-size:clamp(32px,3vw,48px);line-height:1.2;overflow-wrap:anywhere}
+#conquest-panel footer{display:flex;align-items:center;justify-content:space-between;gap:15px;color:#fff3cc;font-size:16px;padding:0 4px;flex:none}
+#conquest-panel footer b{white-space:nowrap}
+#conquest-panel .cq-dialog{width:min(1000px,90vw);max-height:94dvh;overflow:auto;border:4px solid #f2cb72;border-radius:18px;background:#fff6dd;color:#253d43;padding:30px;box-shadow:0 18px 70px #0007}
+#conquest-panel .cq-dialog::backdrop{background:#0a2234b8}
+#conquest-panel .cq-quiz-head{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+#conquest-panel .cq-quiz-head>b{font-size:22px;margin-right:auto}
+#conquest-panel #cq-clock{font-size:36px;font-variant-numeric:tabular-nums;min-width:70px;text-align:center;color:#73602d}
+#conquest-panel #cq-clock.urgent{color:#b53632}
+#conquest-panel .cq-prompt{font-size:clamp(25px,3vw,42px);padding:18px 0;line-height:1.3}
+#conquest-panel .cq-options{display:flex;flex-wrap:wrap;justify-content:center;gap:15px;margin:24px 0}
+#conquest-panel .cq-options button{flex:1;min-width:130px;min-height:88px;font-size:clamp(30px,3vw,48px);background:#fffdf1;border-color:#67846d}
+#conquest-panel .cq-options small{font-size:17px;color:#708278}
+#conquest-panel .cq-sentence{display:flex;justify-content:center;gap:12px;margin-top:20px;min-height:70px;border-bottom:3px dashed #b4a77a;font-size:36px;padding:10px}
+#conquest-panel .cq-sentence span{background:#d9e9c9;padding:0 8px;border-radius:6px}
+#conquest-panel .cq-inline{display:flex;justify-content:center;gap:15px}
+#conquest-panel .cq-teacher{display:flex;align-items:center;gap:10px;border-top:1px solid #d8cbaa;padding-top:18px;margin-top:20px;flex-wrap:wrap}
+#conquest-panel .cq-teacher label{display:flex;align-items:center;gap:8px;margin-right:auto}
+#conquest-panel input{width:20px;height:20px;accent-color:#347eb6}
+#conquest-panel .cq-final{display:flex;gap:10px}
+#conquest-panel .cq-final>div{flex:1;text-align:center;background:#fff;border:2px solid currentColor;padding:10px;border-radius:8px}
+#conquest-panel .cq-final strong{display:block;font-size:48px}
+#conquest-panel .cq-review-words{font-size:22px}
+#conquest-panel .cq-pause-cover{position:absolute;inset:0;z-index:8;background:#172d39ed;display:flex;align-items:center;justify-content:center;gap:20px;color:#fff5dc;border-radius:16px}
+#conquest-panel .cq-squad{position:absolute;z-index:5;display:flex;width:90px;pointer-events:none;animation:cq-march 1.15s linear both}
+#conquest-panel .cq-squad svg{width:30px;animation:cq-run .22s steps(2) infinite}
+#conquest-panel .cq-squad svg:nth-child(2){animation-delay:-.11s}
+#conquest-panel .cq-impact{position:absolute;z-index:6;font-size:72px;color:#fff4ab;text-shadow:0 3px #bd7e22;animation:cq-impact 1.25s both;pointer-events:none;transform:translate(-50%,-50%)}
+#conquest-panel.cq-paused *{animation-play-state:paused!important}
+@keyframes cq-water{to{background-position:0 63px}}
+@keyframes cq-arrow{50%{transform:translateY(-5px)}}
+@keyframes cq-march{from{left:var(--sx);top:var(--sy);transform:translate(-50%,-50%)}to{left:var(--tx);top:var(--ty);transform:translate(-50%,-50%)}}
+@keyframes cq-run{50%{transform:translateY(-5px)}}
+@keyframes cq-impact{0%,70%{opacity:0}80%{opacity:1;scale:1.3}100%{opacity:0;scale:1.8}}
+@media(max-height:800px){#conquest-panel{padding:10px}#conquest-panel .cq-shell{gap:9px}#conquest-panel header{padding:8px}#conquest-panel .cq-sidebar{padding:16px;gap:10px}#conquest-panel .cq-sidebar p{font-size:16px}#conquest-panel .cq-dialog{padding:20px}#conquest-panel .cq-options{margin:18px 0}}
+@media(max-width:1100px){#conquest-panel .cq-scores>span{font-size:18px;padding:4px 7px}#conquest-panel header{gap:8px}#conquest-panel header button{font-size:15px;padding:6px}#conquest-panel .cq-main{grid-template-columns:minmax(0,1fr) 280px;gap:10px}#conquest-panel .cq-site strong{font-size:16px}#conquest-panel footer{font-size:14px}}
+@media(prefers-reduced-motion:reduce){#conquest-panel *,#conquest-panel *:before{animation:none!important;transition:none!important}#conquest-panel .cq-squad{left:var(--tx);top:var(--ty);transform:translate(-50%,-50%)}#conquest-panel .cq-impact{display:none}}
+
+</style>
 </head>
 <body>
 <div class="star" style="left:6%;top:12%">✦</div>
@@ -1950,6 +2032,7 @@ html,body{height:100%;overflow:hidden;overscroll-behavior:none}
 <label class="mode-option"><input type="radio" name="learn-mode" value="defense"><strong>15 · <span>Word Tower Defense</span></strong></label>
 <label class="mode-option"><input type="radio" name="learn-mode" value="adventure"><strong>16 · <span>Character Adventure</span></strong></label>
 <label class="mode-option"><input type="radio" name="learn-mode" value="canteen"><strong>17 · <span id="canteen-menu-title" translate="no">食堂词语</span></strong></label>
+<label class="mode-option"><input type="radio" name="learn-mode" value="conquest"><strong>18 · <span id="conquest-menu-title" translate="no">汉语夺城</span></strong></label>
     </div>
     
     <div class="opt-row">
@@ -5780,7 +5863,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",
 /* ================= 流程控制 ================= */
 function returnToMenu(){
  S.runSerial++;S.running=false;S.busy=true;S.paused=false;S.question=null;
- cancelAnswerReview();stopTimer();runner.stop();slingshot.stop();farm.stop();extraGames.stop();discoveryGames.stop();canteenGame.stop();stopBGM();stopWeaponAudio();
+ cancelAnswerReview();stopTimer();runner.stop();slingshot.stop();farm.stop();extraGames.stop();discoveryGames.stop();canteenGame.stop();conquestGame.stop();stopBGM();stopWeaponAudio();
  try{window.speechSynthesis?.cancel();}catch(e){}
  $("combat-flight-layer").replaceChildren();
  $("shop-panel").classList.add("hidden");$("modal-over").classList.add("hidden");$("modal-speech").classList.add("hidden");
@@ -5788,7 +5871,7 @@ function returnToMenu(){
 }
 $('btn-back').addEventListener('click',returnToMenu);
 async function startRun(){
-  runner.stop();slingshot.stop();farm.stop();extraGames.stop();discoveryGames.stop();canteenGame.stop();
+  runner.stop();slingshot.stop();farm.stop();extraGames.stop();discoveryGames.stop();canteenGame.stop();conquestGame.stop();
   stopWeaponAudio();
   S.runSerial++; const startSerial=S.runSerial; cancelAnswerReview();
   $("combat-flight-layer").innerHTML="";
@@ -5797,6 +5880,7 @@ async function startRun(){
   selectLesson(Number(document.querySelector('input[name="lesson"]:checked').value));
   S.question=null;
   $("btn-back").hidden=Object.hasOwn(DISCOVERY_MODES,S.mode)||["runner","slingshot","farm","kitchen","fishing","workshop"].includes(S.mode);
+  if(S.mode==="conquest"){conquestGame.start();return;}
   if(S.mode==="canteen"){canteenGame.start();return;}
   if(Object.hasOwn(DISCOVERY_MODES,S.mode)){discoveryGames.start(S.mode);return;}
   if(S.mode==="runner"){runner.start();return;}
@@ -5905,7 +5989,7 @@ const INTRO_ROWS=[
 ];
 function renderIntro(){
   const mode=document.querySelector('input[name="learn-mode"]:checked').value;
-  const descriptions={canteen:"Read the task. Choose two cards in order.",...DISCOVERY_HELP,...EXTRA_HELP,farm:"Care for three vegetable plots by completing words from your selected level. Answer correctly to water, loosen soil, fertilize and remove pests. Complete all four actions, then sell the vegetable for 20 points. Your teacher gives classroom rewards based on your points.",slingshot:"Choose a character block, pull the slingshot backward to aim, and release to fire. Complete the word on an enemy to damage it. Wrong characters cannot break its shield. Protect your base from approaching enemies.",runner:"Run continuously along three levels: ground with cliffs below, and two tiers of separated platforms above. Jump to choose a route. Falling into a cliff ends the run immediately. Recruit people whose words match the meaning; avoid incorrect words and hazards, which cost one teammate.",dictation:"Listen to the word, then choose the matching Chinese word. Replay the pronunciation whenever you need.",writing:"Write the missing character in the grid. Use the pinyin and pronunciation as hints. Stroke order does not matter.",recognize:"Choose the Chinese word that matches the meaning. A correct answer deals damage. After a wrong answer, review the word and continue.",complete:"Choose the missing Chinese character to complete the word. A correct answer deals damage. Buy items to strengthen your answers and protect yourself.",cards:"Play cards that form a word with the monster's character to deal damage. If the number of cards matches the lucky die, your damage is multiplied. A wrong answer triggers a counterattack."};
+  const descriptions={conquest:"Take turns. Answer correctly to attack or fortify. Capture the opposing capital, or hold more sites.",canteen:"Read the task. Choose two cards in order.",...DISCOVERY_HELP,...EXTRA_HELP,farm:"Care for three vegetable plots by completing words from your selected level. Answer correctly to water, loosen soil, fertilize and remove pests. Complete all four actions, then sell the vegetable for 20 points. Your teacher gives classroom rewards based on your points.",slingshot:"Choose a character block, pull the slingshot backward to aim, and release to fire. Complete the word on an enemy to damage it. Wrong characters cannot break its shield. Protect your base from approaching enemies.",runner:"Run continuously along three levels: ground with cliffs below, and two tiers of separated platforms above. Jump to choose a route. Falling into a cliff ends the run immediately. Recruit people whose words match the meaning; avoid incorrect words and hazards, which cost one teammate.",dictation:"Listen to the word, then choose the matching Chinese word. Replay the pronunciation whenever you need.",writing:"Write the missing character in the grid. Use the pinyin and pronunciation as hints. Stroke order does not matter.",recognize:"Choose the Chinese word that matches the meaning. A correct answer deals damage. After a wrong answer, review the word and continue.",complete:"Choose the missing Chinese character to complete the word. A correct answer deals damage. Buy items to strengthen your answers and protect yourself.",cards:"Play cards that form a word with the monster's character to deal damage. If the number of cards matches the lucky die, your damage is multiplied. A wrong answer triggers a counterattack."};
   $("intro-guide").innerHTML='<div class="intro-art">'+(DISCOVERY_MODES[mode]?'<svg viewBox="0 0 280 100" shape-rendering="crispEdges"><path d="M0 0h280v100H0" fill="#c3e4d5"/><path d="M0 80h280v20H0" fill="#8bb69b"/><path d="M40 30h30v22H40m-5 25V54h40v23" fill="#a583c7"/><path d="M43 30h24v20H43" fill="#ffdeae"/><path d="M135 48h55v32h-55" fill="#f2cf86"/><path d="M158 60h9v10h-9" fill="#7b608d"/><path d="M220 15h30v65h-30" fill="#ac99d0"/></svg>':mode==='kitchen'?"<svg class=\"intro-pixel-kitchen\" viewBox=\"0 0 280 130\" aria-hidden=\"true\" shape-rendering=\"crispEdges\"><path d=\"M0 0h280v130H0\" fill=\"#c4a3df\"/><path d=\"M25 45h50v60H25\" fill=\"#775571\"/><path d=\"M32 40h36v45H32\" fill=\"#efc49e\"/><path d=\"M25 10h50v8h12v28H13V18h12\" fill=\"#fff3cd\"/><path d=\"M13 36h74v10H13\" fill=\"#d9d8c0\"/><path d=\"M38 55h6v7h-6m17-7h6v7h-6m-11 14h12v5H44\" fill=\"#60445f\"/><path d=\"M18 87h65v38H18\" fill=\"#b47dab\"/><path d=\"M31 87h39v38H31\" fill=\"#fff0c9\"/><path d=\"M127 60h126v48H127v-9h-10V69h10\" fill=\"#6597a5\"/><path d=\"M135 57h110v15H135\" fill=\"#f3d89b\"/><path d=\"M151 44V25h7v19m26-4V17h7v23m25 5V26h7v19\" fill=\"#fff4d7\"/><path d=\"M137 114h106v10H137\" fill=\"#96718f\"/><path d=\"M153 102h10v12h-10m27-12h10v12h-10m27-12h10v12h-10\" fill=\"#ffb970\"/></svg>":EXTRA_MODES[mode]?'<div style="font-size:60px;text-align:center">'+({kitchen:'👩🏻‍🍳 🥘',fishing:'🎣 🐟',workshop:'🧩 🔨'}[mode])+'</div>':mode==="farm"?"<svg viewBox=\"0 0 280 100\" aria-hidden=\"true\" shape-rendering=\"crispEdges\"><rect width=\"280\" height=\"100\" rx=\"15\" fill=\"#ccead6\"/><path d=\"M15 68h65v21H15m90-21h65v21h-65m90-21h65v21h-65\" fill=\"#bd977e\"/><path d=\"M18 71h58m32 0h58m32 0h58\" stroke=\"#edcfa0\" stroke-width=\"4\"/><path d=\"M44 70V42h6v28m84 0V31h6v39m84 0V39h6v31\" fill=\"#6baf82\"/><path d=\"M44 47H30V34h14m6 7h15V28H50m84 9h-17V22h17m6 7h17V16h-17m84 29h-16V29h16m6 10h17V25h-17\" fill=\"#8cc88c\"/><path d=\"M215 52h25v25h-25\" fill=\"#eea35f\"/></svg>":mode==="slingshot"?'<svg viewBox="0 0 280 100" aria-hidden="true"><rect width="280" height="100" rx="15" fill="#ccead6"/><path d="M40 85V60L22 40M40 60L58 40" stroke="#795372" stroke-width="8" fill="none"/><path d="M22 40L45 70L58 40" stroke="#bd797c" stroke-width="3" fill="none"/><path d="M60 60L155 30" stroke="#fff8df" stroke-width="4" stroke-dasharray="5 8"/><rect x="85" y="28" width="32" height="32" rx="8" fill="#ffe49a"/><text x="101" y="52" text-anchor="middle" fill="#583768" font-size="24">学</text><rect x="192" y="22" width="64" height="61" rx="20" fill="#a58cda"/><rect x="181" y="48" width="86" height="31" rx="8" fill="#fff2c8"/><text x="224" y="72" text-anchor="middle" fill="#583768" font-size="24">＿习</text></svg>':mode==="runner"?'<svg viewBox="0 0 280 100" aria-hidden="true"><rect width="280" height="100" rx="15" fill="#cff1df"/><path d="M0 83H280" stroke="#78b393" stroke-width="8"/><g fill="#ac83cc" stroke="#614875" stroke-width="3"><rect x="30" y="45" width="25" height="33" rx="9"/><rect x="65" y="45" width="25" height="33" rx="9"/></g><g fill="#ffe6c5"><circle cx="43" cy="34" r="16"/><circle cx="78" cy="34" r="16"/></g><path d="M129 81l12-29 12 29 12-29 12 29" fill="#8e809e"/><rect x="220" y="49" width="24" height="30" rx="9" fill="#78bca5"/><circle cx="232" cy="37" r="14" fill="#ffe6c5"/><rect x="211" y="4" width="42" height="18" rx="6" fill="#fff1b7"/><text x="232" y="18" text-anchor="middle" fill="#614875" font-size="14">学</text></svg>':introSceneSVG(mode==="cards"?"dice":"match"))+'</div><p>'+esc(descriptions[mode])+'</p>';
   $("mode-dialog-title").textContent=MODE_NAMES[mode];
 }
@@ -6730,6 +6814,126 @@ const updateCanteenTitle=()=>{const lang=window.gameLocalization?.language||'zh'
  new MutationObserver(schedule).observe(document.getElementById('stage'),{childList:true,subtree:true});
  addEventListener('resize',schedule);visualViewport?.addEventListener('resize',schedule);document.addEventListener('click',schedule);schedule();
 })();
+
+</script>
+<script id="conquest-runtime">
+/* Classroom conquest: UI text is separate from the shared Chinese question bank. */
+const CONQUEST_TEXT={
+ title:['汉语夺城','Chinese Conquest','Кытайча шаар алуу','Xitoycha qal’a jangi','ชิงเมืองภาษาจีน','ຊິງເມືອງພາສາຈີນ'],
+ red:['红队','Red team','Кызыл топ','Qizil jamoa','ทีมแดง','ທີມແດງ'],blue:['蓝队','Blue team','Көк топ','Ko‘k jamoa','ทีมฟ้า','ທີມຟ້າ'],neutral:['中立','Neutral','Бейтарап','Betaraf','เป็นกลาง','ເປັນກາງ'],
+ back:['返回','Back','Артка','Orqaga','กลับ','ກັບຄືນ'],pause:['暂停','Pause','Тыныгуу','Pauza','พัก','ຢຸດຊົ່ວຄາວ'],resume:['继续','Resume','Улантуу','Davom etish','เล่นต่อ','ຫຼິ້ນຕໍ່'],fullscreen:['全屏','Full screen','Толук экран','To‘liq ekran','เต็มจอ','ເຕັມຈໍ'],
+ start:['开始对战','Start match','Оюнду баштоо','O‘yinni boshlash','เริ่มการแข่งขัน','ເລີ່ມແຂ່ງຂັນ'],restart:['再来一局','Play again','Кайра ойноо','Yana o‘ynash','เล่นอีกครั้ง','ຫຼິ້ນອີກຄັ້ງ'],
+ rules:['红蓝轮流行动。点击己方据点加固，或沿道路进攻相邻据点。答对才执行；攻下对方主城立即获胜。行动结束后比较据点数，同分比较答对数。','Take turns. Fortify your sites or attack adjacent sites along roads. Correct answers earn actions. Capture the opposing capital to win; otherwise compare sites, then correct answers.','Кезектешип ойноңуз. Өз жериңизди бекемдеңиз же кошуна жерге чабуул коюңуз. Туура жооп аракет берет. Душмандын борборун алсаңыз жеңесиз; болбосо жерлер, анан туура жооптор эсептелет.','Navbat bilan o‘ynang. O‘z joyingizni mustahkamlang yoki qo‘shni joyga hujum qiling. To‘g‘ri javob harakat beradi. Raqib poytaxtini oling; aks holda joylar, keyin to‘g‘ri javoblar sanaladi.','ผลัดกันเล่น เสริมป้อมของตนหรือโจมตีจุดข้างเคียงตามถนน ตอบถูกจึงลงมือได้ ยึดเมืองหลวงฝ่ายตรงข้ามเพื่อชนะ มิฉะนั้นนับจุดยึดแล้วนับคำตอบถูก','ຜັດກັນຫຼິ້ນ ເສີມປ້ອມຂອງຕົນ ຫຼື ໂຈມຕີຈຸດຂ້າງຄຽງ ຕອບຖືກຈຶ່ງລົງມືໄດ້ ຍຶດນະຄອນຫຼວງຄູ່ແຂ່ງເພື່ອຊະນະ ຖ້າບໍ່ ໃຫ້ນັບຈຸດຍຶດ ແລ້ວນັບຄຳຕອບຖືກ'],
+ guide:['➜ 点击发光据点，再出题。红蓝两队轮流讨论回答。','➜ Choose a glowing site, then open its question. Teams take turns discussing and answering.','➜ Жаркыраган жерди тандап, суроону ачыңыз. Топтор кезектешип жооп берет.','➜ Yoritilgan joyni tanlab savolni oching. Jamoalar navbat bilan javob beradi.','➜ เลือกจุดที่เรืองแสง แล้วเปิดคำถาม ผลัดกันปรึกษาและตอบ','➜ ເລືອກຈຸດທີ່ສະຫວ່າງ ແລ້ວເປີດຄຳຖາມ ຜັດກັນປຶກສາແລະຕອບ'],
+ turns:['总行动数','Total turns','Жалпы кезек','Jami navbat','จำนวนตาทั้งหมด','ຈຳນວນຕາທັງໝົດ'],time:['每题秒数','Seconds per question','Суроого секунд','Savol uchun soniya','วินาทีต่อข้อ','ວິນາທີຕໍ່ຂໍ້'],off:['不限时','No limit','Чексиз','Cheklanmagan','ไม่จำกัด','ບໍ່ຈຳກັດ'],turn:['行动','Turn','Кезек','Navbat','ตา','ຕາ'],sites:['据点','Sites','Жерлер','Joylar','จุดยึด','ຈຸດຍຶດ'],correct:['答对','Correct','Туура','To‘g‘ri','ตอบถูก','ຕອບຖືກ'],capital:['主城','Capital','Борбор','Poytaxt','เมืองหลวง','ນະຄອນຫຼວງ'],
+ attack:['进攻','Attack','Чабуул','Hujum','โจมตี','ໂຈມຕີ'],fortify:['加固','Fortify','Бекемдөө','Mustahkamlash','เสริมป้อม','ເສີມປ້ອມ'],defense:['防御','Defense','Коргонуу','Mudofaa','พลังป้องกัน','ພະລັງປ້ອງກັນ'],
+ actionRule:['答对：进攻削减 1 点防御，降至 0 即占领；加固增加 1 点防御，上限 3。','Correct: an attack removes 1 defense; at 0, capture the site. Fortifying adds 1 defense, up to 3.','Туура жооп: чабуул коргонууну 1 азайтат; 0 болсо жер алынат. Бекемдөө 1 кошот, чеги 3.','To‘g‘ri javob: hujum mudofaani 1 kamaytiradi; 0 bo‘lsa joy olinadi. Mustahkamlash 1 qo‘shadi, eng ko‘pi 3.','ตอบถูก: โจมตีลดพลังป้องกัน 1 เหลือ 0 จะยึดได้ เสริมป้อมเพิ่ม 1 สูงสุด 3','ຕອບຖືກ: ໂຈມຕີຫຼຸດປ້ອງກັນ 1 ເຫຼືອ 0 ຈະຍຶດໄດ້ ເສີມປ້ອມເພີ່ມ 1 ສູງສຸດ 3'],
+ select:['选择行动目标','Choose a target','Бута тандаңыз','Nishon tanlang','เลือกเป้าหมาย','ເລືອກເປົ້າໝາຍ'],question:['出题','Open question','Суроону ачуу','Savolni ochish','เปิดคำถาม','ເປີດຄຳຖາມ'],
+ meaning:['选择对应的汉语词语','Choose the matching Chinese word','Туура кытайча сөздү тандаңыз','Mos xitoycha so‘zni tanlang','เลือกคำภาษาจีนที่ตรงกัน','ເລືອກຄຳພາສາຈີນທີ່ກົງກັນ'],listen:['听音辨词','Listen and choose','Угуп тандаңыз','Tinglang va tanlang','ฟังแล้วเลือก','ຟັງແລ້ວເລືອກ'],sentence:['排列词语组成句子','Arrange the sentence','Сүйлөм түзүңүз','Gap tuzing','เรียงคำเป็นประโยค','ຮຽງຄຳເປັນປະໂຫຍກ'],audio:['播放发音','Play audio','Үндү угуу','Ovozni eshitish','เล่นเสียง','ຫຼິ້ນສຽງ'],
+ submit:['提交','Submit','Жөнөтүү','Yuborish','ส่งคำตอบ','ສົ່ງຄຳຕອບ'],undo:['撤销','Undo','Артка алуу','Bekor qilish','ย้อนกลับ','ຍ້ອນກັບ'],extend:['加 15 秒','Add 15 s','15 с кошуу','15 s qo‘shish','เพิ่ม 15 วิ','ເພີ່ມ 15 ວິ'],
+ teacher:['教师口头判定','Teacher: oral answer','Мугалим: оозеки жооп','O‘qituvchi: og‘zaki javob','ครูตรวจคำตอบปากเปล่า','ຄູກວດຄຳຕອບປາກເປົ່າ'],wrong:['答错','Incorrect','Туура эмес','Noto‘g‘ri','ตอบผิด','ຕອບຜິດ'],timeout:['时间到','Time is up','Убакыт бүттү','Vaqt tugadi','หมดเวลา','ໝົດເວລາ'],answer:['正确答案','Answer','Туура жооп','Javob','คำตอบที่ถูก','ຄຳຕອບທີ່ຖືກ'],
+ captured:['成功占领！','Site captured!','Жер алынды!','Joy egallandi!','ยึดสำเร็จ!','ຍຶດສຳເລັດ!'],damaged:['敌方防御 −1','Enemy defense −1','Душман коргонуусу −1','Raqib mudofaasi −1','พลังป้องกันศัตรู −1','ປ້ອງກັນສັດຕູ −1'],reinforced:['防御 +1','Defense +1','Коргонуу +1','Mudofaa +1','พลังป้องกัน +1','ປ້ອງກັນ +1'],noAction:['本次行动未执行','No action this turn','Аракет аткарылган жок','Bu navbatda harakat yo‘q','ไม่ได้ลงมือในตานี้','ບໍ່ໄດ້ລົງມືໃນຕານີ້'],
+ next:['换队继续','Next team','Кийинки топ','Keyingi jamoa','ทีมถัดไป','ທີມຕໍ່ໄປ'],results:['查看结果','Results','Жыйынтык','Natijalar','ดูผล','ເບິ່ງຜົນ'],win:['获胜！','wins!','жеңди!','yutdi!','ชนะ!','ຊະນະ!'],draw:['平局！','Draw!','Тең чыкты!','Durrang!','เสมอ!','ສະເໝີ!'],
+ endRule:['据点优先；同分比较答对数。','Sites first; correct answers break a tie.','Адегенде жерлер, тең болсо туура жооптор.','Avval joylar, teng bo‘lsa to‘g‘ri javoblar.','นับจุดยึดก่อน หากเท่ากันนับคำตอบถูก','ນັບຈຸດຍຶດກ່ອນ ຖ້າເທົ່າກັນນັບຄຳຕອບຖືກ'],
+ review:['本局复习','Match review','Кайталоо','Takrorlash','ทบทวนรอบนี้','ທົບທວນຮອບນີ້'],pass:['跳过本次行动','Pass this turn','Кезекти өткөрүү','Navbatni o‘tkazish','ผ่านตานี้','ຂ້າມຕານີ້'],
+ vocabulary:['词库关卡','Vocabulary level','Сөздөр деңгээли','Lug‘at bosqichi','บทคำศัพท์','ບົດຄຳສັບ']
+};
+
+const conquestGame=(()=>{
+ const panel=document.createElement('section');panel.id='conquest-panel';panel.hidden=true;panel.setAttribute('translate','no');document.body.append(panel);
+ const positions=[[10,50],[30,21],[30,79],[50,32],[50,68],[70,21],[70,79],[90,50]];
+ const edges=[[0,1],[0,2],[1,2],[1,3],[2,4],[3,4],[3,5],[4,6],[5,6],[5,7],[6,7]];
+ const langs=['zh','en','ky','uz','th','lo'];let state=null,language='zh',raf=0,last=0;
+ const t=k=>(CONQUEST_TEXT[k]||[k])[Math.max(0,langs.indexOf(language))];
+ const e=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const btn=(label,action,disabled=false,extra='')=>`<button data-cq="${action}" ${disabled?'disabled':''} ${extra}>${label}</button>`;
+ const team=n=>t(n===0?'red':'blue');
+ const shuffle=items=>{const a=items.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+ const adjacent=(a,b)=>edges.some(([x,y])=>x===a&&y===b||x===b&&y===a);
+ const count=n=>state.nodes.filter(x=>x.owner===n).length;
+ const name=i=>i===0?team(0)+' · '+t('capital'):i===7?team(1)+' · '+t('capital'):t('sites')+' '+String.fromCharCode(64+i);
+ const meaning=w=>window.gameLocalization?.translate(PRACTICE_EN[w.w]||w.e)||w.e;
+ const pinyin=token=>ALL_WORDS.find(w=>w.w===token)?.p||({我:'wǒ',你:'nǐ',是:'shì',的:'de',在:'zài',很:'hěn'}[token])||token;
+ function canSelect(i){const n=state.nodes[i];return n.owner===state.team?n.hp<3:state.nodes.some((x,j)=>x.owner===state.team&&adjacent(i,j))}
+ function audio(){if(!state?.question)return;speak(state.question.answer)}
+ function sound(ok){if(!S.muted){tone(ok?660:180,.15,'triangle',.05);if(ok)tone(880,.15,'triangle',.04,.12)}}
+ function castle(owner,capital){const color=owner===0?'#ed6758':owner===1?'#4ca9ec':'#b4aa85';return `<svg viewBox="0 0 80 68" shape-rendering="crispEdges" aria-hidden="true"><ellipse cx="40" cy="63" rx="34" ry="5" fill="#153a3429"/><path d="M40 4v20" stroke="#3c4250" stroke-width="3"/><path class="cq-flag" d="M42 4h24v13H42z" fill="${color}"/><path d="M12 28h10v7h8v-7h20v7h8v-7h10v34H12z" fill="#41495d"/><path d="M16 32h3v7h14v-7h14v7h14v-7h3v26H16z" fill="#e4ce96"/><path d="M28 38h24v20H28z" fill="${color}"/><path d="M35 45h10v17H35z" fill="#354252"/><path d="M18 45h6v6h-6m38-6h6v6h-6" fill="#526c82"/>${capital?'<path d="M28 28v-7l6 4 6-8 6 8 6-4v7z" fill="#ffe06c"/>':''}</svg>`}
+ function soldier(){return '<svg viewBox="0 0 20 28" shape-rendering="crispEdges" aria-hidden="true"><path d="M5 3h10v9H5" fill="#ffe0ad"/><path d="M4 1h12v5H4m1 11h10v7H5" fill="currentColor"/><path d="M7 8h2v2H7m5-2h2v2h-2M5 24h4v4H5m6-4h4v4h-4" fill="#303e50"/><path d="M3 13h14v10H3" fill="currentColor"/></svg>'}
+ function start(){stop();language=window.gameLocalization?.language||'zh';state={phase:'setup',team:0,turn:0,maxTurns:12,seconds:30,target:null,paused:false,correct:[0,0],records:[],recent:[],nodes:positions.map((_,i)=>({owner:i===0?0:i===7?1:-1,hp:i===0||i===7?3:1})),lesson:Number(document.querySelector('input[name=lesson]:checked').value)};S.running=false;S.busy=true;panel.hidden=false;document.getElementById('stage').inert=true;document.getElementById('btn-back').hidden=true;document.getElementById('overlay').classList.add('hidden');render();last=performance.now();raf=requestAnimationFrame(tick)}
+ function stop(){cancelAnimationFrame(raf);raf=0;panel.querySelector('dialog[open]')?.close();if(document.fullscreenElement===panel)document.exitFullscreen().catch(()=>{});panel.hidden=true;state=null;document.getElementById('stage').inert=false;try{speechSynthesis.cancel()}catch{}}
+ function begin(){state.maxTurns=Number(panel.querySelector('#cq-turns').value);state.seconds=Number(panel.querySelector('#cq-seconds').value);state.phase='select';render()}
+ function makeQuestion(){
+  if(state.phase!=='select'||state.target===null||!canSelect(state.target))return;
+  const scheduled=Math.floor(state.turn/2)%3,type=scheduled===1&&(S.muted||!('speechSynthesis' in window))?0:scheduled;
+  if(type===2){const sentence=BRIDGE_SETS[state.lesson][Math.floor(state.turn/6)%3];state.question={type,answer:sentence[0].join(''),tokens:shuffle(sentence[0].map((word,id)=>({word,id}))),expected:sentence[0],selected:[],clue:language==='zh'?sentence[0].map(pinyin).join(' · '):sentence[1][['en','zh','ky','uz','th','lo'].indexOf(language)]}}
+  else{let pool=WORDS.filter(w=>!state.recent.slice(-Math.min(3,WORDS.length-1)).includes(w.w));const word=shuffle(pool.length?pool:WORDS)[0];state.recent.push(word.w);state.question={type,word,answer:word.w,options:shuffle([word,...shuffle(WORDS.filter(w=>w.w!==word.w)).slice(0,3)]),clue:type===1?t('listen'):language==='zh'?word.p:meaning(word)}}
+  state.remaining=state.seconds;state.teacher=false;state.phase='quiz';render();if(type===1&&!S.muted)audio();
+ }
+ function resolve(ok,reply='',manual=false,timeout=false){
+  if(state.phase!=='quiz'||state.paused)return;
+  try{speechSynthesis.cancel()}catch{}
+  state.records.push({team:state.team,type:state.question.type,answer:state.question.answer,correct:ok,reply,manual,timeout});state.ok=ok;state.timedOut=timeout;
+  state.correct[state.team]+=Number(ok);sound(ok);
+  if(!ok){state.effect='noAction';state.phase='review';render();return}
+  const n=state.nodes[state.target];state.source=n.owner===state.team?state.target:state.nodes.findIndex((x,i)=>x.owner===state.team&&adjacent(i,state.target));
+  state.phase='battle';state.battleTime=1.25;render();
+ }
+ function applyAction(){
+  const n=state.nodes[state.target];
+  if(n.owner===state.team){n.hp=Math.min(3,n.hp+1);state.effect='reinforced'}
+  else{n.hp--;if(n.hp<=0){n.owner=state.team;n.hp=1;state.effect='captured'}else state.effect='damaged'}
+  state.phase='review';render();
+ }
+ function winner(){if(state.nodes[7].owner===0)return 0;if(state.nodes[0].owner===1)return 1;const d=count(0)-count(1)||state.correct[0]-state.correct[1];return d===0?-1:d>0?0:1}
+ function isEnd(){return state.turn+1>=state.maxTurns||state.nodes[7].owner===0||state.nodes[0].owner===1}
+ function next(){if(state.phase!=='review'||state.paused)return;if(isEnd()){state.phase='result';render();return}state.turn++;state.team=1-state.team;state.target=null;state.question=null;state.phase='select';render()}
+ function tick(now){if(!state)return;const dt=Math.min(1,(now-last)/1000);last=now;if(!state.paused&&!document.hidden){if(state.phase==='quiz'&&state.seconds){state.remaining=Math.max(0,state.remaining-dt);const timer=panel.querySelector('#cq-clock');if(timer){timer.textContent=Math.ceil(state.remaining);timer.classList.toggle('urgent',state.remaining<=10)}if(state.remaining<=0)resolve(false,'',false,true)}else if(state.phase==='battle'){state.battleTime-=dt;if(state.battleTime<=0)applyAction()}}raf=requestAnimationFrame(tick)}
+ function pause(){if(!state||state.phase==='setup'||state.phase==='result')return;state.paused=!state.paused;try{speechSynthesis.cancel()}catch{}render()}
+ function board(){return `<div class="cq-map" aria-label="${e(t('title'))}"><div class="cq-water"></div><div class="cq-mountains"></div><svg class="cq-roads" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${edges.map(([a,b])=>`<line x1="${positions[a][0]}" y1="${positions[a][1]}" x2="${positions[b][0]}" y2="${positions[b][1]}"/>`).join('')}</svg>${state.nodes.map((n,i)=>`<button class="cq-site ${n.owner===0?'red':n.owner===1?'blue':'neutral'} ${state.phase==='select'&&canSelect(i)?'available':''} ${state.target===i?'chosen':''}" data-cq="site" data-site="${i}" aria-label="${e(name(i)+' · '+(n.owner<0?t('neutral'):team(n.owner))+' · '+t('defense')+' '+n.hp)}" aria-pressed="${state.target===i}" ${state.phase!=='select'||state.paused||!canSelect(i)?'disabled':''} style="left:${positions[i][0]}%;top:${positions[i][1]}%">${castle(n.owner,i===0||i===7)}<strong>${e(name(i))}</strong><span class="cq-shields" aria-hidden="true">${'◆'.repeat(n.hp)}${'◇'.repeat(3-n.hp)}</span></button>`).join('')}${state.phase==='battle'?`<div class="cq-squad ${state.team===0?'red':'blue'}" style="--sx:${positions[state.source][0]}%;--sy:${positions[state.source][1]}%;--tx:${positions[state.target][0]}%;--ty:${positions[state.target][1]}%">${soldier().repeat(3)}</div><div class="cq-impact" style="left:${positions[state.target][0]}%;top:${positions[state.target][1]}%">${state.source===state.target?'＋':'✦'}</div>`:''}<div class="cq-legend"><span class="red">● ${e(team(0))}</span><span class="blue">● ${e(team(1))}</span><span>● ${e(t('neutral'))}</span></div></div>`}
+ function sidebar(){
+  if(state.phase==='setup')return `<h2>${e(t('title'))}</h2><p>${e(t('rules'))}</p><label>${e(t('turns'))}<select id="cq-turns"><option>8</option><option selected>12</option><option>16</option></select></label><label>${e(t('time'))}<select id="cq-seconds"><option value="0">${e(t('off'))}</option><option>20</option><option selected>30</option><option>45</option></select></label>${btn(e(t('start')),'begin',false,'class="cq-primary"')}`;
+  if(state.phase==='result'){const w=winner(),missed=[...new Set(state.records.filter(r=>!r.correct).map(r=>r.answer))];return `<h2>${e(w<0?t('draw'):team(w)+' '+t('win'))}</h2><p>${e(state.nodes[0].owner===1?name(0)+' · '+t('captured'):state.nodes[7].owner===0?name(7)+' · '+t('captured'):t('endRule'))}</p><div class="cq-final">${[0,1].map(n=>`<div class="${n===0?'red':'blue'}"><b>${e(team(n))}</b><strong>${count(n)}</strong>${e(t('sites'))} · ${state.correct[n]} ${e(t('correct'))}</div>`).join('')}</div><h3>${e(t('review'))}</h3><p class="cq-review-words">${e(missed.join(' · ')||'✓')}</p>${btn(e(t('restart')),'restart',false,'class="cq-primary"')}`}
+  if(state.phase==='review')return `<span class="cq-kicker">${e(team(state.team))}</span><h2 class="${state.ok?'cq-good':'cq-bad'}">${e(state.timedOut?t('timeout'):t(state.ok?'correct':'wrong'))}</h2><p class="cq-outcome">${e(t(state.effect))}</p><span>${e(t('answer'))}</span><strong class="cq-answer">${e(state.question.answer)}</strong><p>${e(state.question.type===2?state.question.expected.map(pinyin).join(' '):state.question.word.p)}</p>${btn(e(t('audio')),'audio')}${btn(e(t(isEnd()?'results':'next')),'next',false,'class="cq-primary"')}`;
+  return `<span class="cq-kicker">${e(team(state.team))} · ${e(t('turn'))} ${state.turn+1}/${state.maxTurns}</span><h2>${e(state.target===null?t('select'):t(state.nodes[state.target].owner===state.team?'fortify':'attack'))}</h2>${state.target!==null?`<div class="cq-target">${e(name(state.target))}<b>${e(t('defense'))} ${state.nodes[state.target].hp} / 3</b></div>`:''}<p>${e(t('actionRule'))}</p>${btn(e(t('question')),'question',state.target===null||state.phase!=='select','class="cq-primary"')}${state.phase==='select'&&!state.nodes.some((_,i)=>canSelect(i))?btn(e(t('pass')),'pass'):''}`;
+ }
+ function quiz(){const q=state.question;return `<dialog class="cq-dialog" aria-labelledby="cq-task-title"><div class="cq-quiz-head"><b>${e(team(state.team))} · ${e(t('turn'))} ${state.turn+1}/${state.maxTurns}</b><strong id="cq-clock">${state.seconds?Math.ceil(state.remaining):'∞'}</strong>${btn(e(t(state.paused?'resume':'pause')),'pause')}${btn(e(t('back')),'back')}</div>${state.paused?`<h2>${e(t('pause'))}</h2>`:`<h2 id="cq-task-title">${e(t(q.type===2?'sentence':q.type===1?'listen':'meaning'))}</h2><p class="cq-prompt">${e(q.clue)}</p>${btn('▶ '+e(t('audio')),'audio')}${q.type===2?`<div class="cq-sentence">${q.selected.map(id=>`<span>${e(q.tokens.find(x=>x.id===id).word)}</span>`).join('')||'＿　＿　＿'}</div><div class="cq-options">${q.tokens.map(x=>btn(e(x.word),'token',q.selected.includes(x.id),`data-token="${x.id}"`)).join('')}</div><div class="cq-inline">${btn(e(t('undo')),'undo',!q.selected.length)}${btn(e(t('submit')),'submit',q.selected.length!==q.tokens.length,'class="cq-primary"')}</div>`:`<div class="cq-options">${q.options.map((w,i)=>btn(`<small>${i+1}</small> ${e(w.w)}`,'answer',false,`data-answer="${i}"`)).join('')}</div>`}<div class="cq-teacher"><label><input id="cq-manual" type="checkbox" ${state.teacher?'checked':''}>${e(t('teacher'))}</label>${state.teacher?btn('✓ '+e(t('correct')),'judge-ok')+btn('× '+e(t('wrong')),'judge-no'):''}${state.seconds?btn(e(t('extend')),'extend'):''}</div>`}</dialog>`}
+ function render(){if(!state)return;panel.classList.toggle('cq-paused',state.paused);panel.dataset.team=state.team;panel.querySelector('dialog[open]')?.close();panel.innerHTML=`<div class="cq-shell"><header>${btn('‹ '+e(t('back')),'back')}<h1>${e(t('title'))}</h1><div class="cq-scores">${[0,1].map(n=>`<span class="${n===0?'red':'blue'} ${n===state.team?'active':''}"><b>${e(team(n))}</b> ${count(n)} <small>${e(t('sites'))} · ${state.correct[n]} ${e(t('correct'))}</small></span>`).join('')}</div>${btn(e(t('fullscreen')),'fullscreen')}${btn(e(t(state.paused?'resume':'pause')),'pause',state.phase==='setup'||state.phase==='result')}</header><div class="cq-main">${board()}<aside class="cq-sidebar" aria-live="polite">${sidebar()}</aside></div><footer><span>${e(state.phase==='select'?t('guide'):t('actionRule'))}</span><b>${e(t('vocabulary'))} ${state.lesson+1}</b></footer>${state.paused&&state.phase!=='quiz'?`<div class="cq-pause-cover"><h2>${e(t('pause'))}</h2>${btn(e(t('resume')),'pause')}${btn(e(t('back')),'back')}</div>`:''}</div>${state.phase==='quiz'?quiz():''}`;const dialog=panel.querySelector('dialog');if(dialog){dialog.addEventListener('cancel',event=>{event.preventDefault();pause()});dialog.showModal()}}
+ panel.addEventListener('change',event=>{if(event.target.id==='cq-manual'&&state?.phase==='quiz'){state.teacher=event.target.checked;render()}});
+ panel.addEventListener('click',async event=>{
+  const b=event.target.closest('button[data-cq]');if(!state||!b||b.disabled)return;const a=b.dataset.cq;
+  if(a==='back'){returnToMenu();return}if(a==='fullscreen'){try{if(document.fullscreenElement)await document.exitFullscreen();else await panel.requestFullscreen()}catch{}return}
+  if(a==='pause'){pause();return}if(state.paused)return;
+  if(a==='begin'){begin();return}if(a==='restart'){start();return}
+  if(a==='site'&&state.phase==='select'){const i=Number(b.dataset.site);if(canSelect(i)){state.target=i;render()}return}
+  if(a==='question'){makeQuestion();return}if(a==='next'){next();return}if(a==='audio'){audio();return}
+  if(a==='pass'&&state.phase==='select'&&!state.nodes.some((_,i)=>canSelect(i))){state.question={answer:'—',type:2,expected:[]};state.ok=false;state.effect='noAction';state.phase='review';render();return}
+  if(state.phase!=='quiz')return;
+  if(a==='extend'&&state.seconds){state.remaining+=15;render()}else if(a==='answer'){const w=state.question.options[Number(b.dataset.answer)];resolve(w.w===state.question.answer,w.w)}
+  else if(a==='token'){const id=Number(b.dataset.token);if(!state.question.selected.includes(id))state.question.selected.push(id);render()}
+  else if(a==='undo'){state.question.selected.pop();render()}
+  else if(a==='submit'&&state.question.selected.length===state.question.tokens.length){const answer=state.question.selected.map(id=>state.question.tokens.find(x=>x.id===id).word).join('');resolve(answer===state.question.answer,answer)}
+  else if(state.teacher&&(a==='judge-ok'||a==='judge-no'))resolve(a==='judge-ok','',true);
+ });
+ document.addEventListener('keydown',event=>{if(panel.hidden||!state||event.repeat||event.target.matches('input,select'))return;if(event.code==='Space'&&state.phase!=='setup'&&state.phase!=='result'){event.preventDefault();pause()}else if(!state.paused&&state.phase==='quiz'&&state.question.type!==2&&/^[1-4]$/.test(event.key)){event.preventDefault();panel.querySelector(`[data-answer="${Number(event.key)-1}"]`)?.click()}});
+ return {start,stop};
+})();
+const updateConquestTitle=()=>{const lang=window.gameLocalization?.language||'zh';document.getElementById('conquest-menu-title').textContent=CONQUEST_TEXT.title[Math.max(0,['zh','en','ky','uz','th','lo'].indexOf(lang))]};
+Object.assign(MODE_NAMES,{conquest:'Chinese Conquest'});
+for(const [i,lang] of ['zh-CN','en','ky','uz','th','lo'].entries()){
+ (window.GAME_LOCALES[lang]||={})['Chinese Conquest']=CONQUEST_TEXT.title[i];
+ window.GAME_LOCALES[lang]['Take turns. Answer correctly to attack or fortify. Capture the opposing capital, or hold more sites.']=CONQUEST_TEXT.rules[i];
+}
+updateConquestTitle();document.getElementById('language-select').addEventListener('change',()=>setTimeout(updateConquestTitle,0));
+
+document.querySelector('input[value="conquest"]').addEventListener('click',()=>{
+ const lang=window.gameLocalization?.language||'zh',i=Math.max(0,['zh','en','ky','uz','th','lo'].indexOf(lang));
+ document.getElementById('mode-dialog-title').textContent=CONQUEST_TEXT.title[i];
+ const box=document.getElementById('intro-guide');box.setAttribute('translate','no');
+ box.innerHTML='<div class="intro-art"><svg viewBox="0 0 280 120" shape-rendering="crispEdges" aria-hidden="true"><path d="M0 0h280v120H0" fill="#aacb81"/><path d="M122 0h36v120h-36" fill="#75cad5"/><path d="M22 48h16v8h12v-8h16v8h12v-8h16v56H22m164-56h16v8h12v-8h16v8h12v-8h16v56h-72" fill="#e8d29a"/><path d="M48 74h20v30H48m164-30h20v30h-20" fill="#334754"/><path d="M58 18v32m164-32v32" stroke="#334754" stroke-width="4"/><path d="M60 18h32v20H60" fill="#e86657"/><path d="M224 18h32v20h-32" fill="#399ee0"/><path d="M98 82h84" stroke="#fff0b9" stroke-width="10"/></svg></div><p></p>';
+ box.querySelector('p').textContent=CONQUEST_TEXT.rules[i];
+});
+// Other modes keep their existing localization route when leaving this intro.
+document.querySelectorAll('input[name="learn-mode"]:not([value="conquest"])').forEach(r=>r.addEventListener('click',()=>{document.getElementById('intro-guide').removeAttribute('translate');window.gameLocalization?.apply()}));
 
 </script>
 </body>
