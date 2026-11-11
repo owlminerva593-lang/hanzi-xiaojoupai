@@ -1832,7 +1832,7 @@ html,body{height:100%;overflow:hidden;overscroll-behavior:none}
 @media(max-height:500px) and (orientation:landscape){#discovery-panel[data-mode=defense] #discovery-controls{grid-column:1;grid-row:5}#discovery-panel[data-mode=defense] #discovery-feedback{display:none}}
 #discovery-panel[data-mode=defense] .defense-items{grid-column:1/-1}
 /* Sentence bridge chase: integer-grid SVG sprites keep download size small. */
-#discovery-panel#discovery-panel#discovery-panel[data-mode=bridge] .bridge-demon{position:absolute;left:calc(1% + var(--chase,0)*4%);bottom:49%;width:13%;max-width:min(110px,45cqh);z-index:3;pointer-events:none;transition:left .1s linear}
+#discovery-panel#discovery-panel#discovery-panel[data-mode=bridge] .bridge-demon{position:absolute;--ghost-width:min(11%,110px,45cqh);left:calc(1% + (16.5% - var(--ghost-width))*var(--chase,0));bottom:49%;width:var(--ghost-width);z-index:3;pointer-events:none;transition:left .1s linear}
 #discovery-panel[data-mode=bridge] .bridge-demon svg{display:block;width:100%;image-rendering:pixelated;animation:ghost-hover .8s steps(2) infinite}
 #discovery-panel#discovery-panel#discovery-panel[data-mode=bridge] .bridge-cart{left:18%;bottom:48%;width:clamp(26px,7%,45px);max-width:min(6cqw,20cqh);z-index:4;transition:left 2.2s linear}
 #discovery-panel[data-mode=bridge] .bridge-avatar{position:relative;image-rendering:pixelated;transform-origin:center bottom}
