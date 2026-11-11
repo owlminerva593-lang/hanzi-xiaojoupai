@@ -7212,28 +7212,62 @@ const kartGame=(()=>{
  }
  function poly(color,points){ctx.fillStyle=color;ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fill()}
  function stripe(a,b,left,right,color){poly(color,[[a.x+a.road*left,a.y],[a.x+a.road*right,a.y],[b.x+b.road*right,b.y],[b.x+b.road*left,b.y]])}
- function town(x,y,size,index){
-  ctx.fillStyle='#2a8866';ctx.beginPath();ctx.ellipse(x,y,size*.52,size*.13,0,0,7);ctx.fill();
+ function shade(x,y,r,light,dark){
+  const g=ctx.createRadialGradient(x-r*.32,y-r*.4,r*.06,x,y,r);
+  g.addColorStop(0,light);g.addColorStop(1,dark);return g;
+ }
+ function town(x,y,size,index,side){
+  ctx.fillStyle='#234a3c45';ctx.beginPath();ctx.ellipse(x+size*.19,y+size*.04,size*.61,size*.15,-.08,0,7);ctx.fill();
   if(index%3===0){
-   ctx.fillStyle='#a77442';ctx.fillRect(x-size*.065,y-size*.52,size*.13,size*.52);
-   ctx.fillStyle=index%2?'#63ca65':'#37b582';ctx.beginPath();ctx.arc(x,y-size*.56,size*.34,0,7);ctx.fill();
-   ctx.fillStyle='#9de48c';ctx.beginPath();ctx.arc(x-size*.1,y-size*.69,size*.16,0,7);ctx.fill();
-  }else{
-   ctx.fillStyle=['#ffe0a4','#a4dcde','#e5bbf0'][index%3];ctx.fillRect(x-size*.35,y-size*.88,size*.7,size*.88);
-   poly(index%2?'#e96752':'#4d94d9',[[x-size*.43,y-size*.88],[x,y-size*1.22],[x+size*.43,y-size*.88]]);
-   ctx.fillStyle='#55819b';for(const offset of [-.22,.07])ctx.fillRect(x+offset*size,y-size*.7,size*.15,size*.21);
-   ctx.fillStyle='#f0f2d3';ctx.fillRect(x-size*.07,y-size*.24,size*.15,size*.24);
+   ctx.fillStyle='#825837';ctx.fillRect(x-size*.07,y-size*.52,size*.14,size*.52);
+   ctx.fillStyle=shade(x,y-size*.59,size*.39,'#b7ee8b','#268260');
+   ctx.beginPath();ctx.arc(x,y-size*.59,size*.36,0,7);ctx.fill();
+   return;
   }
+  const d=-side*size*.24, rise=size*.14, l=x-size*.34,r=x+size*.34,top=y-size*.84;
+  const edge=d>0?r:l;
+  poly(index%3===1?'#6da6b1':'#aa82bd',[[edge,top],[edge+d,top-rise],[edge+d,y-rise],[edge,y]]);
+  ctx.fillStyle=index%3===1?'#b2e4e8':'#e9c6f0';ctx.fillRect(l,top,r-l,y-top);
+  const peak=[x,top-size*.31],ridge=[x+d,top-size*.31-rise],eave=edge+Math.sign(d)*size*.08;
+  poly(index%2?'#aa403d':'#2f609d',[peak,ridge,[eave+d,top-rise],[eave,top]]);
+  poly(index%2?'#f37957':'#68a9ec',[[l-size*.08,top],peak,[r+size*.08,top]]);
+  ctx.fillStyle='#4c6b8c';
+  for(const offset of [-.23,.07]){
+   const wx=x+offset*size,wy=top+size*.15;
+   ctx.fillRect(wx,wy,size*.15,size*.23);
+   ctx.fillStyle='#9de6f8';ctx.fillRect(wx+size*.02,wy+size*.02,size*.105,size*.10);ctx.fillStyle='#4c6b8c';
+  }
+  ctx.fillStyle='#776682';ctx.fillRect(x-size*.077,y-size*.25,size*.154,size*.25);
  }
  function kart(x,y,size,color,tilt=0){
   ctx.save();ctx.translate(x,y);ctx.rotate(tilt);ctx.scale(size,size);
-  ctx.fillStyle='#17253c55';ctx.beginPath();ctx.ellipse(0,.11,.58,.25,0,0,7);ctx.fill();
-  ctx.fillStyle='#22283b';for(const side of [-1,1])ctx.fillRect(side*.4-.11,-.28,.22,.39);
-  poly('#3b475b',[[-.43,.06],[.43,.06],[.39,-.44],[.27,-.57],[-.27,-.57],[-.39,-.44]]);
-  poly(color,[[-.34,-.04],[.34,-.04],[.3,-.43],[-.3,-.43]]);
-  ctx.fillStyle='#ffe278';ctx.beginPath();ctx.arc(0,-.62,.28,0,7);ctx.fill();
-  for(const side of [-1,1]){ctx.beginPath();ctx.arc(side*.21,-.82,.11,0,7);ctx.fill();ctx.fillStyle='#ffead0';ctx.fillRect(side*.22-.07,-.18,.14,.09);ctx.fillStyle='#ffe278'}
-  ctx.fillStyle='#333e51';ctx.fillRect(-.25,-.37,.5,.09);ctx.fillStyle='#f5f5ff';ctx.fillRect(-.105,-.16,.21,.085);
+  ctx.fillStyle='#16253b59';ctx.beginPath();ctx.ellipse(.07,.09,.57,.19,-.08,0,7);ctx.fill();
+  for(const side of [-1,1]){
+   const tx=side*.39;
+   poly('#161d31',[[tx-.13,.095],[tx+.105,.095],[tx+.13,-.25],[tx+.09,-.36],[tx-.09,-.36],[tx-.14,-.25]]);
+   poly('#43516c',[[tx-.09,-.32],[tx+.09,-.32],[tx+.11,-.26],[tx-.11,-.26]]);
+   ctx.strokeStyle='#536278';ctx.lineWidth=.017;
+   for(let i=0;i<4;i++){ctx.beginPath();ctx.moveTo(tx-.10,-.21+i*.075);ctx.lineTo(tx+.10,-.22+i*.075);ctx.stroke()}
+  }
+  poly('#202c44',[[-.47,.065],[.47,.065],[.4,-.37],[.27,-.58],[-.27,-.58],[-.4,-.37]]);
+  poly(color,[[-.39,-.06],[.39,-.06],[.32,-.4],[-.32,-.4]]);
+  poly(color,[[-.32,-.4],[-.24,-.59],[.24,-.59],[.32,-.4]]);
+  poly('#ffffff51',[[-.32,-.4],[-.24,-.59],[.24,-.59],[.32,-.4]]);
+  poly('#171d3e65',[[.25,-.06],[.39,-.06],[.32,-.4],[.25,-.38]]);
+  poly('#7e8da4',[[-.43,-.035],[.43,-.035],[.40,.025],[-.40,.025]]);
+  ctx.fillStyle='#283b59';ctx.fillRect(-.24,-.48,.48,.16);
+  for(const side of [-1,1]){
+   ctx.fillStyle='#631f3c';ctx.fillRect(side*.24-.079,-.22,.158,.12);
+   ctx.fillStyle='#ffb084';ctx.fillRect(side*.24-.061,-.20,.12,.059);
+  }
+  ctx.fillStyle='#f5f5ff';ctx.fillRect(-.105,-.16,.21,.075);
+  for(const side of [-1,1]){
+   const ear=side*.21;
+   ctx.fillStyle=shade(ear,-.82,.12,'#fff5b2','#d99c2d');
+   ctx.beginPath();ctx.arc(ear,-.82,.11,0,7);ctx.fill();
+  }
+  ctx.fillStyle=shade(0,-.63,.29,'#fff5ad','#dba032');
+  ctx.beginPath();ctx.arc(0,-.63,.28,0,7);ctx.fill();
   ctx.restore();
  }
  function drawRoadsideClue(gate){
@@ -7277,21 +7311,27 @@ const kartGame=(()=>{
   for(let i=0;i<5;i++){const x=((width*(i*.24+.1)-race.z*.017)%width+width)%width,y=height*(.11+i%3*.06);ctx.fillStyle='#ffffffcb';ctx.beginPath();ctx.ellipse(x,y,width*.056,height*.018,0,0,7);ctx.fill()}
   poly('#81c99c',[[0,height*.36],[width*.14,height*.24],[width*.27,height*.34],[width*.47,height*.23],[width*.64,height*.33],[width*.81,height*.25],[width,height*.35],[width,height*.5],[0,height*.5]]);
   ctx.fillStyle='#6bb56e';ctx.fillRect(0,height*.404,width,height);
+  const asphalt=ctx.createLinearGradient(0,height*.37,0,height);
+  asphalt.addColorStop(0,'#8896a9');asphalt.addColorStop(.44,'#596b83');asphalt.addColorStop(1,'#374861');
   const step=22,offset=race.z%step;
   for(let i=57;i>=0;i--){
    const d=Math.max(0,i*step-offset),far=(i+1)*step-offset,a=project(d),b=project(far);
    if(a.y<=b.y)continue;
    const alt=Math.floor((race.z+far)/step)%2;
    ctx.fillStyle=alt?'#88c875':'#79bc70';ctx.fillRect(0,b.y,width,a.y-b.y+.8);
-   stripe(a,b,-1.09,1.09,alt?'#f36c59':'#fff4e6');stripe(a,b,-1,1,alt?'#64738b':'#687891');
+   stripe(a,b,-1.09,1.09,alt?'#f36c59':'#fff4e6');stripe(a,b,-1,1,asphalt);
    if(alt)for(const line of [-1/3,1/3])stripe(a,b,line-.014,line+.014,'#fff1bd');
   }
   const near=project(-15),base=project(0);
   stripe(near,base,-1.09,1.09,'#fff4e6');
-  stripe(near,base,-1,1,'#687891');
+  stripe(near,base,-1,1,asphalt);
   if(Math.floor(race.z/step)%2)for(const lane of [-1/3,1/3])stripe(near,base,lane-.014,lane+.014,'#fff1bd');
   const objects=[];
   for(let i=1;i<25;i++){const d=i*49-race.z%49,index=Math.floor((race.z+d)/49);for(const side of [-1,1])objects.push({d,kind:'town',side,index:index+(side>0?2:0)})}
+  for(let i=1;i<33;i++){
+   const d=i*34-race.z%34;
+   for(const side of [-1,1])objects.push({d,kind:'rail',side});
+  }
   for(const bot of race.rivals){const d=bot.z-race.z;if(d>1&&d<1200&&bot.finish===null)objects.push({d,kind:'kart',bot})}
   const gate=race.gate;
   if(gate&&gate.distance-race.z<1000&&gate.distance>=race.z)objects.push({d:gate.distance-race.z,kind:'gate'});
@@ -7305,7 +7345,15 @@ const kartGame=(()=>{
   objects.sort((a,b)=>b.d-a.d);
   for(const item of objects){
    const q=project(item.d);
-   if(item.kind==='town'){town(q.x+q.road*item.side*1.24,q.y,Math.min(height*.28,260*q.p),item.index);continue}
+   if(item.kind==='town'){town(q.x+q.road*item.side*1.24,q.y,Math.min(height*.28,260*q.p),item.index,item.side);continue}
+   if(item.kind==='rail'){
+    const b=project(item.d+34),aX=q.x+q.road*item.side*1.11,bX=b.x+b.road*item.side*1.11;
+    const post=q.p*Math.min(height*.11,55),farPost=b.p*Math.min(height*.11,55);
+    ctx.fillStyle='#476570';ctx.fillRect(aX-post*.09,q.y-post,Math.max(1,post*.18),post);
+    poly('#efd08a',[[aX,q.y-post],[bX,b.y-farPost],[bX,b.y-farPost*.75],[aX,q.y-post*.75]]);
+    poly('#9e7a5d',[[aX,q.y-post*.75],[bX,b.y-farPost*.75],[bX,b.y-farPost*.64],[aX,q.y-post*.64]]);
+    continue;
+   }
    if(item.kind==='kart'){kart(q.x+q.road*item.bot.x,q.y,Math.min(height*.22,width*.18)*q.p,palette[item.bot.id]);continue}
    if(item.kind==='line'){const far=project(item.d+15);for(let i=0;i<12;i++)stripe(q,far,-1+i/6,-1+(i+1)/6,i%2?'#27334e':'#fff');continue}
    if(item.kind==='ramp'){
