@@ -7073,7 +7073,7 @@ const kartGame=(()=>{
  const lang=()=>window.gameLocalization?.language||'zh';
  const t=key=>labels[key]?.[Math.max(0,['zh','en','ky','uz','th','lo'].indexOf(lang()))]||window.gameLocalization?.translate(key)||key;
  const lanes=[-.64,0,.64], lapLength=3200, finish=lapLength*2;
- const palette=['#ef5544','#258bdd','#af61d8','#f9a421'];
+ const palette=['#ef5544','#258bdd','#af61d8','#f9a421','#38ad84','#ed71a3','#5272e2','#de7054'];
  const keys=new Map();
  let race=null,frameId=0,last=0,width=1,height=1;
  const pressed=key=>[...keys.values()].includes(key);
@@ -7095,7 +7095,7 @@ const kartGame=(()=>{
   return {distance,word,options:randomOrder([word,...randomOrder(WORDS.filter(w=>w.w!==word.w)).slice(0,2)])};
  }
  function reset(phase){
-  race={phase,paused:false,z:0,x:0,speed:0,time:0,ready:3,energy:0,boost:0,hits:0,gates:0,messageTime:0,slow:0,contact:0,recent:[],rivals:[1,2,3].map((i)=>({z:20*i,x:lanes[i-1],id:i,finish:null}))};
+  race={phase,paused:false,z:0,x:0,speed:0,time:0,ready:3,energy:0,boost:0,hits:0,gates:0,messageTime:0,slow:0,contact:0,recent:[],rivals:palette.slice(1).map((_,i)=>({z:18+Math.floor(i/3)*24,x:lanes[i%3],id:i+1,finish:null}))};
   race.gate=nextGate(390);keys.clear();$('.kart-message').textContent='';
   $('.kart-overlay').hidden=phase!=='intro';$('.kart-overlay h2').textContent=t('title');$('.kart-overlay p').textContent=t('help');
   $('[data-kart="begin"]').textContent=t('play');$('[data-kart="pause"]').textContent=t('Pause');$('[data-kart="pause"]').disabled=phase==='intro';
@@ -7111,7 +7111,7 @@ const kartGame=(()=>{
  }
  function rank(){return 1+race.rivals.filter(bot=>bot.z>race.z||bot.finish!==null).length}
  function updateHud(){
-  text('#kart-rank',rank()+' / 4');
+  text('#kart-rank',rank()+' / '+palette.length);
   text('#kart-lap',t('lap')+' '+Math.min(2,1+Math.floor(race.z/lapLength))+' / 2');
   text('#kart-speed',Math.round(race.speed*1.35)+' km/h');
   text('#kart-energy','⚡ '+race.energy);
@@ -7132,7 +7132,7 @@ const kartGame=(()=>{
  function finishRace(){
   race.phase='finished';race.speed=0;stopBGM();keys.clear();
   $('.kart-overlay').hidden=false;
-  $('.kart-overlay h2').textContent=t('finish')+'  '+rank()+' / 4';
+  $('.kart-overlay h2').textContent=t('finish')+'  '+rank()+' / '+palette.length;
   $('.kart-overlay p').textContent=race.time.toFixed(1)+' s   ·   ✓ '+race.hits+' / '+race.gates;
   $('[data-kart="begin"]').textContent=t('Play Again');$('[data-kart="pause"]').disabled=true;
   $('.kart-message').textContent='';
@@ -7148,13 +7148,14 @@ const kartGame=(()=>{
   if(pressed('boost')&&!race.boost&&race.energy){race.energy--;race.boost=2;if(!S.muted)tone(460,.16,'triangle',.05)}
   const steering=Number(pressed('right'))-Number(pressed('left'));
   race.x=clamp(race.x+steering*dt*(race.speed>45?1.5:1.15),-1.23,1.23);
-  const max=pressed('brake')?39:Math.abs(race.x)>1?55:race.slow?63:race.boost?139:102;
+  const hill=grade(race.z);
+  const max=pressed('brake')?39:Math.abs(race.x)>1?55:race.slow?63:race.boost?148-hill*4:102-hill*10;
   race.speed=mix(race.speed,max,Math.min(1,dt*(race.speed>max?3.1:1.65)));
   race.z=Math.min(finish,race.z+race.speed*dt);
   for(const bot of race.rivals){
    if(bot.finish!==null)continue;
-   bot.z=Math.min(finish,bot.z+dt*(86+bot.id*3+6*Math.sin(race.time*.38+bot.id)));
-   bot.x=lanes[bot.id-1]*.77+.14*Math.sin(bot.z/195+bot.id);
+   bot.z=Math.min(finish,bot.z+dt*(96+bot.id*1.55+4*Math.sin(race.time*.38+bot.id)-grade(bot.z)*8));
+   bot.x=lanes[(bot.id-1)%3]*.84+.18*Math.sin(bot.z/190+bot.id*1.7);
    if(bot.z===finish)bot.finish=race.time;
    if(race.contact===0&&Math.abs(bot.z-race.z)<14&&Math.abs(bot.x-race.x)<.21){
     race.speed*=.82;race.contact=.9;
@@ -7165,9 +7166,11 @@ const kartGame=(()=>{
   if(race.z>=finish)finishRace();
  }
  const course=z=>Math.sin(z/430)*.85+Math.sin(z/920)*.61;
+ const elevation=z=>Math.sin(z*Math.PI*2/lapLength*2)*.67+Math.sin(z*Math.PI*2/lapLength*3)*.22;
+ const grade=z=>clamp((elevation(z+18)-elevation(z-18))*16,-1,1);
  function project(d){
   const p=105/(105+d),road=width*.56*p;
-  return {p,road,y:height*(.35+.57*p),x:width*.5+(course(race.z+d)-course(race.z))*width*.49*p-race.x*road*.72};
+  return {p,road,y:height*(.35+.57*p-(elevation(race.z+d)-elevation(race.z))*p*.35),x:width*.5+(course(race.z+d)-course(race.z))*width*.49*p-race.x*road*.72};
  }
  function poly(color,points){ctx.fillStyle=color;ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fill()}
  function stripe(a,b,left,right,color){poly(color,[[a.x+a.road*left,a.y],[a.x+a.road*right,a.y],[b.x+b.road*right,b.y],[b.x+b.road*left,b.y]])}
@@ -7198,11 +7201,8 @@ const kartGame=(()=>{
  function drawRoadsideClue(gate){
   const distance=gate.distance-race.z;
   if(race.phase!=='race'||distance>430||distance<0)return;
-  const q=project(clamp(distance,165,255));
-  const left=q.x-q.road,right=q.x+q.road;
-  const onRight=width-right>=left;
   const label=lang()==='zh'?gate.word.p:t(PRACTICE_EN[gate.word.w]||gate.word.e);
-  const font=clamp(width*.022,13,23),maxWidth=Math.min(width*.31,260);
+  const font=clamp(width*.022,13,23),maxWidth=Math.min(width*.25,260);
   ctx.font='bold '+font+'px system-ui';
   const words=label.split(/\s+/),lines=[];
   for(const word of words){
@@ -7210,15 +7210,17 @@ const kartGame=(()=>{
    if(prev&&ctx.measureText(prev+' '+word).width<=maxWidth-16)lines[lines.length-1]=prev+' '+word;
    else lines.push(word);
   }
-  const w=Math.min(maxWidth,Math.max(48,...lines.map(line=>ctx.measureText(line).width+16)));
-  const h=lines.length*(font+3)+12;
-  const x=clamp(onRight?right+8:left-w-8,4,width-w-4);
-  const y=q.y-h-10;
+  if(lines.length>2)lines.splice(1,lines.length-1,lines.slice(1).join(' '));
+  const w=maxWidth,h=2*(font+3)+12;
+  const x=Math.max(8,width*.035),railY=height*.48;
+  const y=railY-h-9;
+  ctx.fillStyle='#345d64';ctx.fillRect(0,railY+5,x+w+12,5);
+  ctx.fillStyle='#f5d794';ctx.fillRect(0,railY,x+w+12,6);
   ctx.fillStyle='#6c7b86';ctx.fillRect(x+5,y+h,5,12);ctx.fillRect(x+w-10,y+h,5,12);
   ctx.fillStyle='#244d58';ctx.fillRect(x,y,w,h);
   ctx.lineWidth=2;ctx.strokeStyle='#ffe29a';ctx.strokeRect(x,y,w,h);
   ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#fff5d2';
-  lines.forEach((line,i)=>ctx.fillText(line,x+w/2,y+6+(i+.5)*(font+3),w-12));
+  lines.forEach((line,i)=>ctx.fillText(line,x+w/2,y+h/2+(i-(lines.length-1)/2)*(font+3),w-12));
  }
  function startKartMusic(){
   if(S.muted||document.hidden)return;
@@ -7240,6 +7242,7 @@ const kartGame=(()=>{
   const step=22,offset=race.z%step;
   for(let i=57;i>=0;i--){
    const d=Math.max(0,i*step-offset),far=(i+1)*step-offset,a=project(d),b=project(far);
+   if(a.y<=b.y)continue;
    const alt=Math.floor((race.z+far)/step)%2;
    ctx.fillStyle=alt?'#88c875':'#79bc70';ctx.fillRect(0,b.y,width,a.y-b.y+.8);
    stripe(a,b,-1.09,1.09,alt?'#f36c59':'#fff4e6');stripe(a,b,-1,1,alt?'#64738b':'#687891');
@@ -7274,7 +7277,24 @@ const kartGame=(()=>{
   }
   if(gate)drawRoadsideClue(gate);
   const playerX=width*(.5+race.x*.1568),size=Math.min(height*.21,width*.19);
-  if(race.boost>0){for(const side of [-1,1])poly('#ffbb45',[[playerX+side*size*.17,height*.91],[playerX+side*size*.22,height*.99+Math.sin(race.time*54)*8],[playerX+side*size*.05,height*.91]])}
+  if(race.boost>0){
+   const flicker=Math.sin(race.time*62)*size*.16;
+   ctx.save();ctx.globalCompositeOperation='screen';
+   const trail=ctx.createLinearGradient(0,height*.87,0,height);
+   trail.addColorStop(0,'#d4ffff');trail.addColorStop(.34,'#20baff');trail.addColorStop(1,'#245bff30');
+   for(const side of [-1,1]){
+    const origin=playerX+side*size*.2;
+    poly(trail,[[origin-side*size*.12,height*.89],[origin+side*size*.10,height*.87],[origin+side*(size*.86+flicker),height],[origin-side*size*.36,height]]);
+    poly('#b8fcff',[[origin-side*size*.045,height*.91],[origin+side*size*.07,height*.91],[origin+side*(size*.36+flicker*.45),height]]);
+   }
+   for(let i=0;i<12;i++){
+    const side=i%2?1:-1,y=height*(.43+((race.time*2.5+i*.137)%1)*.56);
+    const x=width*.5+side*(width*.25+(i%5)*width*.052);
+    ctx.strokeStyle=i%3?'#48d8ff87':'#cafcffbb';ctx.lineWidth=i%3?2:3;
+    ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+side*size*.23,y+size*.35);ctx.stroke();
+   }
+   ctx.restore();
+  }
   kart(playerX,height*.92,size,palette[0],(Number(pressed('right'))-Number(pressed('left')))*.11);
  }
  function frame(now){
