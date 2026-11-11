@@ -7065,6 +7065,9 @@ const kartGame=(()=>{
   title:['词语卡丁车','Word Kart','Сөз картинги','So‘z kartingi','คาร์ทคำศัพท์','ລົດແຂ່ງຄຳສັບ'],
   play:['开始比赛','Start race','Жарышты баштоо','Poygani boshlash','เริ่มแข่ง','ເລີ່ມແຂ່ງ'],
   help:['自动加速。← → 转向，↓ 刹车，空格用氮气。看提示驶过正确的词语门，赢取氮气。两圈决胜。','Auto-accelerate. Use ← → to steer, ↓ to brake, and Space for nitro. Drive through the matching word gate to earn nitro. Race for two laps.','← → бурулуу, ↓ тормоз, боштук — нитро. Туура сөз дарбазасынан өтүңүз. Эки айлампа.','← → burilish, ↓ tormoz, bo‘sh joy — nitro. Mos so‘z darvozasidan o‘ting. Ikki davra.','← → เลี้ยว, ↓ เบรก, เว้นวรรคใช้ไนโตร ผ่านประตูคำที่ถูกต้อง แข่งสองรอบ','← → ລ້ຽວ, ↓ ເບກ, ປຸ່ມຍະຫວ່າງໃຊ້ໄນໂຕຣ. ຂັບຜ່ານປະຕູຄຳທີ່ຖືກ. ແຂ່ງສອງຮອບ.'],
+  finalLap:['最后一圈','Final lap','Акыркы айлампа','So‘nggi davra','รอบสุดท้าย','ຮອບສຸດທ້າຍ'],
+  combo:['连答','Correct streak','Катар туура','Ketma-ket to‘g‘ri','ตอบถูกต่อเนื่อง','ຕອບຖືກຕິດກັນ'],
+  catchUp:['追赶加速','Catch-up boost','Кууп жетүү','Quvib yetish','เร่งไล่ตาม','ເລັ່ງໄລ່ຕາມ'],
   lap:['圈','Lap','Айлампа','Davra','รอบ','ຮອບ'],
   finish:['冲线！','Finish!','Мара!','Marra!','เข้าเส้นชัย!','ເຂົ້າເສັ້ນໄຊ!'],
   hit:['答对 +1 氮气','Correct · +1 nitro','Туура · +1 нитро','To‘g‘ri · +1 nitro','ถูก · ไนโตร +1','ຖືກ · ໄນໂຕຣ +1'],
@@ -7095,7 +7098,7 @@ const kartGame=(()=>{
   return {distance,word,options:randomOrder([word,...randomOrder(WORDS.filter(w=>w.w!==word.w)).slice(0,2)])};
  }
  function reset(phase){
-  race={phase,paused:false,z:0,x:0,speed:0,time:0,ready:3,energy:0,boost:0,hits:0,gates:0,messageTime:0,slow:0,contact:0,recent:[],rivals:palette.slice(1).map((_,i)=>({z:18+Math.floor(i/3)*24,x:lanes[i%3],id:i+1,finish:null}))};
+  race={phase,paused:false,z:0,x:0,speed:0,time:0,ready:3,energy:0,boost:0,streak:0,boostTier:0,drift:0,driftSide:0,driftCooldown:0,air:0,landing:0,lapFlash:0,celebration:0,hits:0,gates:0,messageTime:0,slow:0,contact:0,recent:[],rivals:palette.slice(1).map((_,i)=>({z:18+Math.floor(i/3)*24,x:lanes[i%3],id:i+1,finish:null}))};
   race.gate=nextGate(390);keys.clear();$('.kart-message').textContent='';
   $('.kart-overlay').hidden=phase!=='intro';$('.kart-overlay h2').textContent=t('title');$('.kart-overlay p').textContent=t('help');
   $('[data-kart="begin"]').textContent=t('play');$('[data-kart="pause"]').textContent=t('Pause');$('[data-kart="pause"]').disabled=phase==='intro';
@@ -7122,15 +7125,24 @@ const kartGame=(()=>{
   const index=race.x<-.32?0:race.x>.32?2:1;
   const ok=gate.options[index]?.w===gate.word.w&&Math.abs(race.x)<=1;
   race.gates++;
-  if(ok){race.hits++;race.energy=Math.min(3,race.energy+1);race.speed+=12;race.boost=Math.max(race.boost,1.35)}
-  else{race.speed*=.65;race.slow=.55}
-  $('.kart-message').textContent=ok?t('hit'):t('answer')+' · '+gate.word.w;
+  let catchUp=false;
+  if(ok){
+   race.hits++;race.streak++;race.energy=Math.min(3,race.energy+1);race.speed+=12;
+   catchUp=Math.max(...race.rivals.map(bot=>bot.z))-race.z>280;
+   race.boostTier=Math.min(3,race.streak);
+   race.boost=Math.max(race.boost,[0,1.35,1.8,2.25][race.boostTier]+(catchUp?.65:0));
+  }else{race.streak=0;race.boostTier=0;race.speed*=.65;race.slow=.55}
+  const message=ok?(race.streak>1?t('combo')+' ×'+race.streak:t('hit')):t('answer')+' · '+gate.word.w;
+  text('.kart-message',message+(catchUp?' · '+t('catchUp'):''));
+  if(ok&&race.streak>=3&&!S.muted)tone(1175,.18,'triangle',.05,.18);
   $('.kart-message').dataset.correct=String(ok);race.messageTime=1.8;
   if(!S.muted){tone(ok?660:150,.13,'triangle',.05);if(ok)tone(880,.15,'triangle',.045,.11);}
   race.gate=nextGate(gate.distance+450);
  }
  function finishRace(){
-  race.phase='finished';race.speed=0;stopBGM();keys.clear();
+  race.phase='finished';race.celebration=2.4;race.speed=0;
+  if(!S.muted)[523,659,784,1047].forEach((note,i)=>tone(note,.2,'triangle',.05,i*.1));
+ stopBGM();keys.clear();
   $('.kart-overlay').hidden=false;
   $('.kart-overlay h2').textContent=t('finish')+'  '+rank()+' / '+palette.length;
   $('.kart-overlay p').textContent=race.time.toFixed(1)+' s   ·   ✓ '+race.hits+' / '+race.gates;
@@ -7145,13 +7157,37 @@ const kartGame=(()=>{
   }
   if(race.phase!=='race')return;
   race.time+=dt;race.slow=Math.max(0,race.slow-dt);race.contact=Math.max(0,race.contact-dt);race.boost=Math.max(0,race.boost-dt);
-  if(pressed('boost')&&!race.boost&&race.energy){race.energy--;race.boost=2;if(!S.muted)tone(460,.16,'triangle',.05)}
+  if(pressed('boost')&&!race.boost&&race.energy){race.energy--;race.boostTier=1;race.boost=2;if(!S.muted)tone(460,.16,'triangle',.05)}
   const steering=Number(pressed('right'))-Number(pressed('left'));
   race.x=clamp(race.x+steering*dt*(race.speed>45?1.5:1.15),-1.23,1.23);
-  const hill=grade(race.z);
+  const hill=grade(race.z),before=race.z;
+  const bend=course(before+110)+course(before-110)-2*course(before);
+  race.driftCooldown=Math.max(0,race.driftCooldown-dt);
+  if(steering&&Math.abs(bend)>.025&&race.speed>68&&Math.abs(race.x)<.93&&!race.air&&!pressed('brake')){
+   race.drift=Math.min(1,race.drift+dt);race.driftSide=steering;
+  }else if(race.drift){
+   if(race.drift>=.20&&race.driftCooldown===0&&!pressed('brake')&&Math.abs(race.x)<.96){
+    if(race.boost===0)race.boostTier=1;
+    race.boost=Math.max(race.boost,.58);race.driftCooldown=1.7;
+    if(!S.muted)tone(545,.1,'triangle',.035);
+   }
+   race.drift=0;
+  }
+  race.landing=Math.max(0,race.landing-dt);
+  if(race.air>0){race.air=Math.max(0,race.air-dt);if(!race.air){race.landing=.38;if(!S.muted)tone(115,.1,'triangle',.04)}}
+  race.lapFlash=Math.max(0,race.lapFlash-dt);
   const max=pressed('brake')?39:Math.abs(race.x)>1?55:race.slow?63:race.boost?148-hill*4:102-hill*10;
   race.speed=mix(race.speed,max,Math.min(1,dt*(race.speed>max?3.1:1.65)));
   race.z=Math.min(finish,race.z+race.speed*dt);
+  const lapBase=Math.floor(before/lapLength)*lapLength;
+  if(race.speed>=70&&jumpPoints.some(point=>before<lapBase+point&&race.z>=lapBase+point)){
+   race.air=.82;
+   if(!S.muted)tone(410,.15,'sine',.035);
+  }
+  if(before<lapLength&&race.z>=lapLength){
+   race.lapFlash=2.5;
+   if(!S.muted)[660,880,1047].forEach((note,i)=>tone(note,.14,'triangle',.04,i*.09));
+  }
   for(const bot of race.rivals){
    if(bot.finish!==null)continue;
    bot.z=Math.min(finish,bot.z+dt*(96+bot.id*1.55+4*Math.sin(race.time*.38+bot.id)-grade(bot.z)*8));
@@ -7168,6 +7204,8 @@ const kartGame=(()=>{
  const course=z=>Math.sin(z/430)*.85+Math.sin(z/920)*.61;
  const elevation=z=>Math.sin(z*Math.PI*2/lapLength*2)*.67+Math.sin(z*Math.PI*2/lapLength*3)*.22;
  const grade=z=>clamp((elevation(z+18)-elevation(z-18))*16,-1,1);
+ const jumpPoints=Array.from({length:lapLength/10-1},(_,i)=>(i+1)*10)
+  .filter(z=>elevation(z)>elevation(z-10)&&elevation(z)>=elevation(z+10));
  function project(d){
   const p=105/(105+d),road=width*.56*p;
   return {p,road,y:height*(.35+.57*p-(elevation(race.z+d)-elevation(race.z))*p*.35),x:width*.5+(course(race.z+d)-course(race.z))*width*.49*p-race.x*road*.72};
@@ -7259,12 +7297,22 @@ const kartGame=(()=>{
   if(gate&&gate.distance-race.z<1000&&gate.distance>=race.z)objects.push({d:gate.distance-race.z,kind:'gate'});
   const line=(race.z<lapLength?lapLength:finish)-race.z;
   if(line<1100)objects.push({d:line,kind:'line'});
+  const lapBase=Math.floor(race.z/lapLength)*lapLength;
+  for(const point of jumpPoints){
+   const d=lapBase+point-race.z;
+   if(d>=0&&d<850)objects.push({d,kind:'ramp'});
+  }
   objects.sort((a,b)=>b.d-a.d);
   for(const item of objects){
    const q=project(item.d);
    if(item.kind==='town'){town(q.x+q.road*item.side*1.24,q.y,Math.min(height*.28,260*q.p),item.index);continue}
    if(item.kind==='kart'){kart(q.x+q.road*item.bot.x,q.y,Math.min(height*.22,width*.18)*q.p,palette[item.bot.id]);continue}
    if(item.kind==='line'){const far=project(item.d+15);for(let i=0;i<12;i++)stripe(q,far,-1+i/6,-1+(i+1)/6,i%2?'#27334e':'#fff');continue}
+   if(item.kind==='ramp'){
+    stripe(q,project(item.d+22),-.91,.91,'#237eab');
+    stripe(q,project(item.d+7),-.91,.91,'#b7f4ff');
+    continue;
+   }
    const signHeight=clamp(105*q.p,9,64);
    gate.options.forEach((word,i)=>{
     const x=q.x+q.road*lanes[i],w=q.road*.61,y=q.y-signHeight;
@@ -7277,17 +7325,44 @@ const kartGame=(()=>{
   }
   if(gate)drawRoadsideClue(gate);
   const playerX=width*(.5+race.x*.1568),size=Math.min(height*.21,width*.19);
+  const airLift=race.air?Math.sin(race.air/.82*Math.PI)*size*.63:0;
+  const landingDip=race.landing?Math.sin(race.landing/.38*Math.PI)*size*.06:0;
+  const carY=height*.92-airLift+landingDip;
+  if(race.air||race.drift){
+   ctx.fillStyle='#17253c55';ctx.beginPath();ctx.ellipse(playerX,height*.929,size*.51,size*.105,0,0,7);ctx.fill();
+  }
+  if(race.drift){
+   for(const side of [-1,1]){
+    const x=playerX+side*size*.38;
+    ctx.strokeStyle='#29384baf';ctx.lineWidth=Math.max(2,size*.055);
+    ctx.beginPath();ctx.moveTo(x,height*.91);ctx.quadraticCurveTo(x-race.driftSide*size*.12,height*.96,x-race.driftSide*size*.3,height);ctx.stroke();
+    for(let i=0;i<4;i++){
+     const p=(race.time*3+i*.25)%1;
+     ctx.fillStyle='rgba(236,245,249,'+((1-p)*.52)+')';
+     ctx.beginPath();ctx.arc(x-race.driftSide*p*size*.38,height*.92+p*size*.35,size*(.05+p*.13),0,7);ctx.fill();
+    }
+   }
+  }
+  if(race.landing){
+   const p=1-race.landing/.38;
+   for(let i=0;i<10;i++){
+    const side=i%2?1:-1;
+    ctx.fillStyle=i%3?'#ffd16b':'#fff7c3';
+    ctx.fillRect(playerX+side*size*(.34+p*(.2+i*.065)),height*.925-Math.sin(p*Math.PI)*size*(.05+i*.023),3,3);
+   }
+  }
   if(race.boost>0){
+   const tier=race.boostTier||1,reach=.86+(tier-1)*.21;
    const flicker=Math.sin(race.time*62)*size*.16;
    ctx.save();ctx.globalCompositeOperation='screen';
    const trail=ctx.createLinearGradient(0,height*.87,0,height);
-   trail.addColorStop(0,'#d4ffff');trail.addColorStop(.34,'#20baff');trail.addColorStop(1,'#245bff30');
+   trail.addColorStop(0,'#d4ffff');trail.addColorStop(.34,tier>=3?'#63e9ff':'#20baff');trail.addColorStop(1,'#245bff30');
    for(const side of [-1,1]){
     const origin=playerX+side*size*.2;
-    poly(trail,[[origin-side*size*.12,height*.89],[origin+side*size*.10,height*.87],[origin+side*(size*.86+flicker),height],[origin-side*size*.36,height]]);
-    poly('#b8fcff',[[origin-side*size*.045,height*.91],[origin+side*size*.07,height*.91],[origin+side*(size*.36+flicker*.45),height]]);
+    poly(trail,[[origin-side*size*.12,carY-height*.03],[origin+side*size*.10,carY-height*.05],[origin+side*(size*reach+flicker),height],[origin-side*size*.36,height]]);
+    poly('#b8fcff',[[origin-side*size*.045,carY-height*.01],[origin+side*size*.07,carY-height*.01],[origin+side*(size*.36+flicker*.45),height]]);
    }
-   for(let i=0;i<12;i++){
+   for(let i=0;i<8+tier*4;i++){
     const side=i%2?1:-1,y=height*(.43+((race.time*2.5+i*.137)%1)*.56);
     const x=width*.5+side*(width*.25+(i%5)*width*.052);
     ctx.strokeStyle=i%3?'#48d8ff87':'#cafcffbb';ctx.lineWidth=i%3?2:3;
@@ -7295,12 +7370,32 @@ const kartGame=(()=>{
    }
    ctx.restore();
   }
-  kart(playerX,height*.92,size,palette[0],(Number(pressed('right'))-Number(pressed('left')))*.11);
+  const steer=Number(pressed('right'))-Number(pressed('left'));
+  kart(playerX,carY,size,palette[0],race.drift?race.driftSide*.24:steer*.11);
+  if(race.lapFlash>0){
+   const w=Math.min(width*.34,240),x=(width-w)/2,y=Math.max(82,height*.21);
+   ctx.fillStyle='#233b62ed';ctx.fillRect(x,y,w,34);
+   ctx.strokeStyle='#ffd777';ctx.lineWidth=2;ctx.strokeRect(x,y,w,34);
+   ctx.fillStyle='#fff3b0';ctx.font='bold 18px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(t('finalLap'),width/2,y+17,w-12);
+  }
+  if(race.celebration>0){
+   const elapsed=2.4-race.celebration;
+   ctx.save();ctx.globalAlpha=Math.min(1,race.celebration*2);
+   for(let i=0;i<56;i++){
+    const side=i%2?1:-1;
+    const x=width*(side===1?.94:.06)-side*width*(.10+(i%9)*.028)*elapsed;
+    const y=height*(.76-(.78+(i%7)*.1)*elapsed+.55*elapsed*elapsed)+(i%5)*7;
+    ctx.save();ctx.translate(x,y);ctx.rotate(elapsed*(i%7-3)+i);
+    ctx.fillStyle=palette[i%palette.length];ctx.fillRect(-3,-5,6,10);ctx.restore();
+   }
+   ctx.restore();
+  }
  }
  function frame(now){
   if(!race)return;
   const dt=clamp((now-last)/1000,0,.05);last=now;
   if(!race.paused&&!document.hidden&&['countdown','race'].includes(race.phase)){update(dt);updateHud();draw()}
+  else if(!document.hidden&&race.phase==='finished'&&race.celebration>0){race.celebration=Math.max(0,race.celebration-dt);draw()}
   frameId=requestAnimationFrame(frame);
  }
  function pause(){
