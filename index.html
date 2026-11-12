@@ -3904,7 +3904,7 @@ const cardColor = c => (c.id%5)+1;
 /* 前两阶段沿用战斗结算，题目单独生成，保证恰好一个正确选项。 */
 /* Discovery menu definitions */
 const DISCOVERY_MODES={treasure:'Sentence Treasure',bridge:'Sentence Bridge',town:'Chinese Town',defense:'Word Tower Defense',adventure:'Character Adventure'};
-const DISCOVERY_HELP={treasure:'Connect adjacent word tiles in sentence order, then open the treasure.',bridge:'Build a sentence in 45 seconds. Cross the bridge before the ghost catches you!',town:'Listen to your visitor. Choose the matching destination.',defense:'Match each lane clue with a word tower, then start the wave.',adventure:'Move and jump. Find three chests, solve their clues, then reach the portal.'};
+const DISCOVERY_HELP={treasure:'Tap the scrambled words in sentence order, then open the treasure.',bridge:'Build a sentence in 45 seconds. Cross the bridge before the ghost catches you!',town:'Listen to your visitor. Choose the matching destination.',defense:'Match each lane clue with a word tower, then start the wave.',adventure:'Move and jump. Find three chests, solve their clues, then reach the portal.'};
 const EXTRA_MODES={kitchen:'Word Kitchen',fishing:'Word Fishing',workshop:'Character Workshop'};
 const EXTRA_HELP={kitchen:'Drag the character ingredients into the pot in word order. Finish the order to cook and serve a dish.',fishing:'Tap anywhere in the water to fire a net. Catch the characters in word order.',workshop:'Drag each component into its correct position to build the character. Use the word and pinyin as clues.'};
 const CHARACTER_PARTS={机:['木','几','lr'],苹:['艹','平','tb'],橙:['木','登','lr'],草:['艹','早','tb'],莓:['艹','每','tb'],芒:['艹','亡','tb'],柠:['木','宁','lr'],檬:['木','蒙','lr'],想:['相','心','tb'],钱:['钅','戋','lr'],信:['亻','言','lr'],认:['讠','人','lr'],识:['讠','只','lr'],付:['亻','寸','lr'],宝:['宀','玉','tb'],姓:['女','生','lr'],课:['讠','果','lr'],他:['亻','也','lr'],们:['亻','门','lr'],你:['亻','尔','lr'],说:['讠','兑','lr'],汉:['氵','又','lr'],语:['讠','吾','lr'],谁:['讠','隹','lr'],职:['耳','只','lr'],律:['彳','聿','lr'],家:['宀','豕','tb'],国:['囗','玉','box']};
@@ -6606,7 +6606,8 @@ const DISCOVERY_TRANSLATIONS={
  'Chinese Town':['汉语生活小镇','Кытай тили шаарчасы','Xitoy tili shaharchasi','เมืองภาษาจีน','ເມືອງພາສາຈີນ'],
  'Word Tower Defense':['词语守卫塔','Сөз мунаралары','So‘z minoralari','หอคอยคำศัพท์','ຫໍຄອຍຄຳສັບ'],
  'Character Adventure':['汉字秘境冒险','Иероглиф саякаты','Iyeroglif sarguzashti','ผจญภัยอักษรจีน','ຜະຈົນໄພອັກສອນຈີນ'],
- [DISCOVERY_HELP.treasure]:['按语序连接相邻词块，组成完整句子，再开启宝藏。','Жанаша сөздөрдү ирети менен туташтырып сүйлөм түзүңүз да, казынаны ачыңыз.','Yonma-yon so‘zlarni tartib bilan ulab gap tuzing, so‘ng xazinani oching.','เชื่อมคำที่อยู่ติดกันตามลำดับให้เป็นประโยค แล้วเปิดสมบัติ','ເຊື່ອມຄຳທີ່ຕິດກັນຕາມລຳດັບໃຫ້ເປັນປະໂຫຍກ ແລ້ວເປີດສົມບັດ'],
+ [DISCOVERY_HELP.treasure]:['按正确语序点选乱序词块，组成完整句子，再开启宝藏。','Аралашкан сөздөрдү сүйлөмдүн ирети менен басып, казынаны ачыңыз.','Aralash so‘zlarni gap tartibida bosing, so‘ng xazinani oching.','แตะคำที่สลับลำดับให้เป็นประโยค แล้วเปิดสมบัติ','ແຕະຄຳທີ່ສະຫຼັບກັນຕາມລຳດັບປະໂຫຍກ ແລ້ວເປີດສົມບັດ'],
+ 'Try a different word order.':['换个语序再试试。','Сөздөрдүн иретин өзгөртүп көрүңүз.','So‘zlarni boshqa tartibda terib ko‘ring.','ลองเรียงคำใหม่','ລອງຮຽງຄຳໃໝ່'],
  [DISCOVERY_HELP.bridge]:['45秒内排列词语组成句子，在恶魔追上前过桥！','45 секундда сөздөрдөн сүйлөм түзүп, желмогуз жеткенче көпүрөдөн өтүңүз!','45 soniyada gap tuzing va maxluq yetib kelguncha ko‘prikdan o‘ting!','เรียงคำเป็นประโยคภายใน 45 วินาที แล้วข้ามสะพานก่อนปีศาจตามทัน!','ຮຽງຄຳເປັນປະໂຫຍກພາຍໃນ 45 ວິນາທີ ແລ້ວຂ້າມຂົວກ່ອນຜີຈະຕາມທັນ!'],
  [DISCOVERY_HELP.town]:['听访客的词语，选择相符的目的地。','Коноктун сөзүн угуп, туура жерди тандаңыз.','Mehmonni tinglang va mos manzilni tanlang.','ฟังคำของผู้มาเยือน แล้วเลือกจุดหมายที่ตรงกัน','ຟັງຄຳຂອງແຂກ ແລ້ວເລືອກຈຸດໝາຍທີ່ກົງກັນ'],
  [DISCOVERY_HELP.defense]:['按每条道路的词义部署词语塔，然后开始战斗。','Ар бир жолдун маанисине ылайык сөз мунарасын коюп, толкунду баштаңыз.','Har yo‘l ma’nosiga mos so‘z minorasini qo‘ying, so‘ng hujumni boshlang.','วางหอคอยคำให้ตรงกับความหมายแต่ละทาง แล้วเริ่มการโจมตี','ວາງຫໍຄຳໃຫ້ກົງກັບຄວາມໝາຍຂອງແຕ່ລະທາງ ແລ້ວເລີ່ມຕໍ່ສູ້'],
@@ -6677,14 +6678,14 @@ const discoveryGames=(()=>{
  const wordButton=(w,attr)=>'<button translate="no" '+attr+'>'+esc(w)+'</button>';
  function pixelPerson(color='#ad87ce'){return '<svg viewBox="0 0 40 56" aria-hidden="true" shape-rendering="crispEdges"><path d="M10 3h22v7H10M6 10h30v20H6" fill="#f4d4ae"/><path d="M6 3h28v8H6" fill="#635270"/><path d="M12 16h4v4h-4m13-4h4v4h-4" fill="#514260"/><path d="M15 25h10v3H15" fill="#bd7c88"/><path d="M7 31h27v17H7" fill="'+color+'"/><path d="M9 48h8v8H9m15-8h8v8h-8" fill="#675579"/></svg>';}
  function building(i){return '<svg viewBox="0 0 100 90" aria-hidden="true" shape-rendering="crispEdges"><path d="M10 33h80v53H10" fill="'+['#e8bc8c','#adbcdb','#c7a1c7'][i%3]+'"/><path d="M4 25h92v13H4M15 14h70v12H15M28 5h44v10H28" fill="#9b789c"/><path d="M20 47h18v18H20m43-18h18v18H63" fill="#fff2b3"/><path d="M43 54h15v32H43" fill="#71577e"/></svg>';}
- function audio(){if(!m)return;m.replays++;if(!S.muted)speak(m.sentence?m.sentence[0].join(''):m.word?.w||m.lanes?.[0].w||'');}
+ function audio(){if(!m||m.mode==='treasure')return;m.replays++;if(!S.muted)speak(m.sentence?m.sentence[0].join(''):m.word?.w||m.lanes?.[0].w||'');}
  function sound(ok){if(!S.muted){tone(ok?660:180,.15,'triangle',.06);if(ok)tone(880,.18,'sine',.04,.12);}}
  function feedback(s){el('feedback').textContent=t(s);}
  function choose(ex=[]){let pool=WORDS.filter(w=>!ex.includes(w.w)&&!m.history.slice(-Math.min(3,WORDS.length-1)).includes(w.w));if(!pool.length)pool=WORDS.filter(w=>!ex.includes(w.w));const w=pick(pool.length?pool:WORDS);m.history.push(w.w);return w;}
  function record(ok,key=m.word?.w||m.sentence?.[0].join('')||''){m.attempts++;S.attempts++;wordStat(key).plays++;if(ok){m.correct++;S.correct++;if(!m.mistake)m.first++;m.score+=20;S.score=m.score;markWordHit(key,[key]);S.wordsLearned.add(key);}else m.mistake=true;sound(ok);el('score').textContent=t('Score')+' '+m.score;}
  function guide(){el('guide').style.visibility='';el('guide').hidden=!!seen[m.mode];el('guide').querySelector('span').textContent=t(DISCOVERY_HELP[m.mode]);}
  function used(){seen[m.mode]=true;el('guide').style.visibility='hidden';if(m.mode==='defense'&&!drag)el('guide').hidden=true;}
- function start(mode){stop();m={mode,round:0,score:0,first:0,correct:0,attempts:0,replays:0,remaining:document.getElementById('opt-timer').checked?180:null,history:[],paused:false,locked:false,delay:0,done:false,mistake:false};S.running=false;S.busy=true;S.wordStats={};S.wordsLearned=new Set();S.correct=0;S.attempts=0;S.score=0;p.dataset.mode=mode;const header=p.querySelector('header');let counters=document.getElementById('defense-counters');if(!counters){counters=document.createElement('div');counters.id='defense-counters';header.insertBefore(counters,p.querySelector('[data-action=pause]'));}counters.hidden=mode!=='defense';if(mode==='defense'){counters.append(el('score'),el('progress'));}else{p.querySelector('.discovery-clue').append(el('progress'));header.append(el('score'));}p.hidden=false;document.getElementById('stage').inert=true;document.getElementById('overlay').classList.add('hidden');el('results').hidden=true;el('title').textContent=t(DISCOVERY_MODES[mode]);p.querySelector('[data-action=back]').textContent=t('Back');p.querySelector('[data-action=pause]').textContent=t('Pause');p.querySelector('[data-action=audio]').textContent=t('▶ Play pronunciation');el('score').textContent=t('Score')+' 0';el('timer').textContent=m.remaining===null?'':t('Timer')+' 180';next();last=performance.now();raf=requestAnimationFrame(tick);startDiscoveryMusic(mode);}
+ function start(mode){stop();m={mode,round:0,score:0,first:0,correct:0,attempts:0,replays:0,remaining:document.getElementById('opt-timer').checked?180:null,history:[],paused:false,locked:false,delay:0,done:false,mistake:false};S.running=false;S.busy=true;S.wordStats={};S.wordsLearned=new Set();S.correct=0;S.attempts=0;S.score=0;p.dataset.mode=mode;const header=p.querySelector('header');let counters=document.getElementById('defense-counters');if(!counters){counters=document.createElement('div');counters.id='defense-counters';header.insertBefore(counters,p.querySelector('[data-action=pause]'));}counters.hidden=mode!=='defense';if(mode==='defense'){counters.append(el('score'),el('progress'));}else{p.querySelector('.discovery-clue').append(el('progress'));header.append(el('score'));}p.hidden=false;document.getElementById('stage').inert=true;document.getElementById('overlay').classList.add('hidden');el('results').hidden=true;el('title').textContent=t(DISCOVERY_MODES[mode]);p.querySelector('[data-action=back]').textContent=t('Back');p.querySelector('[data-action=pause]').textContent=t('Pause');p.querySelector('[data-action=audio]').hidden=mode==='treasure';p.querySelector('[data-action=audio]').textContent=t('▶ Play pronunciation');el('score').textContent=t('Score')+' 0';el('timer').textContent=m.remaining===null?'':t('Timer')+' 180';next();last=performance.now();raf=requestAnimationFrame(tick);startDiscoveryMusic(mode);}
  function stop(){document.getElementById('defense-upgrade')?.close();ghost.hidden=true;cancelAnimationFrame(raf);raf=0;held.clear();drag=null;m=null;p.hidden=true;p.classList.remove('is-paused');pointers.clear();document.getElementById('stage').inert=false;stopBGM();try{speechSynthesis.cancel()}catch{}}
  function next(){if(!m)return;m.locked=false;m.delay=0;m.mistake=false;el('scene').className=m.mode;el('scene').replaceChildren();el('tray').replaceChildren();el('controls').replaceChildren();feedback('');guide();
   if(m.mode==='bridge'){m.remaining=null;el('timer').textContent='';el('scene').style.setProperty('--chase','0');m.bridgeTotal=45;m.bridgeTime=45;m.bridgeMonster=Math.floor(Math.random()*3);m.bridgeWin=0;m.bridgeAction=-1;const level=Number(document.querySelector('input[name=lesson]:checked').value);m.sentenceCount=BRIDGE_SETS[level].length;m.sentence=BRIDGE_SETS[level][m.round];m.planks=[];m.order=shuffle(m.sentence[0].map((w,i)=>({w,i})));const langs=['en','zh','ky','uz','th','lo'];el('clue').textContent=m.sentence[1][Math.max(0,langs.indexOf(locale()))];el('scene').innerHTML='<div class="bridge-demon" data-monster="'+m.bridgeMonster+'">'+bridgeGhost(m.bridgeMonster)+'</div><div class="bridge-clock" role="timer">45</div><div class="bridge-bank left"></div><div class="bridge-bank right"></div><div class="bridge-river"></div><div class="bridge-cart">'+bridgeRunner()+'</div><div class="bridge-slots"></div>';renderBridge();el('controls').innerHTML=button('Undo','data-action="undo"')+button('Test bridge','data-action="check"');const support=m.sentence[0].filter(w=>!WORDS.some(x=>x.w===w));feedback(t('Support words')+'：'+support.join(' · ')+' — '+t('Click a plank to return it.'));}
@@ -6701,35 +6702,19 @@ const discoveryGames=(()=>{
   m.sentenceCount=m.treasureBank.length;
   m.sentence=m.treasureBank[m.round];
   m.path=[];
-  const [tokens,clues]=m.sentence;
-  const language=locale(),index=['en','zh','ky','uz','th','lo'].indexOf(language);
-  const support={我:'wǒ',你:'nǐ',很:'hěn',是:'shì',在:'zài',的:'de'};
-  const clue=language==='zh'?tokens.map(w=>ALL_WORDS.find(entry=>entry.w===w)?.p||support[w]||w).join(' · '):clues[Math.max(0,index)];
-  el('clue').textContent=clue;
-  const distractors=[...new Set([...WORDS.map(w=>w.w),...m.treasureBank.flatMap(([words])=>words)])].filter(w=>!tokens.includes(w));
-  m.board=Array.from({length:25},()=>pick(distractors));
-  const transpose=Math.random()<.5;
-  const snake=Array.from({length:25},(_,i)=>{
-   const row=Math.floor(i/5),col=row%2?4-i%5:i%5;
-   return transpose?col*5+row:row*5+col;
-  });
-  if(Math.random()<.5)snake.reverse();
-  const start=Math.floor(Math.random()*(snake.length-tokens.length+1));
-  m.solution=snake.slice(start,start+tokens.length);
-  m.solution.forEach((cell,i)=>{m.board[cell]=tokens[i]});
-  if(BRIDGE_SETS[level]===SHOPPING_SENTENCES){
-   // Keep the closest competing words beside the sentence whenever possible.
-   const open=shuffle(m.board.map((_,i)=>i).filter(i=>!m.solution.includes(i)));
-   const fruit=SHOPPING_FRUIT.map(([word])=>word);
-   const contrast=tokens.includes('电脑')?['一部','手机']:
-    tokens.includes('手机')?['一台','电脑']:
-    [tokens.includes('多少钱')?'五元钱':'多少钱',...shuffle(fruit.filter(word=>!tokens.includes(word))).slice(0,2)];
-   contrast.forEach((word,i)=>{
-    const anchor=m.solution[tokens.findIndex(token=>i===0?['一部','一台','多少钱','五元钱'].includes(token):['电脑','手机',...fruit].includes(token))];
-    const near=open.findIndex(cell=>Math.abs(cell%5-anchor%5)<=1&&Math.abs(Math.floor(cell/5)-Math.floor(anchor/5))<=1);
-    m.board[open.splice(Math.max(0,near),1)[0]]=word;
-   });
-  }
+  const [tokens]=m.sentence;
+  const variants=tokens[0]==='一斤'?[[tokens[1],tokens[0],tokens[2]]]:
+   tokens[0]==='谁'?[['你','的','同学','是','谁']]:
+   tokens.join('')==='我认识你'?[['你','认识','我']]:[];
+  m.treasureAnswers=[tokens,...variants].map(words=>JSON.stringify(words));
+  el('clue').textContent=t(DISCOVERY_HELP.treasure);
+  const orders=[];
+  const permute=(prefix,left)=>{
+   if(!left.length){if(!m.treasureAnswers.includes(JSON.stringify(prefix)))orders.push(prefix);return;}
+   left.forEach((word,i)=>permute([...prefix,word],left.filter((_,j)=>j!==i)));
+  };
+  permute([],tokens);
+  m.board=orders.length?pick(orders):[...tokens];
   const found=Math.floor(5*m.round/m.sentenceCount);
   const gems=Array.from({length:5},(_,i)=>'<span class="'+(i<found?'found':'')+'">'+(i<found?'◆':'◇')+'</span>').join('');
   el('scene').innerHTML='<div class="treasure-map">'+gems+'<span class="treasure-chest">▣</span></div><div class="treasure-board">'+m.board.map((w,i)=>wordButton(w,'data-cell="'+i+'" aria-pressed="false"')).join('')+'</div>';
@@ -6737,8 +6722,7 @@ const discoveryGames=(()=>{
  }
  function drawLink(){if(m?.mode!=='treasure')return;const board=el('scene').querySelector('.treasure-board');if(!board)return;board.querySelector('svg')?.remove();if(!m.path.length)return;const r=board.getBoundingClientRect(),points=m.path.map(n=>{const b=board.querySelector('[data-cell="'+n+'"]').getBoundingClientRect();return [b.x+b.width/2-r.x,b.y+b.height*.82-r.y]});board.insertAdjacentHTML('beforeend','<svg class="treasure-link" viewBox="0 0 '+r.width+' '+r.height+'" aria-hidden="true"><polyline class="link-halo" points="'+points.map(p=>p.join(',')).join(' ')+'"/><polyline class="link-core" points="'+points.map(p=>p.join(',')).join(' ')+'"/>'+points.map(([x,y])=>'<circle cx="'+x+'" cy="'+y+'" r="6"/>').join('')+'</svg>');}
  window.addEventListener('resize',drawLink);
- function adjacent(a,b){return a!==b&&Math.abs(Math.floor(a/5)-Math.floor(b/5))<=1&&Math.abs(a%5-b%5)<=1;}
- function selectCell(n){if(m.locked)return;if(m.path.at(-1)===n)return;if(m.path.at(-2)===n)m.path.pop();else if(!m.path.includes(n)&&(!m.path.length||adjacent(m.path.at(-1),n)))m.path.push(n);el('scene').querySelectorAll('[data-cell]').forEach(b=>{b.classList.toggle('chosen',m.path.includes(+b.dataset.cell));b.setAttribute('aria-pressed',m.path.includes(+b.dataset.cell));});drawLink();feedback(m.path.map(cell=>m.board[cell]).join(' → '));}
+ function selectCell(n){if(m.locked)return;if(m.path.at(-1)===n)return;if(m.path.at(-2)===n)m.path.pop();else if(!m.path.includes(n))m.path.push(n);el('scene').querySelectorAll('[data-cell]').forEach(b=>{b.classList.toggle('chosen',m.path.includes(+b.dataset.cell));b.setAttribute('aria-pressed',m.path.includes(+b.dataset.cell));});drawLink();feedback(m.path.map(cell=>m.board[cell]).join(' → '));}
  // Three lightweight pixel ghosts matching the approved A/B/C silhouettes.
  function bridgeGhost(kind){const colors=[['#793780','#dfaa27','#2b162e'],['#ef635b','#9b233c','#421529'],['#29385d','#40bac4','#101c37']][kind];return '<svg viewBox="0 0 48 48" shape-rendering="crispEdges" aria-hidden="true"><path fill="'+colors[2]+'" d="M8 0h3v5h3V1h3v6h4V0h3v6h4V3h4v8h-4v7h10v-3h8v3h-4v3h4v3H29v5h9v-3h8v3h-4v3h4v3H25v4h-7v3h-4v3h-4v3H5v-4h4v-5H6v-4H3V19h2V11h3z"/><path fill="'+colors[1]+'" d="M9 3h2v5h4V4h2v6h5V4h2v5h5V6h2v5H9z"/><path fill="'+colors[0]+'" d="M9 12h17v8h14v-3h4v1h-4v5H26v8h14v-3h4v1h-4v5H23v3h-7v4h-5v4H8v1H7v-2h3v-7H7v-3H5V20h2v-7z"/><path fill="#fff0bb" d="M10 16h3v2h3v4h-3v-2h-3m10-2h5v2h-2v3h-3M10 26h14v5h-2v3h-8v-2h-4z"/>'+(kind===1?'<path d="M11 27h2v2h-2m4-2h2v2h-2m4-2h2v2h-2" fill="#421529"/>':'')+'</svg>';}
  function bridgeRunner(){return '<div class="bridge-dust" aria-hidden="true"><i></i><i></i><i></i></div><div class="bridge-avatar"><svg viewBox="0 0 20 26" shape-rendering="crispEdges" aria-hidden="true"><g class="bridge-body"><path fill="#33291f" d="M6 1h7v2h3v4h-2v5h-3v2h2v6H5v-8H4V5h2z"/><path fill="#347cb5" d="M6 2h6v2h4v2H5V4h1M6 13h5v6H6"/><path fill="#ffd39c" d="M8 6h6v4h-2v2H8"/><path fill="#33291f" d="M12 7h1v2h-1"/><path fill="#b38951" d="M4 12h2v6H4"/></g><g class="bridge-pose-a"><path fill="#33291f" d="M6 19h4v3H7v3H1v-3h5m4-3h3v3h4v3h-6v-3h-1"/><path fill="#ffd39c" d="M10 14h3v2h4v-4h2v6h-7v-2h-2M4 14h2v3H2v-2h2"/></g><g class="bridge-pose-b"><path fill="#33291f" d="M6 19h4v3h5v3H8v-3H6m5-3h2v3H8v3H3v-3h8"/><path fill="#ffd39c" d="M10 14h2v3H8v2H4v-2h4v-2h2M5 14h2v-3h2v5H5"/></g></svg></div>';}
@@ -6795,8 +6779,8 @@ const discoveryGames=(()=>{
  function renderBridge(){el('scene').querySelector('.bridge-slots').innerHTML=m.sentence[0].map((_,i)=>wordButton(m.planks[i]===undefined?'·':m.sentence[0][m.planks[i]],'data-slot="'+i+'"')).join('');el('tray').innerHTML=m.order.filter(o=>!m.planks.includes(o.i)).map(o=>wordButton(o.w,'data-plank="'+o.i+'" draggable="false"')).join('');bridgeMotion();}
  function addPlank(n,index=m.planks.length){if(m.locked||m.planks.includes(n))return;if(index<m.planks.length)m.planks.splice(index,0,n);else m.planks.push(n);renderBridge();el('scene').querySelector('[data-slot="'+Math.min(index,m.planks.length-1)+'"]')?.classList.add('bridge-plank-set');if(!S.muted)tone(310,.065,'triangle',.035);}
  function success(){m.locked=true;m.delay=1.5;el('scene').classList.add('celebrate');feedback('Connected!');}
- function finish(){m.done=true;m.locked=true;if(m.mode==='bridge')bridgeMotion();held.clear();el('guide').hidden=true;el('results').hidden=false;el('results').innerHTML='<h3>'+esc(t('Round complete!'))+'</h3><p>'+esc(t('Score'))+' '+m.score+' · '+esc(t('First try'))+' '+m.first+'/'+m.correct+'</p><p>'+esc(t('Audio replays'))+' '+m.replays+'</p>'+button('Play Again','data-action="restart"')+button('Back','data-action="back"');stopBGM();}
- function check(){if(m.mode==='treasure'){const tokens=m.sentence[0];const ok=m.path.length===tokens.length&&m.path.every((cell,i)=>m.board[cell]===tokens[i]);record(ok);if(ok)success();else{feedback('Listen and try again.');m.path=[];drawLink();el('scene').querySelectorAll('[data-cell]').forEach(b=>{b.classList.remove('chosen');b.setAttribute('aria-pressed','false')});}}
+ function finish(){m.done=true;m.locked=true;if(m.mode==='bridge')bridgeMotion();held.clear();el('guide').hidden=true;el('results').hidden=false;el('results').innerHTML='<h3>'+esc(t('Round complete!'))+'</h3><p>'+esc(t('Score'))+' '+m.score+' · '+esc(t('First try'))+' '+m.first+'/'+m.correct+'</p>'+(m.mode==='treasure'?'':'<p>'+esc(t('Audio replays'))+' '+m.replays+'</p>')+button('Play Again','data-action="restart"')+button('Back','data-action="back"');stopBGM();}
+ function check(){if(m.mode==='treasure'){const ok=m.treasureAnswers.includes(JSON.stringify(m.path.map(cell=>m.board[cell])));record(ok);if(ok)success();else{feedback('Try a different word order.');m.path=[];drawLink();el('scene').querySelectorAll('[data-cell]').forEach(b=>{b.classList.remove('chosen');b.setAttribute('aria-pressed','false')});}}
   if(m.mode==='bridge'){if(m.planks.length!==m.sentence[0].length){feedback('Listen to the sentence.');return;}const ok=m.planks.map(i=>m.sentence[0][i]).join('')===m.sentence[0].join('');record(ok);if(ok){success();el('scene').classList.add('crossing');m.bridgeWin=.001;m.bridgeAction=Math.floor(Math.random()*5);m.delay=5.6;bridgeMotion();}else bridgeFall();}}
  function deliver(i){const ok=m.options[i].w===m.word.w;record(ok);if(ok){success();feedback('Delivered!');const v=el('scene').querySelector('.town-visitor');v.style.left=(17+i*33)+'%';v.style.bottom='41%';m.delay=2.2;}else{m.townLives--;m.locked=true;m.recover=1.25;el('scene').classList.add('town-hit');el('scene').querySelector('.town-health').textContent='♥'.repeat(m.townLives)+'♡'.repeat(3-m.townLives);feedback('Listen and try again.');if(m.townLives===0){finish();el('results').querySelector('h3').textContent=t('Game Over');}}}
  function weaponIcon(kind){const shape=kind==='Machine gun'?'<path d="M4 6h19v10H4M20 5h17v4H20m0 4h17v4H20M8 16h7v4H8" fill="#7d8a73" stroke="#191916" stroke-width="2"/>':kind==='Missile'?'<path d="M7 6h20l10 5-10 5H7z" fill="#f4ecce" stroke="#191916" stroke-width="2"/><path d="M27 6l10 5-10 5M2 8h6v6H2" fill="#f0772b"/>':'<path d="M4 6h14v10H4" fill="#8065bf" stroke="#191916" stroke-width="2"/><path d="M18 8h20v6H18" fill="#35cddd"/><path d="M18 10h20v2H18" fill="#fff8df"/>';return '<svg viewBox="0 0 42 22" aria-hidden="true">'+shape+'</svg>';}
