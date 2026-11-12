@@ -1522,6 +1522,47 @@ html[lang] body{font-family:system-ui,'Noto Sans Thai','Noto Sans Lao',sans-seri
 </style>
 <style id="discovery-games-style">
 #discovery-panel[hidden]{display:none!important}
+.bridge-win-fx{position:absolute;left:89%;top:41%;z-index:5;pointer-events:none;color:#ffdb62}
+.bridge-win-fx i,.bridge-win-fx em{position:absolute;display:block}
+.bridge-win-fx i{width:var(--size);height:var(--size);background:var(--c);box-shadow:2px 2px #36204e55;animation:bridge-pixel-burst 1.15s steps(14) var(--d) both}
+.bridge-win-fx em{width:18px;height:18px;left:-9px;top:6px;border:3px solid currentColor;animation:bridge-win-ring .9s steps(8) both}
+.bridge-win-fx em:last-child{animation-delay:.22s}
+[data-bridge-show=fireworks] .bridge-win-fx{left:78%;top:32%}
+[data-bridge-show=rainbow] .bridge-win-fx{left:81%;top:39%}
+[data-bridge-show=rainbow] .bridge-win-fx i{animation-name:bridge-pixel-arc}
+[data-bridge-show=snow] .bridge-win-fx i{animation-name:bridge-pixel-snow;animation-duration:1.9s}
+[data-bridge-show=crown] .bridge-win-fx em:first-of-type{left:-15px;top:-35px;width:30px;height:22px;border:0;background:#ffe56a;clip-path:polygon(0 0,25% 45%,50% 0,75% 45%,100% 0,90% 100%,10% 100%);animation:bridge-crown-drop 1.6s steps(12) both}
+[data-bridge-show=stomp] .bridge-win-fx{top:53%;color:#f7ffff}
+[data-bridge-show=stomp] .bridge-win-fx em{height:8px;animation-name:bridge-stomp-ring}
+[data-bridge-show=hop] .bridge-avatar{animation:bridge-hop .66s steps(8) 3}
+[data-bridge-show=spin] .bridge-avatar{animation:bridge-spin .62s steps(8) 3}
+[data-bridge-show=bow] .bridge-avatar{animation:bridge-bow .85s steps(6) 2}
+[data-bridge-show=flip] .bridge-avatar{animation:bridge-flip .85s steps(10) 2}
+[data-bridge-show=stomp] .bridge-avatar{animation:bridge-stomp .68s steps(7) 2}
+[data-bridge-show=fireworks] .bridge-avatar,[data-bridge-show=rainbow] .bridge-avatar{animation:bridge-bow .92s steps(6) 2}
+[data-bridge-show=crown] .bridge-avatar{animation:bridge-stomp .84s steps(8) 1}
+[data-bridge-show=shuffle] .bridge-avatar{animation:bridge-shuffle .62s steps(6) 4}
+[data-bridge-show=snow] .bridge-avatar{animation:bridge-shiver .25s steps(3) 7}
+[data-bridge-show=victory] .bridge-avatar{animation:bridge-hop .48s steps(5) 2}
+[data-bridge-show=victory] .bridge-avatar:after,[data-bridge-show=egg] .bridge-avatar:after,[data-bridge-show=tomato] .bridge-avatar:after{content:'';position:absolute;right:-8px;top:40%;width:14px;height:5px;background:#ffd39c;border:2px solid #33291f;transform-origin:left;animation:bridge-wave .32s steps(3) 3}
+@keyframes bridge-pixel-burst{0%{transform:scale(.3);opacity:0}12%{opacity:1}63%{transform:translate(var(--x),var(--y)) rotate(90deg);opacity:1}100%{transform:translate(var(--x),calc(var(--y) + 28px)) rotate(180deg) scale(.3);opacity:0}}
+@keyframes bridge-pixel-arc{0%{opacity:0}16%{opacity:1}60%{transform:translate(var(--x),-42px) rotate(90deg)}100%{transform:translate(var(--x),36px) scale(.25);opacity:0}}
+@keyframes bridge-pixel-snow{0%{transform:translate(var(--x),-62px);opacity:0}18%{opacity:1}85%{opacity:.9}100%{transform:translate(calc(var(--x) - 14px),36px) rotate(90deg);opacity:0}}
+@keyframes bridge-win-ring{0%{transform:scale(.3);opacity:0}20%{opacity:.85}100%{transform:scale(4);opacity:0}}
+@keyframes bridge-stomp-ring{20%{opacity:1}100%{transform:scale(7,2);opacity:0}}
+@keyframes bridge-crown-drop{0%{transform:translateY(-28px);opacity:0}25%,80%{transform:none;opacity:1}100%{opacity:0}}
+@keyframes bridge-hop{50%{transform:translateY(-26px) scaleX(-1)}}
+@keyframes bridge-spin{25%,75%{transform:translateY(-12px) scaleX(.18)}50%{transform:translateY(-17px) scaleX(1)}}
+@keyframes bridge-bow{45%,65%{transform:scaleX(-1) rotate(-29deg) translateY(6px)}}
+@keyframes bridge-flip{50%{transform:translateY(-29px) rotate(180deg) scaleX(-1)}100%{transform:rotate(360deg) scaleX(-1)}}
+@keyframes bridge-stomp{30%{transform:translateY(-18px) scaleX(-1)}65%{transform:scale(-1.15,.73) translateY(5px)}}
+@keyframes bridge-shuffle{25%{transform:translate(-9px,-4px) scaleX(-1) rotate(-9deg)}75%{transform:translate(9px,-4px) scaleX(-1) rotate(9deg)}}
+@keyframes bridge-shiver{33%{transform:translateX(-3px) scaleX(-1)}66%{transform:translateX(3px) scaleX(-1)}}
+@media(prefers-reduced-motion:reduce){
+ #discovery-panel .bridge-victory .bridge-avatar,#discovery-panel .bridge-victory .bridge-avatar:after,#discovery-panel .bridge-victory .bridge-bubble{animation:none}
+ .bridge-win-fx i{transform:translate(var(--x),var(--y));animation:none}
+ .bridge-win-fx em{display:none}
+}
 .treasure-hints{display:flex;flex-wrap:wrap;justify-content:center;gap:.45em}
 .treasure-hints span{background:#fff0ad;color:#30253e;padding:.18em .65em;border:1px solid #ad8647;border-radius:6px;font-weight:750}
 #discovery-panel[data-mode=treasure] .treasure-board{width:min(100%,720px);max-width:none;grid-template-columns:repeat(5,minmax(0,1fr))}
@@ -6691,7 +6732,7 @@ const discoveryGames=(()=>{
  function used(){seen[m.mode]=true;el('guide').style.visibility='hidden';if(m.mode==='defense'&&!drag)el('guide').hidden=true;}
  function start(mode){stop();m={mode,round:0,score:0,first:0,correct:0,attempts:0,replays:0,remaining:document.getElementById('opt-timer').checked?180:null,history:[],paused:false,locked:false,delay:0,done:false,mistake:false};S.running=false;S.busy=true;S.wordStats={};S.wordsLearned=new Set();S.correct=0;S.attempts=0;S.score=0;p.dataset.mode=mode;const header=p.querySelector('header');let counters=document.getElementById('defense-counters');if(!counters){counters=document.createElement('div');counters.id='defense-counters';header.insertBefore(counters,p.querySelector('[data-action=pause]'));}counters.hidden=mode!=='defense';if(mode==='defense'){counters.append(el('score'),el('progress'));}else{p.querySelector('.discovery-clue').append(el('progress'));header.append(el('score'));}p.hidden=false;document.getElementById('stage').inert=true;document.getElementById('overlay').classList.add('hidden');el('results').hidden=true;el('title').textContent=t(DISCOVERY_MODES[mode]);p.querySelector('[data-action=back]').textContent=t('Back');p.querySelector('[data-action=pause]').textContent=t('Pause');p.querySelector('[data-action=audio]').hidden=mode==='treasure';p.querySelector('[data-action=audio]').textContent=t('▶ Play pronunciation');el('score').textContent=t('Score')+' 0';el('timer').textContent=m.remaining===null?'':t('Timer')+' 180';next();last=performance.now();raf=requestAnimationFrame(tick);startDiscoveryMusic(mode);}
  function stop(){document.getElementById('defense-upgrade')?.close();ghost.hidden=true;cancelAnimationFrame(raf);raf=0;held.clear();drag=null;m=null;p.hidden=true;p.classList.remove('is-paused');pointers.clear();document.getElementById('stage').inert=false;stopBGM();try{speechSynthesis.cancel()}catch{}}
- function next(){if(!m)return;m.locked=false;m.delay=0;m.mistake=false;el('scene').className=m.mode;el('scene').replaceChildren();el('tray').replaceChildren();el('controls').replaceChildren();feedback('');guide();
+ function next(){if(!m)return;m.locked=false;m.delay=0;m.mistake=false;el('scene').className=m.mode;delete el('scene').dataset.bridgeShow;el('scene').replaceChildren();el('tray').replaceChildren();el('controls').replaceChildren();feedback('');guide();
   if(m.mode==='bridge'){m.remaining=null;el('timer').textContent='';el('scene').style.setProperty('--chase','0');m.bridgeTotal=45;m.bridgeTime=45;m.bridgeMonster=Math.floor(Math.random()*3);m.bridgeWin=0;m.bridgeAction=-1;const level=Number(document.querySelector('input[name=lesson]:checked').value);m.sentenceCount=BRIDGE_SETS[level].length;m.sentence=BRIDGE_SETS[level][m.round];m.planks=[];m.order=shuffle(m.sentence[0].map((w,i)=>({w,i})));const langs=['en','zh','ky','uz','th','lo'];el('clue').textContent=m.sentence[1][Math.max(0,langs.indexOf(locale()))];el('scene').innerHTML='<div class="bridge-demon" data-monster="'+m.bridgeMonster+'">'+bridgeGhost(m.bridgeMonster)+'</div><div class="bridge-clock" role="timer">45</div><div class="bridge-bank left"></div><div class="bridge-bank right"></div><div class="bridge-river"></div><div class="bridge-cart">'+bridgeRunner()+'</div><div class="bridge-slots"></div>';renderBridge();el('controls').innerHTML=button('Undo','data-action="undo"')+button('Test bridge','data-action="check"');const support=m.sentence[0].filter(w=>!WORDS.some(x=>x.w===w));feedback(t('Support words')+'：'+support.join(' · ')+' — '+t('Click a plank to return it.'));}
   else if(m.mode==='treasure')prepareTreasure();
   else if(m.mode==='town'){m.word=choose();m.options=shuffle([m.word,...shuffle(WORDS.filter(w=>w!==m.word)).slice(0,2)]);el('scene').innerHTML='<div class="town-cloud"></div><div class="town-buildings">'+m.options.map((w,i)=>'<button data-destination="'+i+'">'+building(i)+'<span>'+esc(w.w)+'</span></button>').join('')+'</div><div class="town-road"></div><div class="town-visitor">'+pixelPerson(['#d18fab','#80b6ae','#e2b276'][m.round%3])+'</div><div class="town-residents">'+Array.from({length:m.round},()=>pixelPerson()).join('')+'</div>';}
@@ -6785,13 +6826,47 @@ const discoveryGames=(()=>{
    if(!S.muted){tone(185,.12,'triangle',.065);tone(95,.19,'sine',.055,.04);}
   }
  }
+ const bridgeShows=[
+  ['laugh','😂','gold'],['dance','♫','prism'],['wave','😜','mint'],
+  ['egg','🥚','gold'],['tomato','🍅','rose'],
+  ['hop','★','gold'],['spin','✦','prism'],['bow','♥','rose'],
+  ['flip','☄','mint'],['stomp','◆','gold'],['fireworks','✷','prism'],
+  ['crown','♛','gold'],['shuffle','♫','mint'],['rainbow','✦','prism'],
+  ['snow','❄','ice'],['victory','✌','rose']
+ ];
+ function drawBridgeShow(){
+  if(!m.bridgeShows?.length){
+   m.bridgeShows=shuffle(bridgeShows.map((_,i)=>i));
+   if(m.bridgeShows.at(-1)===m.bridgePrevious)m.bridgeShows.unshift(m.bridgeShows.pop());
+  }
+  return m.bridgePrevious=m.bridgeShows.pop();
+ }
+ function bridgeCelebrate(scene){
+  const a=m.bridgeAction,[name,icon,palette]=bridgeShows[a];
+  const phrases=[['哈哈哈！','Ha ha ha!','Ха-ха!','Ha-ha-ha!','ฮ่า ๆ!','ຮ່າໆ!'],['跳起来！','Dance time!','Бийлейбиз!','Raqs vaqti!','เต้นกันเลย!','ມາເຕັ້ນກັນ!'],['来呀！','Come on!','Келчи!','Qani, kel!','มาเลย!','ມາເລີຍ!'],['接住！','Catch!','Карма!','Tut!','รับไป!','ຮັບໄປ!'],['送你番茄！','A tomato for you!','Сага помидор!','Senga pomidor!','มะเขือเทศให้เธอ!','ເອົາໝາກເລັ່ນໄປ!'],['过桥啦！','Made it!','Өттүм!','O‘tdim!','ข้ามได้แล้ว!','ຂ້າມໄດ້ແລ້ວ!']];
+  const l=['zh','en','ky','uz','th','lo'].indexOf(locale());
+  scene.classList.add('bridge-victory','bridge-act-'+a);
+  scene.dataset.bridgeShow=name;
+  scene.insertAdjacentHTML('beforeend','<div class="bridge-bubble">'+phrases[Math.min(a,5)][Math.max(0,l)]+' <b>'+icon+'</b></div>'+((a===3||a===4)?'<div class="bridge-projectile">'+icon+'</div>':''));
+  const colors={gold:['#fff5b0','#ffc142','#f4782d'],prism:['#ff6b95','#ffe467','#64e2ff','#c491ff','#81f6aa'],mint:['#edffcb','#6fffc0','#23bec7'],rose:['#fff0dd','#ff80a0','#ef4561'],ice:['#fff','#b8eeff','#799fff']}[palette];
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const count=reduced?5:name==='fireworks'?36:18;
+  const bits=Array.from({length:count},(_,i)=>{
+   const angle=i*2.39996+a,spread=28+Math.random()*70;
+   const x=Math.round(Math.cos(angle)*spread),y=Math.round(Math.sin(angle)*spread*.6);
+   const delay=(i%3)*.15+(name==='fireworks'?Math.floor(i/12)*.28:0);
+   return '<i style="--x:'+x+'px;--y:'+y+'px;--d:'+delay+'s;--c:'+colors[i%colors.length]+';--size:'+(4+(i%3)*2)+'px"></i>';
+  }).join('');
+  scene.insertAdjacentHTML('beforeend','<div class="bridge-win-fx" aria-hidden="true">'+bits+'<em></em><em></em></div>');
+  if(!S.muted){
+   const notes=name==='laugh'?[650,530,650,470]:name==='stomp'?[125,390,680]:name==='snow'?[880,1175,1568]:[392,523,659,784];
+   notes.forEach((hz,i)=>tone(hz,.12,name==='laugh'?'square':'triangle',.035,i*.09));
+  }
+ }
  function bridgeTick(dt){
   if(!m.locked){m.bridgeTime=Math.max(0,m.bridgeTime-dt);el('scene').style.setProperty('--chase',String(1-m.bridgeTime/m.bridgeTotal));if(m.bridgeTime===0){record(false);bridgeFall();}}
   const clock=el('scene').querySelector('.bridge-clock');if(clock){clock.textContent='⏳ '+Math.ceil(m.bridgeTime);clock.classList.toggle('urgent',m.bridgeTime<=10);}
-  if(m.bridgeWin>0){m.bridgeWin+=dt;if(m.bridgeWin>=2.3&&!el('scene').classList.contains('bridge-victory')){
-    const phrases=[['追不上我吧！','Catch me if you can!','Мени кармай албайсың!','Meni tuta olmaysan!','ตามไม่ทันหรอก!','ຕາມບໍ່ທັນດອກ!'],['跳起来！','Dance time!','Бийлейбиз!','Raqs vaqti!','เต้นกันเลย!','ມາເຕັ້ນກັນ!'],['来呀！','Come on!','Келчи!','Qani, kel!','มาเลย!','ມາເລີຍ!'],['接住！','Catch!','Карма!','Tut!','รับไป!','ຮັບໄປ!'],['送你番茄！','A tomato for you!','Сага помидор!','Senga pomidor!','มะเขือเทศให้เธอ!','ເອົາໝາກເລັ່ນໄປ!']];
-    const a=m.bridgeAction,l=['zh','en','ky','uz','th','lo'].indexOf(locale());el('scene').classList.add('bridge-victory','bridge-act-'+a);el('scene').insertAdjacentHTML('beforeend','<div class="bridge-bubble">'+phrases[a][Math.max(0,l)]+' <b>'+['😂','♫','😜','🥚','🍅'][a]+'</b></div>'+(a>=3?'<div class="bridge-projectile">'+(a===3?'🥚':'🍅')+'</div>':''));if(!S.muted){tone(520,.1,'triangle',.04);tone(780,.15,'triangle',.04,.12);}
-  }}
+  if(m.bridgeWin>0){m.bridgeWin+=dt;if(m.bridgeWin>=2.3&&!el('scene').classList.contains('bridge-victory'))bridgeCelebrate(el('scene'));}
   bridgeThrow(el('scene'));
   bridgeMotion();
  }
@@ -6800,7 +6875,7 @@ const discoveryGames=(()=>{
  function success(){m.locked=true;m.delay=1.5;el('scene').classList.add('celebrate');feedback('Connected!');}
  function finish(){m.done=true;m.locked=true;if(m.mode==='bridge')bridgeMotion();held.clear();el('guide').hidden=true;el('results').hidden=false;el('results').innerHTML='<h3>'+esc(t('Round complete!'))+'</h3><p>'+esc(t('Score'))+' '+m.score+' · '+esc(t('First try'))+' '+m.first+'/'+m.correct+'</p>'+(m.mode==='treasure'?'':'<p>'+esc(t('Audio replays'))+' '+m.replays+'</p>')+button('Play Again','data-action="restart"')+button('Back','data-action="back"');stopBGM();}
  function check(){if(m.mode==='treasure'){const ok=m.treasureAnswers.includes(JSON.stringify(m.path.map(cell=>m.board[cell])));record(ok);if(ok)success();else{feedback('Try a different word order.');m.path=[];drawLink();el('scene').querySelectorAll('[data-cell]').forEach(b=>{b.classList.remove('chosen');b.setAttribute('aria-pressed','false')});}}
-  if(m.mode==='bridge'){if(m.planks.length!==m.sentence[0].length){feedback('Listen to the sentence.');return;}const ok=m.planks.map(i=>m.sentence[0][i]).join('')===m.sentence[0].join('');record(ok);if(ok){success();el('scene').classList.add('crossing');m.bridgeWin=.001;m.bridgeAction=Math.floor(Math.random()*5);m.delay=5.6;bridgeMotion();}else bridgeFall();}}
+  if(m.mode==='bridge'){if(m.planks.length!==m.sentence[0].length){feedback('Listen to the sentence.');return;}const ok=m.planks.map(i=>m.sentence[0][i]).join('')===m.sentence[0].join('');record(ok);if(ok){success();el('scene').classList.add('crossing');m.bridgeWin=.001;m.bridgeAction=drawBridgeShow();m.delay=5.6;bridgeMotion();}else bridgeFall();}}
  function deliver(i){const ok=m.options[i].w===m.word.w;record(ok);if(ok){success();feedback('Delivered!');const v=el('scene').querySelector('.town-visitor');v.style.left=(17+i*33)+'%';v.style.bottom='41%';m.delay=2.2;}else{m.townLives--;m.locked=true;m.recover=1.25;el('scene').classList.add('town-hit');el('scene').querySelector('.town-health').textContent='♥'.repeat(m.townLives)+'♡'.repeat(3-m.townLives);feedback('Listen and try again.');if(m.townLives===0){finish();el('results').querySelector('h3').textContent=t('Game Over');}}}
  function weaponIcon(kind){const shape=kind==='Machine gun'?'<path d="M4 6h19v10H4M20 5h17v4H20m0 4h17v4H20M8 16h7v4H8" fill="#7d8a73" stroke="#191916" stroke-width="2"/>':kind==='Missile'?'<path d="M7 6h20l10 5-10 5H7z" fill="#f4ecce" stroke="#191916" stroke-width="2"/><path d="M27 6l10 5-10 5M2 8h6v6H2" fill="#f0772b"/>':'<path d="M4 6h14v10H4" fill="#8065bf" stroke="#191916" stroke-width="2"/><path d="M18 8h20v6H18" fill="#35cddd"/><path d="M18 10h20v2H18" fill="#fff8df"/>';return '<svg viewBox="0 0 42 22" aria-hidden="true">'+shape+'</svg>';}
  function placeTower(i){m.focus=i;if(!m.ammo){feedback('Choose a tower first.');return;}m.towers[i]=m.ammo;const target=m.enemies.filter(e=>e.lane===i).sort((a,b)=>a.x-b.x)[0];if(target&&target.word!==m.ammo&&!target.mistake&&m.mechanical<=0){target.mistake=true;record(false,target.word);feedback('Listen and try again.');}const tower=el('scene').querySelector('[data-lane="'+i+'"]');tower.textContent=m.ammo;tower.dataset.weapon=m.weapons[m.ammo];tower.setAttribute('aria-label',m.ammo+' · '+t(m.weapons[m.ammo]));updateUpgrades();drawDefense();}
