@@ -6717,6 +6717,19 @@ const discoveryGames=(()=>{
   const start=Math.floor(Math.random()*(snake.length-tokens.length+1));
   m.solution=snake.slice(start,start+tokens.length);
   m.solution.forEach((cell,i)=>{m.board[cell]=tokens[i]});
+  if(BRIDGE_SETS[level]===SHOPPING_SENTENCES){
+   // Keep the closest competing words beside the sentence whenever possible.
+   const open=shuffle(m.board.map((_,i)=>i).filter(i=>!m.solution.includes(i)));
+   const fruit=SHOPPING_FRUIT.map(([word])=>word);
+   const contrast=tokens.includes('电脑')?['一部','手机']:
+    tokens.includes('手机')?['一台','电脑']:
+    [tokens.includes('多少钱')?'五元钱':'多少钱',...shuffle(fruit.filter(word=>!tokens.includes(word))).slice(0,2)];
+   contrast.forEach((word,i)=>{
+    const anchor=m.solution[tokens.findIndex(token=>i===0?['一部','一台','多少钱','五元钱'].includes(token):['电脑','手机',...fruit].includes(token))];
+    const near=open.findIndex(cell=>Math.abs(cell%5-anchor%5)<=1&&Math.abs(Math.floor(cell/5)-Math.floor(anchor/5))<=1);
+    m.board[open.splice(Math.max(0,near),1)[0]]=word;
+   });
+  }
   const found=Math.floor(5*m.round/m.sentenceCount);
   const gems=Array.from({length:5},(_,i)=>'<span class="'+(i<found?'found':'')+'">'+(i<found?'◆':'◇')+'</span>').join('');
   el('scene').innerHTML='<div class="treasure-map">'+gems+'<span class="treasure-chest">▣</span></div><div class="treasure-board">'+m.board.map((w,i)=>wordButton(w,'data-cell="'+i+'" aria-pressed="false"')).join('')+'</div>';
