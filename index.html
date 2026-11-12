@@ -1522,6 +1522,10 @@ html[lang] body{font-family:system-ui,'Noto Sans Thai','Noto Sans Lao',sans-seri
 </style>
 <style id="discovery-games-style">
 #discovery-panel[hidden]{display:none!important}
+.treasure-hints{display:flex;flex-wrap:wrap;justify-content:center;gap:.45em}
+.treasure-hints span{background:#fff0ad;color:#30253e;padding:.18em .65em;border:1px solid #ad8647;border-radius:6px;font-weight:750}
+#discovery-panel[data-mode=treasure] .treasure-board{width:min(100%,720px);max-width:none;grid-template-columns:repeat(5,minmax(0,1fr))}
+#discovery-panel[data-mode=treasure] .treasure-board button{min-width:0;aspect-ratio:auto;height:clamp(38px,8dvh,70px);font-size:clamp(14px,4vw,26px)}
 #discovery-panel{position:fixed;inset:0;z-index:1200;overflow:auto;background:radial-gradient(ellipse at top,#e1f5df,#a1d5c0);color:#59466d;padding:14px;box-sizing:border-box;font-family:system-ui,sans-serif;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;overscroll-behavior:contain}
 #discovery-panel *{box-sizing:border-box}#discovery-panel button{font:700 17px system-ui,sans-serif;cursor:pointer;color:#59466d;background:linear-gradient(#fff7d4,#ffe3a1);border:2px solid #a18ab2;border-radius:13px;padding:10px 16px;min-height:46px;box-shadow:0 4px 0 #70598440;touch-action:manipulation;transition:filter .15s}
 #discovery-panel button:hover{filter:brightness(1.05)}#discovery-panel button:focus-visible{outline:3px solid #517eaa;outline-offset:2px}#discovery-panel button:disabled{opacity:.55;cursor:default}
@@ -3904,7 +3908,7 @@ const cardColor = c => (c.id%5)+1;
 /* 前两阶段沿用战斗结算，题目单独生成，保证恰好一个正确选项。 */
 /* Discovery menu definitions */
 const DISCOVERY_MODES={treasure:'Sentence Treasure',bridge:'Sentence Bridge',town:'Chinese Town',defense:'Word Tower Defense',adventure:'Character Adventure'};
-const DISCOVERY_HELP={treasure:'Tap the scrambled words in sentence order, then open the treasure.',bridge:'Build a sentence in 45 seconds. Cross the bridge before the ghost catches you!',town:'Listen to your visitor. Choose the matching destination.',defense:'Match each lane clue with a word tower, then start the wave.',adventure:'Move and jump. Find three chests, solve their clues, then reach the portal.'};
+const DISCOVERY_HELP={treasure:'Use the scrambled clues above. Link adjacent tiles below to make a sentence.',bridge:'Build a sentence in 45 seconds. Cross the bridge before the ghost catches you!',town:'Listen to your visitor. Choose the matching destination.',defense:'Match each lane clue with a word tower, then start the wave.',adventure:'Move and jump. Find three chests, solve their clues, then reach the portal.'};
 const EXTRA_MODES={kitchen:'Word Kitchen',fishing:'Word Fishing',workshop:'Character Workshop'};
 const EXTRA_HELP={kitchen:'Drag the character ingredients into the pot in word order. Finish the order to cook and serve a dish.',fishing:'Tap anywhere in the water to fire a net. Catch the characters in word order.',workshop:'Drag each component into its correct position to build the character. Use the word and pinyin as clues.'};
 const CHARACTER_PARTS={机:['木','几','lr'],苹:['艹','平','tb'],橙:['木','登','lr'],草:['艹','早','tb'],莓:['艹','每','tb'],芒:['艹','亡','tb'],柠:['木','宁','lr'],檬:['木','蒙','lr'],想:['相','心','tb'],钱:['钅','戋','lr'],信:['亻','言','lr'],认:['讠','人','lr'],识:['讠','只','lr'],付:['亻','寸','lr'],宝:['宀','玉','tb'],姓:['女','生','lr'],课:['讠','果','lr'],他:['亻','也','lr'],们:['亻','门','lr'],你:['亻','尔','lr'],说:['讠','兑','lr'],汉:['氵','又','lr'],语:['讠','吾','lr'],谁:['讠','隹','lr'],职:['耳','只','lr'],律:['彳','聿','lr'],家:['宀','豕','tb'],国:['囗','玉','box']};
@@ -6606,7 +6610,7 @@ const DISCOVERY_TRANSLATIONS={
  'Chinese Town':['汉语生活小镇','Кытай тили шаарчасы','Xitoy tili shaharchasi','เมืองภาษาจีน','ເມືອງພາສາຈີນ'],
  'Word Tower Defense':['词语守卫塔','Сөз мунаралары','So‘z minoralari','หอคอยคำศัพท์','ຫໍຄອຍຄຳສັບ'],
  'Character Adventure':['汉字秘境冒险','Иероглиф саякаты','Iyeroglif sarguzashti','ผจญภัยอักษรจีน','ຜະຈົນໄພອັກສອນຈີນ'],
- [DISCOVERY_HELP.treasure]:['按正确语序点选乱序词块，组成完整句子，再开启宝藏。','Аралашкан сөздөрдү сүйлөмдүн ирети менен басып, казынаны ачыңыз.','Aralash so‘zlarni gap tartibida bosing, so‘ng xazinani oching.','แตะคำที่สลับลำดับให้เป็นประโยค แล้วเปิดสมบัติ','ແຕະຄຳທີ່ສະຫຼັບກັນຕາມລຳດັບປະໂຫຍກ ແລ້ວເປີດສົມບັດ'],
+ [DISCOVERY_HELP.treasure]:['参考上方的乱序提示，在下方连接相邻词块，组成完整句子。','Жогорудагы аралаш сөздөргө карап, төмөнкү жанаша сөздөрдү туташтырып сүйлөм түзүңүз.','Yuqoridagi aralash so‘zlarga qarab, pastdagi yonma-yon kataklarni ulab gap tuzing.','ดูคำสลับด้านบน แล้วเชื่อมช่องที่อยู่ติดกันด้านล่างให้เป็นประโยค','ເບິ່ງຄຳສະຫຼັບຂ້າງເທິງ ແລ້ວເຊື່ອມຊ່ອງທີ່ຕິດກັນຂ້າງລຸ່ມໃຫ້ເປັນປະໂຫຍກ'],
  'Try a different word order.':['换个语序再试试。','Сөздөрдүн иретин өзгөртүп көрүңүз.','So‘zlarni boshqa tartibda terib ko‘ring.','ลองเรียงคำใหม่','ລອງຮຽງຄຳໃໝ່'],
  [DISCOVERY_HELP.bridge]:['45秒内排列词语组成句子，在恶魔追上前过桥！','45 секундда сөздөрдөн сүйлөм түзүп, желмогуз жеткенче көпүрөдөн өтүңүз!','45 soniyada gap tuzing va maxluq yetib kelguncha ko‘prikdan o‘ting!','เรียงคำเป็นประโยคภายใน 45 วินาที แล้วข้ามสะพานก่อนปีศาจตามทัน!','ຮຽງຄຳເປັນປະໂຫຍກພາຍໃນ 45 ວິນາທີ ແລ້ວຂ້າມຂົວກ່ອນຜີຈະຕາມທັນ!'],
  [DISCOVERY_HELP.town]:['听访客的词语，选择相符的目的地。','Коноктун сөзүн угуп, туура жерди тандаңыз.','Mehmonni tinglang va mos manzilni tanlang.','ฟังคำของผู้มาเยือน แล้วเลือกจุดหมายที่ตรงกัน','ຟັງຄຳຂອງແຂກ ແລ້ວເລືອກຈຸດໝາຍທີ່ກົງກັນ'],
@@ -6707,14 +6711,28 @@ const discoveryGames=(()=>{
    tokens[0]==='谁'?[['你','的','同学','是','谁']]:
    tokens.join('')==='我认识你'?[['你','认识','我']]:[];
   m.treasureAnswers=[tokens,...variants].map(words=>JSON.stringify(words));
-  el('clue').textContent=t(DISCOVERY_HELP.treasure);
   const orders=[];
   const permute=(prefix,left)=>{
    if(!left.length){if(!m.treasureAnswers.includes(JSON.stringify(prefix)))orders.push(prefix);return;}
    left.forEach((word,i)=>permute([...prefix,word],left.filter((_,j)=>j!==i)));
   };
   permute([],tokens);
-  m.board=orders.length?pick(orders):[...tokens];
+  m.hintWords=orders.length?pick(orders):[...tokens];
+  el('clue').innerHTML='<div class="treasure-hints">'+m.hintWords.map(word=>'<span lang="zh">'+esc(word)+'</span>').join('')+'</div>';
+  const distractors=[...new Set([...WORDS.map(({w})=>w),...m.treasureBank.flatMap(([words])=>words)])].filter(word=>!tokens.includes(word));
+  m.board=Array.from({length:25},()=>pick(distractors));
+  const snake=Array.from({length:25},(_,i)=>{
+   const row=Math.floor(i/5),col=i%5;
+   return row*5+(row%2?4-col:col);
+  });
+  if(Math.random()<.5)snake.reverse();
+  if(Math.random()<.5)for(let i=0;i<25;i++)snake[i]=snake[i]%5*5+Math.floor(snake[i]/5);
+  const answers=shuffle([tokens,...variants]);
+  let offset=Math.floor(Math.random()*(26-answers.length*tokens.length));
+  for(const answer of answers){
+   answer.forEach((word,i)=>{m.board[snake[offset+i]]=word;});
+   offset+=answer.length;
+  }
   const found=Math.floor(5*m.round/m.sentenceCount);
   const gems=Array.from({length:5},(_,i)=>'<span class="'+(i<found?'found':'')+'">'+(i<found?'◆':'◇')+'</span>').join('');
   el('scene').innerHTML='<div class="treasure-map">'+gems+'<span class="treasure-chest">▣</span></div><div class="treasure-board">'+m.board.map((w,i)=>wordButton(w,'data-cell="'+i+'" aria-pressed="false"')).join('')+'</div>';
@@ -6722,7 +6740,8 @@ const discoveryGames=(()=>{
  }
  function drawLink(){if(m?.mode!=='treasure')return;const board=el('scene').querySelector('.treasure-board');if(!board)return;board.querySelector('svg')?.remove();if(!m.path.length)return;const r=board.getBoundingClientRect(),points=m.path.map(n=>{const b=board.querySelector('[data-cell="'+n+'"]').getBoundingClientRect();return [b.x+b.width/2-r.x,b.y+b.height*.82-r.y]});board.insertAdjacentHTML('beforeend','<svg class="treasure-link" viewBox="0 0 '+r.width+' '+r.height+'" aria-hidden="true"><polyline class="link-halo" points="'+points.map(p=>p.join(',')).join(' ')+'"/><polyline class="link-core" points="'+points.map(p=>p.join(',')).join(' ')+'"/>'+points.map(([x,y])=>'<circle cx="'+x+'" cy="'+y+'" r="6"/>').join('')+'</svg>');}
  window.addEventListener('resize',drawLink);
- function selectCell(n){if(m.locked)return;if(m.path.at(-1)===n)return;if(m.path.at(-2)===n)m.path.pop();else if(!m.path.includes(n))m.path.push(n);el('scene').querySelectorAll('[data-cell]').forEach(b=>{b.classList.toggle('chosen',m.path.includes(+b.dataset.cell));b.setAttribute('aria-pressed',m.path.includes(+b.dataset.cell));});drawLink();feedback(m.path.map(cell=>m.board[cell]).join(' → '));}
+ function adjacent(a,b){return Math.abs(a%5-b%5)<=1&&Math.abs(Math.floor(a/5)-Math.floor(b/5))<=1;}
+ function selectCell(n){if(m.locked)return;if(m.path.at(-1)===n)return;if(m.path.at(-2)===n)m.path.pop();else if(!m.path.includes(n)&&(!m.path.length||adjacent(m.path.at(-1),n)))m.path.push(n);el('scene').querySelectorAll('[data-cell]').forEach(b=>{b.classList.toggle('chosen',m.path.includes(+b.dataset.cell));b.setAttribute('aria-pressed',m.path.includes(+b.dataset.cell));});drawLink();feedback(m.path.map(cell=>m.board[cell]).join(' → '));}
  // Three lightweight pixel ghosts matching the approved A/B/C silhouettes.
  function bridgeGhost(kind){const colors=[['#793780','#dfaa27','#2b162e'],['#ef635b','#9b233c','#421529'],['#29385d','#40bac4','#101c37']][kind];return '<svg viewBox="0 0 48 48" shape-rendering="crispEdges" aria-hidden="true"><path fill="'+colors[2]+'" d="M8 0h3v5h3V1h3v6h4V0h3v6h4V3h4v8h-4v7h10v-3h8v3h-4v3h4v3H29v5h9v-3h8v3h-4v3h4v3H25v4h-7v3h-4v3h-4v3H5v-4h4v-5H6v-4H3V19h2V11h3z"/><path fill="'+colors[1]+'" d="M9 3h2v5h4V4h2v6h5V4h2v5h5V6h2v5H9z"/><path fill="'+colors[0]+'" d="M9 12h17v8h14v-3h4v1h-4v5H26v8h14v-3h4v1h-4v5H23v3h-7v4h-5v4H8v1H7v-2h3v-7H7v-3H5V20h2v-7z"/><path fill="#fff0bb" d="M10 16h3v2h3v4h-3v-2h-3m10-2h5v2h-2v3h-3M10 26h14v5h-2v3h-8v-2h-4z"/>'+(kind===1?'<path d="M11 27h2v2h-2m4-2h2v2h-2m4-2h2v2h-2" fill="#421529"/>':'')+'</svg>';}
  function bridgeRunner(){return '<div class="bridge-dust" aria-hidden="true"><i></i><i></i><i></i></div><div class="bridge-avatar"><svg viewBox="0 0 20 26" shape-rendering="crispEdges" aria-hidden="true"><g class="bridge-body"><path fill="#33291f" d="M6 1h7v2h3v4h-2v5h-3v2h2v6H5v-8H4V5h2z"/><path fill="#347cb5" d="M6 2h6v2h4v2H5V4h1M6 13h5v6H6"/><path fill="#ffd39c" d="M8 6h6v4h-2v2H8"/><path fill="#33291f" d="M12 7h1v2h-1"/><path fill="#b38951" d="M4 12h2v6H4"/></g><g class="bridge-pose-a"><path fill="#33291f" d="M6 19h4v3H7v3H1v-3h5m4-3h3v3h4v3h-6v-3h-1"/><path fill="#ffd39c" d="M10 14h3v2h4v-4h2v6h-7v-2h-2M4 14h2v3H2v-2h2"/></g><g class="bridge-pose-b"><path fill="#33291f" d="M6 19h4v3h5v3H8v-3H6m5-3h2v3H8v3H3v-3h8"/><path fill="#ffd39c" d="M10 14h2v3H8v2H4v-2h4v-2h2M5 14h2v-3h2v5H5"/></g></svg></div>';}
